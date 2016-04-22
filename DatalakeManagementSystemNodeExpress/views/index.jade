@@ -5,12 +5,12 @@ block content
 
   p
     | Login:
-    form(method='get', action='/homepage')
-      label Username
+    form(method='post', action='/homepage')
+      label Username:
       input(name='username', value='')
       br
-      label Password
-      input(name='password', value='')
+      label Password:
+      input(type = 'password', name='password', value='')
       br
       br
       input(type='submit', value='Login')

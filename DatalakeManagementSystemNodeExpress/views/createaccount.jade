@@ -4,12 +4,14 @@ block content
   h1= title
 
   p
-    form(method='get', action='/homepage')
-      label Enter Username
+    form(method='post', action='/homepage')
+      label Enter Username:
       input(name='username', value='')
       br
-      label Enter Password
-      input(name='password', value='')
+      label Enter Password:
+      input(type = 'password', name='password', value='')
       br
+      label Confirm Password:
+      input(type = 'password', name='passwordconfirm', value='')
       br
       input(type='submit', value='Create Account')

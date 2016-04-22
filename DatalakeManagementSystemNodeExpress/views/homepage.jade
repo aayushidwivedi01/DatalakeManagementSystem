@@ -5,3 +5,18 @@ block content
 
   p
     | Welcome to your homepage!
+    br
+    form#search(method="post" action="/searchresults")
+        label(for="search") Enter your search query:
+        input#search(name="query")
+        button#search Search
+        br
+  p
+    | What would you like to do today?
+    br
+    br
+    button#view View My Files
+    br
+    button#update Update Permissions
+    br
+    button#upload(action = "/upload") Upload File

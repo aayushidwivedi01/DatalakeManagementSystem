@@ -1,0 +1,15 @@
+extends layout
+
+block content
+  h1= title
+
+  p
+    form(method='get', action='/homepage')
+      label Enter Username
+      input(name='username', value='')
+      br
+      label Enter Password
+      input(name='password', value='')
+      br
+      br
+      input(type='submit', value='Create Account')

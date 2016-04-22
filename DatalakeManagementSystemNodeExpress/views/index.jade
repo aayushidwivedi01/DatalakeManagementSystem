@@ -2,4 +2,20 @@ extends layout
 
 block content
   h1= title
-  p Welcome to #{title}
+
+  p
+    | Login:
+    form(method='get', action='/homepage')
+      label Username
+      input(name='username', value='')
+      br
+      label Password
+      input(name='password', value='')
+      br
+      br
+      input(type='submit', value='Login')
+  br
+  p
+    | Don't have an account?
+    form(method='get', action='/createaccount')
+      input(type = 'submit', value = 'Create Account')

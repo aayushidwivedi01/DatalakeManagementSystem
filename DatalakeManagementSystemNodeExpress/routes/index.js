@@ -22,6 +22,18 @@ router.get('/index', function(req, res, next) {
 	});
 });
 
+router.get('/homepage', function(req, res, next) {
+	res.render('homepage', {
+		title : 'DLMS'
+	});
+});
+
+router.get('/createaccount', function(req, res, next) {
+	res.render('createaccount', {
+		title : 'DLMS'
+	});
+});
+
 router.get('/upload', function(req, res, next) {
 	res.render('upload', {
 		title : 'DLMS'

@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var multiparty = require('connect-multiparty');
 var routes = require('./routes/index');
 var users = require('./routes/users');
+var login = require('./routes/login');
 
 var app = express();
 
@@ -27,7 +28,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
 app.use('/users', users);
-
+app.post('/login', login.do_work);
 
 
 app.get('/hello', function(req, res) {

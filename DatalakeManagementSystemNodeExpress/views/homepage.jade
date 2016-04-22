@@ -15,8 +15,9 @@ block content
     | What would you like to do today?
     br
     br
+    form(method = 'post'
     button#view View My Files
     br
     button#update Update Permissions
-    br
-    button#upload(action = "/upload") Upload File
+    form(method = 'post', action = '/upload')
+      button#upload(type = 'submit', name = 'upload') Upload File

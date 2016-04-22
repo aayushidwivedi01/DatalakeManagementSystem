@@ -1,0 +1,11 @@
+extends layout
+
+block content
+	h1= title
+	p Welcome to #{title} upload screen
+	br
+	form#fileUpload(method="post" action="/uploadfile" enctype="multipart/form-data")
+		label(for="payload") Select a file to upload:
+		input#payload(type="file" name="dataitem" )
+		br
+		button#upload Upload

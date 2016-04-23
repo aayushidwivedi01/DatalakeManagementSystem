@@ -9,6 +9,8 @@ var bucket = 'dlms-documents';
 var s3 = new aws.S3();
 var http = require('http');
 
+
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
 	res.render('index', {

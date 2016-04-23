@@ -7,5 +7,6 @@
 	<classpathentry kind="lib" path="/home/cis455/jars/jackson-mapper-asl-1.9.13.jar"/>
 	<classpathentry kind="lib" path="/home/cis455/jars/JAXP_160.jar"/>
 	<classpathentry kind="lib" path="/home/cis455/tika-site/tika-app/target/tika-app-1.12-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="/home/cis455/jars/jackson-annotations-2.7.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

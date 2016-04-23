@@ -6,6 +6,9 @@ block content
   p
     | Welcome to your homepage!
     br
+    form(method="get" action="/logout")
+        input(type = 'submit', value = 'logout')
+        br
     form#search(method="post" action="/searchresults")
         label(for="search") Enter your search query:
         input#search(name="query")

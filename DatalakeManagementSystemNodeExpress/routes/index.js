@@ -8,6 +8,7 @@ aws.config.credentials = credentials;
 var bucket = 'dlms-documents';
 var s3 = new aws.S3();
 var http = require('http');
+var User = require("../models/models");
 
 
 
@@ -47,6 +48,24 @@ router.post('/searchresults', function(req, res, next) {
 		title : 'DLMS'
 	});
 });
+
+
+router.post("/dbtest", function(req, res, next) {
+	var usr = new User({username: "ankit", password: "mishra2014"});
+	usr.save(function(err){
+		if(err){
+			console.error(err);
+		}
+		console.log("User has been saved!");
+	});
+	User.findOne({username: "ankit"}, function(err, usr){
+		if(err){
+			console.error(err);
+		}
+		res.send("Got User %s", usr);
+	});
+});
+
 
 
 function getContentTypeByFile(fileName) {

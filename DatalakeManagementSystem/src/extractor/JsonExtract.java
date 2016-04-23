@@ -63,8 +63,9 @@ public class JsonExtract {
         		else if (child.getNodeType() == JsonNodeType.ARRAY){
         			field_names = new ArrayList<String>();
         			int size = child.size();
+        			String [] path_names = current_name.split("/");
         			for (int i = 1; i<= size; i++){
-        				field_names.add(current_name+"/element"+i);
+        				field_names.add(current_name+"/"+ path_names[path_names.length-1]+"_element"+i);
         			}
         			
         		}

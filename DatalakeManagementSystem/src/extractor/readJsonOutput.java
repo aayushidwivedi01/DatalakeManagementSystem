@@ -37,24 +37,31 @@ public class readJsonOutput {
         		//container node
         		String current_name = names.get(++idx);
         		ArrayList<String> field_names = null;
+        		Iterator<String> fieldNames = child.fieldNames();
+    	        field_names = new ArrayList<String>();
+    	        
+    	        while(fieldNames.hasNext()){
+    	        	String name = fieldNames.next();
+    	        	field_names.add(name);
+    	        }
         		
-        		if (child.getNodeType() == JsonNodeType.OBJECT){
-        			Iterator<String> fieldNames = child.fieldNames();
-        	        field_names = new ArrayList<String>();
-        	        
-        	        while(fieldNames.hasNext()){
-        	        	String name = fieldNames.next();
-        	        	field_names.add(current_name+"/"+name);
-        	        }
-        		}
-        		else if (child.getNodeType() == JsonNodeType.ARRAY){
-        			field_names = new ArrayList<String>();
-        			int size = child.size();
-        			for (int i = 1; i<= size; i++){
-        				field_names.add(current_name+"/element"+i);
-        			}
-        			
-        		}
+//        		if (child.getNodeType() == JsonNodeType.OBJECT){
+//        			Iterator<String> fieldNames = child.fieldNames();
+//        	        field_names = new ArrayList<String>();
+//        	        
+//        	        while(fieldNames.hasNext()){
+//        	        	String name = fieldNames.next();
+//        	        	field_names.add(name);
+//        	        }
+//        		}
+//        		else if (child.getNodeType() == JsonNodeType.ARRAY){
+//        			field_names = new ArrayList<String>();
+//        			int size = child.size();
+//        			for (int i = 1; i<= size; i++){
+//        				field_names.add(current_name+"/element"+i);
+//        			}
+//        			
+//        		}
 //        		System.out.println(current_name+" : "+child);
         		printJson(child, field_names, -1, pairs);
         	}

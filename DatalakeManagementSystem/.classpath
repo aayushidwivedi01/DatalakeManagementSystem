@@ -9,5 +9,8 @@
 	<classpathentry kind="lib" path="/home/cis455/git/dlms_little_bobby_tables/DatalakeManagementSystem/jars/jackson-mapper-lgpl-1.9.13.jar"/>
 	<classpathentry kind="lib" path="/home/cis455/git/dlms_little_bobby_tables/DatalakeManagementSystem/jars/jaxp-api.jar"/>
 	<classpathentry kind="lib" path="/home/cis455/git/dlms_little_bobby_tables/DatalakeManagementSystem/jars/tika-app-1.12-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/mongo-java-driver-3.2.2-javadoc.jar"/>
+	<classpathentry kind="lib" path="lib/mongo-java-driver-3.2.2-sources.jar"/>
+	<classpathentry kind="lib" path="lib/mongo-java-driver-3.2.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

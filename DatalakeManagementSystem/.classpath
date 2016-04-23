@@ -2,13 +2,13 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
-	<classpathentry kind="lib" path="/home/cis455/git/dlms_little_bobby_tables/DatalakeManagementSystem/jars/jackson-annotations-2.7.3.jar"/>
-	<classpathentry kind="lib" path="/home/cis455/git/dlms_little_bobby_tables/DatalakeManagementSystem/jars/jackson-core-2.6.6.jar"/>
-	<classpathentry kind="lib" path="/home/cis455/git/dlms_little_bobby_tables/DatalakeManagementSystem/jars/jackson-databind-2.6.6.jar"/>
-	<classpathentry kind="lib" path="/home/cis455/git/dlms_little_bobby_tables/DatalakeManagementSystem/jars/jackson-mapper-asl-1.9.13.jar"/>
-	<classpathentry kind="lib" path="/home/cis455/git/dlms_little_bobby_tables/DatalakeManagementSystem/jars/jackson-mapper-lgpl-1.9.13.jar"/>
-	<classpathentry kind="lib" path="/home/cis455/git/dlms_little_bobby_tables/DatalakeManagementSystem/jars/jaxp-api.jar"/>
-	<classpathentry kind="lib" path="/home/cis455/git/dlms_little_bobby_tables/DatalakeManagementSystem/jars/tika-app-1.12-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-annotations-2.7.3.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-core-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-databind-2.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-mapper-asl-1.9.13.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-mapper-lgpl-1.9.13.jar"/>
+	<classpathentry kind="lib" path="lib/jaxp-api.jar"/>
+	<classpathentry kind="lib" path="lib/tika-app-1.12-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="lib/mongo-java-driver-3.2.2-javadoc.jar"/>
 	<classpathentry kind="lib" path="lib/mongo-java-driver-3.2.2-sources.jar"/>
 	<classpathentry kind="lib" path="lib/mongo-java-driver-3.2.2.jar"/>

@@ -8,8 +8,10 @@ aws.config.credentials = credentials;
 var bucket = 'dlms-documents';
 var s3 = new aws.S3();
 var http = require('http');
-var User = require("../models/models");
-
+var Models = require("../models/models");
+var User = Models.User;
+var Doc = Models.Doc;
+var Owner = Models.Owner;
 
 
 /* GET home page. */
@@ -50,19 +52,28 @@ router.post('/searchresults', function(req, res, next) {
 });
 
 
-router.post("/dbtest", function(req, res, next) {
-	var usr = new User({username: "ankit", password: "mishra2014"});
-	usr.save(function(err){
-		if(err){
-			console.error(err);
-		}
-		console.log("User has been saved!");
-	});
+router.get("/dbtest", function(req, res, next) {
 	User.findOne({username: "ankit"}, function(err, usr){
 		if(err){
 			console.error(err);
 		}
-		res.send("Got User %s", usr);
+		console.log(usr);
+		var doc = new Doc({id: "1234", path: "/x/s/w/1234", permission: "public"});
+		doc.save(function(err){
+			if(err){
+				console.error(err);
+			}
+			else {
+				console.log("Document has been saved!");
+				var owner = new Owner({username: usr._id, document_id: doc._id});
+				owner.save(function(err){
+					if(err){
+						console.error(err);
+					}
+					console.log("Ownership has been saved!");
+				});
+			}
+		});
 	});
 });
 

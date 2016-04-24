@@ -6,10 +6,34 @@ db.once("open", function(callback) {
 	console.log("Mongo Connection succeeded.");
 });
 var Schema = mongoose.Schema;
+
 var userSchema = new Schema({
 	username: { type: String, required: true, index: { unique: true } },
     password: { type: String, required: true }
 });
+
 var User = mongoose.model("User", userSchema);
 
-module.exports = User;
+var docSchema = new Schema({
+	id: { type: String, required: true, index: { unique: true }},
+    path: { type: String, required: true },
+    permission: { type: String, required: true }
+});
+
+
+var Doc = mongoose.model("Doc", docSchema);
+
+
+var ownerSchema = new Schema({
+	username: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    document_id: { type: mongoose.Schema.Types.ObjectId, ref: "Doc", required: true }
+});
+ownerSchema.index({"username": 1, "document_id": 1}, { unique: true });
+
+var Owner = mongoose.model("Owner", ownerSchema);
+
+module.exports = {
+	    User: User,
+	    Doc: Doc,
+	    Owner: Owner
+	};

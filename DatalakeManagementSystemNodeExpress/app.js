@@ -10,7 +10,7 @@ var routes = require('./routes/index');
 var users = require('./routes/users');
 var login = require('./routes/login');
 var homepage = require('./routes/homepage');
-var account = require('/routes/account');
+var account = require('./routes/account');
 var app = express();
 
 app.use(cookieParser());
@@ -35,7 +35,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 app.use('/users', users);
 app.use('/verifynewaccount', account.do_work);
-app.use('/homepage', homepage);
+//app.use('/homepage', homepage);
 app.post('/login', login.do_work);
 
 app.get('/logout', function(req,res){

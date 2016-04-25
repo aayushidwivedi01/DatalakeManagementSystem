@@ -32,6 +32,14 @@ public class TestExtractor {
 	        for(String pair : extracted_pairs){
 	        	System.out.println(pair);
 	        }
+		}else if(mediaType.equals("text/csv")){
+			String out = CSVExtract.extractCSV(filename);
+//			System.out.println(out);
+			ArrayList<String> extracted_pairs = readJsonOutput.getExtractedPairs(out);
+	        
+	        for(String pair : extracted_pairs){
+	        	System.out.println(pair);
+	        }
 		}
 
 

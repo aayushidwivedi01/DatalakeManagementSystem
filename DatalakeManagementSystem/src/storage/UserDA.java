@@ -9,7 +9,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import bean.User;
 
-public class UserMongoDA {
+public class UserDA {
 
 	private static MongoClientURI URI = new MongoClientURI(
 			"mongodb://dlms_webapp:webapp@ds013971.mlab.com:13971/webappdb");
@@ -20,7 +20,7 @@ public class UserMongoDA {
 	private MongoDatabase db;
 	private MongoCollection<Document> collection;
 
-	public UserMongoDA() {
+	public UserDA() {
 		super();
 		this.client = new MongoClient(URI);
 		this.db = client.getDatabase(URI.getDatabase());
@@ -67,7 +67,7 @@ public class UserMongoDA {
 
 	public static void main(String[] args) {
 		User user = new User("aayushi", "pass");
-		UserMongoDA userDA = new UserMongoDA();
+		UserDA userDA = new UserDA();
 		userDA.store(user);
 		System.out.println(userDA.fetch("aayushi"));
 		userDA.update(new User("aayushi", "new password"));

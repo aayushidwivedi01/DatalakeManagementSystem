@@ -3,6 +3,7 @@ var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
+var flash = require('connect-flash');
 var session = require('express-session');
 var bodyParser = require('body-parser');
 var multiparty = require('connect-multiparty');
@@ -11,13 +12,21 @@ var users = require('./routes/users');
 var login = require('./routes/login');
 var homepage = require('./routes/homepage');
 var account = require('./routes/account');
+var uploadfile = require('./routes/uploadfile');
+
 var app = express();
 
 app.use(cookieParser());
 app.use(session({secret: 'shh1243',
 				resave:false,
-				saveUninitialized:true}));
-
+				saveUninitialized:true, 
+				cookie: { maxAge: 60000 }}));
+app.use(flash());
+app.use(function(req, res, next){
+    res.locals.success = req.flash('success');
+    res.locals.errors = req.flash('error');
+    next();
+});
 app.use(multiparty({}));
 
 app.set('views', path.join(__dirname, 'views'));
@@ -35,24 +44,21 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 app.use('/users', users);
 app.use('/verifynewaccount', account.do_work);
-//app.use('/homepage', homepage);
 app.post('/login', login.do_work);
-
 app.get('/logout', function(req,res){
 	req.session.destroy(function(){
 		res.redirect('/');
 	});
 });
+app.use('/homepage', homepage);
+app.use('/uploadfile',uploadfile.do_work);
 
-app.get('/hello', function(req, res) {
-	res.send('Hello World');
-});
 
 var server = app.listen(8081, function() {
 
 	var host = server.address().address;
 	var port = server.address().port;
 
-	console.log("Example app listening at http://%s:%s", host, port);
+	console.log("App listening at http://%s:%s", host, port);
 
 });

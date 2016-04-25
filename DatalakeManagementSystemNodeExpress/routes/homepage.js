@@ -1,13 +1,13 @@
 var express = require('express');
 var router = express.Router();
 
-/* GET users listing. */
 router.get('/', function(req, res, next) {
 	if(req.session.user){
-		res.send('Session Exists');
+		res.render('homepage',
+				{'title':"Welcome, "+ req.session.user + "!"})
 	}
 	else{
-		res.send('Invalid Session');
+		res.send('You are not logged in to any account!');
 	}
 });
 

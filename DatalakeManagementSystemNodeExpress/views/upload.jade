@@ -8,4 +8,12 @@ block content
 		label(for="payload") Select a file to upload:
 		input#payload(type="file" name="dataitem" )
 		br
+		label(for="docType") File scope:
+		br
+		input#Element1(type="radio", name="scope", value="Private", checked=true)
+		|Private
+		br
+		input#Element2(type="radio", name="scope", value="Public", checked=false)
+		|Public
+		br
 		button#upload Upload

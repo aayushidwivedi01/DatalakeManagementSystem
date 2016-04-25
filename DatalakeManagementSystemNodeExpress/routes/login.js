@@ -1,6 +1,15 @@
 var express = require('express');
 var router = express.Router();
-var User = require("../models/models");
+var Models = require("../models/models");
+var User = Models.User;
+
+function login_sucess(req,res, user){
+	session = req.session;
+	session.user = user.username;
+	session.user_id = user._id;
+	res.render('homepage',
+			{'title':"Welcome, "+ session.user + "!"})
+}
 
 function verify_account(req, res){
 	var name = req.body.username;
@@ -17,7 +26,7 @@ function verify_account(req, res){
 			}
 			else{
 				if (checkUsr.password === passwd){
-					login_sucess(req, res, name);
+					login_sucess(req, res, checkUsr);
 				}
 				else{
 					console.log("Password incorrect");
@@ -27,14 +36,9 @@ function verify_account(req, res){
 		});
 		
 	}
-};
+}
 	
-function login_sucess(req,res, username){
-	session = req.session;
-	session.user = username;
-	res.render('homepage',
-			{'title':"Welcome, "+ username + "!"})
-};
+
 	
 exports.do_work = 
   function(req,res, next) {

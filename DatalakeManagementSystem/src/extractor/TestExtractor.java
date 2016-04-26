@@ -11,6 +11,9 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.tika.Tika;
 
+import storage.ForwardIndexDA;
+import bean.ForwardIndex;
+
 
 /**
  * Test extractor. 
@@ -50,11 +53,12 @@ public class TestExtractor {
 		        String out = JsonExtract.extractJson(jsonTxt,filename);
 		        ReadJsonOutput read_out = new ReadJsonOutput();
 				read_out.getExtractedPairs(out);
-				extracted_pairs = read_out.getLeafNodes();
+//				extracted_pairs = read_out.getLeafNodes();
+				extracted_pairs = read_out.getAllNodes();
 		        
-		        for(String pair : extracted_pairs){
-		        	System.out.println(pair);
-		        }
+//		        for(String pair : extracted_pairs){
+//		        	System.out.println(pair);
+//		        }
 			}
 			//PARSE CSV
 			else if(mediaType.equals("text/csv")){
@@ -62,23 +66,32 @@ public class TestExtractor {
 				ReadJsonOutput read_out = new ReadJsonOutput();
 				read_out.getExtractedPairs(out);
 				
-				extracted_pairs = read_out.getLeafNodes();
+//				extracted_pairs = read_out.getLeafNodes();
+				extracted_pairs = read_out.getAllNodes();
 		        
-		        for(String pair : extracted_pairs){
-		        	System.out.println(pair);
-		        }
+//		        for(String pair : extracted_pairs){
+//		        	System.out.println(pair);
+//		        }
 			} 
 			//PARSE XML
 			else if(mediaType.equals("application/xml")){
 				XMLExtract saxparser = new XMLExtract();
 				saxparser.extractXML(filename);
-				extracted_pairs = saxparser.getLeafNodes();
+//				extracted_pairs = saxparser.getLeafNodes();
+				extracted_pairs = saxparser.getAllNodes();
 				
-				for(String pair : extracted_pairs){
-		        	System.out.println(pair);
-		        }
+//				for(String pair : extracted_pairs){
+//		        	System.out.println(pair);
+//		        }
 				
 			}
+		}
+		
+		//Store in forward index
+		ForwardIndexDA fIndexDA = new ForwardIndexDA();
+		for(String pair : extracted_pairs){
+			ForwardIndex fIndex = new ForwardIndex(pair.split(" : ")[0], pair.split(" : ")[1]);
+			fIndexDA.store(fIndex);
 		}
 		
 		//CALL INVERTED INDEX METHOD

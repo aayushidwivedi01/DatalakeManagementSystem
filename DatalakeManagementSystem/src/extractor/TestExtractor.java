@@ -27,8 +27,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class TestExtractor {
 
 	public static void main(String[] args) throws IOException {
-//		String file_arg = "/home/cis455/git/dlms_little_bobby_tables/DatalakeManagementSystem/src/extractor/generated.json";
-		String file_arg = args[0];
+		String file_arg = "/home/cis455/git/dlms_little_bobby_tables/DatalakeManagementSystem/src/extractor/generated.json";
+//		String file_arg = args[0];
 		
 		//Check if directory or file
 		File file = new File(file_arg);
@@ -45,7 +45,7 @@ public class TestExtractor {
 		
 		for(String filename: files){
 			String mediaType = tika.detect(filename);
-			System.out.println(mediaType);
+//			System.out.println(mediaType);
 			
 			//PARSE JSON
 			if(mediaType.equals("application/json")){
@@ -62,7 +62,9 @@ public class TestExtractor {
 				InputStream is = new FileInputStream(filename);
 		        String jsonTxt = IOUtils.toString(is);
 		        String out = JsonExtract.extractJson(jsonTxt,filename);
-		        extracted_pairs = readJsonOutput.getExtractedPairs(out);
+		        ReadJsonOutput read_out = new ReadJsonOutput();
+				read_out.getExtractedPairs(out);
+				extracted_pairs = read_out.getLeafNodes();
 		        
 		        for(String pair : extracted_pairs){
 		        	System.out.println(pair);
@@ -71,7 +73,10 @@ public class TestExtractor {
 			//PARSE CSV
 			else if(mediaType.equals("text/csv")){
 				String out = CSVExtract.extractCSV(filename);
-				extracted_pairs = readJsonOutput.getExtractedPairs(out);
+				ReadJsonOutput read_out = new ReadJsonOutput();
+				read_out.getExtractedPairs(out);
+				
+				extracted_pairs = read_out.getLeafNodes();
 		        
 		        for(String pair : extracted_pairs){
 		        	System.out.println(pair);

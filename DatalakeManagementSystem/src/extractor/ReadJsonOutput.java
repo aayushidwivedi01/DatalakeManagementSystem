@@ -27,10 +27,18 @@ public class ReadJsonOutput {
 	private  ArrayList<String> leaf_pairs = null;
 	private  ArrayList<String> all_pairs = null;
 	
+	/**
+	 * Returns list of all leaf node and values - to be used to create inverted index
+	 * @return
+	 */
 	public ArrayList<String> getLeafNodes(){
 		return leaf_pairs;
 	}
 	
+	/**
+	 * Returns list of all nodes - to be used to link documents
+	 * @return
+	 */
 	public ArrayList<String> getAllNodes(){
 		return all_pairs;
 	}
@@ -41,7 +49,6 @@ public class ReadJsonOutput {
         	JsonNode child = children.next();
         	if(!child.isContainerNode()){
         		//Leaf Node
-//        		System.out.println(names.get(++idx)+" : "+child);
         		String con = names.get(++idx)+" : "+child;
         		leaf_pairs.add(con);
         		all_pairs.add(con);
@@ -58,25 +65,8 @@ public class ReadJsonOutput {
     	        	field_names.add(name);
     	        }
         		
-//        		if (child.getNodeType() == JsonNodeType.OBJECT){
-//        			Iterator<String> fieldNames = child.fieldNames();
-//        	        field_names = new ArrayList<String>();
-//        	        
-//        	        while(fieldNames.hasNext()){
-//        	        	String name = fieldNames.next();
-//        	        	field_names.add(name);
-//        	        }
-//        		}
-//        		else if (child.getNodeType() == JsonNodeType.ARRAY){
-//        			field_names = new ArrayList<String>();
-//        			int size = child.size();
-//        			for (int i = 1; i<= size; i++){
-//        				field_names.add(current_name+"/element"+i);
-//        			}
-//        			
-//        		}
-//        		System.out.println(current_name+" : "+child);
         		printJson(child, field_names, -1);
+        		all_pairs.add(current_name+" : DONOTLINK");
         	}
         }
 	}

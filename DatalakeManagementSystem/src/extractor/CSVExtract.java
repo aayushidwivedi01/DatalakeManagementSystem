@@ -11,8 +11,19 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.json.simple.JSONObject;
 
+/**
+ * Class to extract CSV
+ * @author Anwesha
+ *
+ */
 
 public class CSVExtract {
+	/**
+	 * Generates a json string with each csv record as filename/filename_row_n/columnname : value
+	 * @param filename
+	 * @return
+	 * @throws IOException
+	 */
 	
 	public static String extractCSV(String filename) throws IOException{
 		
@@ -37,15 +48,6 @@ public class CSVExtract {
 		}
 		
 		parser.close();
-//		int i = 1;
-//		for (String con : contents.keySet()){
-//			if(i > 36)
-//				break;
-//			i++;
-//			System.out.println(con+" : "+contents.get(con));
-//		}
-		
-//		JSONObject json_obj = new JSONObject(contents);
 		return JSONObject.toJSONString(contents);
 	}
 

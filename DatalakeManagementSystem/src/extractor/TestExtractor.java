@@ -45,23 +45,6 @@ public class TestExtractor {
 			//PARSE JSON
 			if(mediaType.equals("application/json")){
 				
-//				final InputStream in = new FileInputStream(filename);
-//				try {
-//				  for (Iterator it = new ObjectMapper().readValues(
-//				      new JsonFactory().createJsonParser(in), Map.class); it.hasNext();)
-//				    System.out.println(it.next().toString());
-//				}
-//				finally { in.close();} 
-				
-//				Iterator it = new ObjectMapper().(
-//					      new JsonFactory().createJsonParser(in), Map.class);
-//				
-//				Set set_json = new HashSet();
-//				while(it.hasNext()){
-////					set_json.add(it.next());
-//					System.out.println(it.next());
-//				}
-			
 				InputStream is = new FileInputStream(filename);
 		        String jsonTxt = IOUtils.toString(is);
 		        String out = JsonExtract.extractJson(jsonTxt,filename);

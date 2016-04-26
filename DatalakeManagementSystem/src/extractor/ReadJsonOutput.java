@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeType;
  * @author Anwesha
  *
  */
-public class readJsonOutput {
+public class ReadJsonOutput {
 	
 	/**
 	 * Reads the Json Tree from the root node passed.
@@ -24,14 +24,27 @@ public class readJsonOutput {
 	 * @param idx
 	 * @param pairs 
 	 */
-	private static void printJson(JsonNode node, ArrayList<String> names, int idx, ArrayList<String> pairs) {
+	private  ArrayList<String> leaf_pairs = null;
+	private  ArrayList<String> all_pairs = null;
+	
+	public ArrayList<String> getLeafNodes(){
+		return leaf_pairs;
+	}
+	
+	public ArrayList<String> getAllNodes(){
+		return all_pairs;
+	}
+	
+	private void printJson(JsonNode node, ArrayList<String> names, int idx) {
 		Iterator <JsonNode> children = node.elements();
         while (children.hasNext()){
         	JsonNode child = children.next();
         	if(!child.isContainerNode()){
         		//Leaf Node
 //        		System.out.println(names.get(++idx)+" : "+child);
-        		pairs.add(names.get(++idx)+" : "+child);
+        		String con = names.get(++idx)+" : "+child;
+        		leaf_pairs.add(con);
+        		all_pairs.add(con);
         		
         	}else{
         		//container node
@@ -63,12 +76,12 @@ public class readJsonOutput {
 //        			
 //        		}
 //        		System.out.println(current_name+" : "+child);
-        		printJson(child, field_names, -1, pairs);
+        		printJson(child, field_names, -1);
         	}
         }
 	}
 	
-	public static ArrayList<String> getExtractedPairs(String output_string) throws JsonProcessingException, IOException{
+	public void getExtractedPairs(String output_string) throws JsonProcessingException, IOException{
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode node = mapper.readTree(output_string);
 		Iterator<String> fieldNames = node.fieldNames();
@@ -77,9 +90,9 @@ public class readJsonOutput {
 			names.add(fieldNames.next());
 		}
 		
-		ArrayList<String> pairs = new ArrayList<String>();
-		printJson(node, names, -1, pairs);
-		return pairs;
+		leaf_pairs = new ArrayList<String>();
+		all_pairs = new ArrayList<String>();
+		printJson(node, names, -1);
 	}
 
 //	public static void main(String[] args) throws JsonProcessingException, IOException {

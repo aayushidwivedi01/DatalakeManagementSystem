@@ -47,10 +47,7 @@ public class FlatDocumentDA {
 		Document doc = collection.find(eq(DOC_KEY, document)).first();
 		FlatDocument flatDocument= null;
 		if (doc != null) {
-			List<String>fIndex = new ArrayList<String>();
-			
-			fIndex = (List<String>) doc.get(INDEX_KEY);
-			System.out.println("FINDEX:" + fIndex.toString());
+			List<String>fIndex =(List<String>) doc.get(INDEX_KEY);
 			flatDocument = new FlatDocument(doc.getString(DOC_KEY), fIndex);
 		}
 		return flatDocument;

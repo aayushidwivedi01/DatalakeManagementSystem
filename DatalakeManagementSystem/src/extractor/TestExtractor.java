@@ -6,16 +6,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.tika.Tika;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Test extractor. 
@@ -27,8 +22,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class TestExtractor {
 
 	public static void main(String[] args) throws IOException {
-		String file_arg = "/home/cis455/git/dlms_little_bobby_tables/DatalakeManagementSystem/src/extractor/generated.json";
-//		String file_arg = args[0];
+//		String file_arg = "/home/cis455/git/dlms_little_bobby_tables/DatalakeManagementSystem/src/extractor/generated.json";
+		String file_arg = args[0];
 		
 		//Check if directory or file
 		File file = new File(file_arg);
@@ -54,11 +49,19 @@ public class TestExtractor {
 //				try {
 //				  for (Iterator it = new ObjectMapper().readValues(
 //				      new JsonFactory().createJsonParser(in), Map.class); it.hasNext();)
-//				    System.out.println(IOUtils.toString((InputStream) it.next()));
-//				  	
+//				    System.out.println(it.next().toString());
 //				}
 //				finally { in.close();} 
 				
+//				Iterator it = new ObjectMapper().(
+//					      new JsonFactory().createJsonParser(in), Map.class);
+//				
+//				Set set_json = new HashSet();
+//				while(it.hasNext()){
+////					set_json.add(it.next());
+//					System.out.println(it.next());
+//				}
+			
 				InputStream is = new FileInputStream(filename);
 		        String jsonTxt = IOUtils.toString(is);
 		        String out = JsonExtract.extractJson(jsonTxt,filename);

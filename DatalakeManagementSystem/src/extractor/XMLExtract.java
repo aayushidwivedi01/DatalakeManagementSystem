@@ -35,7 +35,6 @@ public class XMLExtract extends DefaultHandler {
 	      all_nodes = new ArrayList<String>();
 	      
 	      list.add(filename);
-	      list.add(content);
 	      
 	   }
 	 

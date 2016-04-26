@@ -40,7 +40,11 @@ public class JsonExtract {
         	if(!child.isContainerNode()){
         		//Leaf Node
 //        		System.out.println("Value node for leaf : "+child.isValueNode());
-        		json.put(names.get(++idx), child);
+//        		System.out.println(child.getNodeType());
+//        		System.out.println(child);
+        		String key = names.get(++idx);
+//        		System.out.println("Something "+key+" : "+child);
+        		json.put(key, child);
 //        		System.out.println(names.get(++idx)+" : "+child);
         		
         	}else{
@@ -71,6 +75,7 @@ public class JsonExtract {
         		}
 //        		System.out.println(current_name+" : "+child);
         		Map returned = printJson(child, field_names, -1, json_child);
+//        		System.out.println("Called recursive for child: "+child);
         		json.put(current_name, returned);
         	}
         }
@@ -92,11 +97,20 @@ public class JsonExtract {
 		ObjectMapper mapper = new ObjectMapper();
         // use the ObjectMapper to read the json string and create a tree
         JsonNode node = mapper.readTree(json_string);
+        
         Iterator<String> fieldNames = node.fieldNames();
         ArrayList<String> names = new ArrayList<String>();
         
         while(fieldNames.hasNext()){
-        	names.add(file_name+"/content/"+fieldNames.next());
+        	String name = file_name+"/"+fieldNames.next();
+        	names.add(name);
+        	System.out.println(name);
+        }
+        
+        if(names.size() == 0){
+        	for (int k = 0; k < node.size(); k++){
+        		names.add(file_name+"/DONOTLINK_"+k);
+        	}
         }
         
         Map json = new LinkedHashMap();
@@ -110,9 +124,9 @@ public class JsonExtract {
         return jobj;
 	}
 	
-    public static void main(String[] args) throws MalformedURLException, IOException {
-    	String genreJson = "{\"title\":\"Free Music Archive - Albums\",\"message\":\"\",\"errors\":[1,2],\"total\":\"14002\",\"total_pages\":7001,\"page\":1,\"limit\":\"2\",\"dataset\":[{\"album_id\":\"7596\",\"album_title\":\"!!! - Live @ KEXP 7\\/24\\/2010\",\"album_handle\":\"_-_Live__KEXP_7242010\",\"album_url\":\"http:\\/\\/freemusicarchive.org\\/music\\/___\\/_-_Live__KEXP_7242010\\/\",\"album_type\":\"Live Performance\",\"artist_name\":\"!!!\",\"artist_url\":\"http:\\/\\/freemusicarchive.org\\/music\\/___\\/\",\"album_producer\":null,\"album_engineer\":null,\"album_information\":\"<p>Funk-punk party starters !!! performs live at KEXP\\u2019s \\u201cBean Room\\u201d stage during our broadcast at the Capitol Hill Block Party 2010.\\u00a0\\u00a0\\u00a0 <br \\/><\\/p>\",\"album_date_released\":null,\"album_comments\":\"0\",\"album_favorites\":\"0\",\"album_tracks\":\"2\",\"album_listens\":\"4519\",\"album_date_created\":\"10\\/22\\/2010 04:34:11 PM\",\"album_image_file\":\"https:\\/\\/freemusicarchive.org\\/file\\/images\\/albums\\/_-_Live__KEXP_7242010_-_20101022181252833.jpg\",\"album_images\":[{\"image_id\":\"10574\",\"user_id\":null,\"artist_id\":null,\"album_id\":\"7596\",\"curator_id\":null,\"image_file\":\"https:\\/\\/freemusicarchive.org\\/file\\/images\\/albums\\/_-_Live__KEXP_7242010_-_20101022181252833.jpg\",\"image_title\":\"albums Image\",\"image_caption\":null,\"image_copyright\":null,\"image_source\":null,\"image_order\":\"0\"}],\"tags\":[]},{\"album_id\":\"10620\",\"album_title\":\"\\\"...Through The Cracks\\\" Mix Vol. 1\",\"album_handle\":\"Through_The_Cracks_Mix_Vol_1\",\"album_url\":\"http:\\/\\/freemusicarchive.org\\/music\\/The_Yes_Sirs\\/Through_The_Cracks_Mix_Vol_1\\/\",\"album_type\":\"Album\",\"artist_name\":\"The Yes Sirs\",\"artist_url\":\"http:\\/\\/freemusicarchive.org\\/music\\/The_Yes_Sirs\\/\",\"album_producer\":null,\"album_engineer\":null,\"album_information\":\"<p>Tracks from us and our friends that never really got a proper release, so we gave away this internet-only collection of demos, lost tracks, etc.<\\/p>\",\"album_date_released\":null,\"album_comments\":\"0\",\"album_favorites\":\"1\",\"album_tracks\":\"4\",\"album_listens\":\"1619\",\"album_date_created\":\"12\\/18\\/2011 07:29:57 PM\",\"album_image_file\":\"https:\\/\\/freemusicarchive.org\\/file\\/images\\/albums\\/The_Yes_Sirs_-_Album_Title_-_20111218183001853.png\",\"album_images\":[{\"image_id\":\"16848\",\"user_id\":null,\"artist_id\":null,\"album_id\":\"10620\",\"curator_id\":null,\"image_file\":\"https:\\/\\/freemusicarchive.org\\/file\\/images\\/albums\\/The_Yes_Sirs_-_Album_Title_-_20111218183001853.png\",\"image_title\":\"Album Image: Album Title\",\"image_caption\":\"\\\"...Through The Cracks\\\" Mix Vol. 1\",\"image_copyright\":\"2011\",\"image_source\":\"http:\\/\\/cnproachmotel.blogspot.com\",\"image_order\":\"0\"}],\"tags\":[]}]}";
-    	extractJson(genreJson, "example.json");
-    }
+//    public static void main(String[] args) throws MalformedURLException, IOException {
+//    	String genreJson = "{\"title\":\"Free Music Archive - Albums\",\"message\":\"\",\"errors\":[1,2],\"total\":\"14002\",\"total_pages\":7001,\"page\":1,\"limit\":\"2\",\"dataset\":[{\"album_id\":\"7596\",\"album_title\":\"!!! - Live @ KEXP 7\\/24\\/2010\",\"album_handle\":\"_-_Live__KEXP_7242010\",\"album_url\":\"http:\\/\\/freemusicarchive.org\\/music\\/___\\/_-_Live__KEXP_7242010\\/\",\"album_type\":\"Live Performance\",\"artist_name\":\"!!!\",\"artist_url\":\"http:\\/\\/freemusicarchive.org\\/music\\/___\\/\",\"album_producer\":null,\"album_engineer\":null,\"album_information\":\"<p>Funk-punk party starters !!! performs live at KEXP\\u2019s \\u201cBean Room\\u201d stage during our broadcast at the Capitol Hill Block Party 2010.\\u00a0\\u00a0\\u00a0 <br \\/><\\/p>\",\"album_date_released\":null,\"album_comments\":\"0\",\"album_favorites\":\"0\",\"album_tracks\":\"2\",\"album_listens\":\"4519\",\"album_date_created\":\"10\\/22\\/2010 04:34:11 PM\",\"album_image_file\":\"https:\\/\\/freemusicarchive.org\\/file\\/images\\/albums\\/_-_Live__KEXP_7242010_-_20101022181252833.jpg\",\"album_images\":[{\"image_id\":\"10574\",\"user_id\":null,\"artist_id\":null,\"album_id\":\"7596\",\"curator_id\":null,\"image_file\":\"https:\\/\\/freemusicarchive.org\\/file\\/images\\/albums\\/_-_Live__KEXP_7242010_-_20101022181252833.jpg\",\"image_title\":\"albums Image\",\"image_caption\":null,\"image_copyright\":null,\"image_source\":null,\"image_order\":\"0\"}],\"tags\":[]},{\"album_id\":\"10620\",\"album_title\":\"\\\"...Through The Cracks\\\" Mix Vol. 1\",\"album_handle\":\"Through_The_Cracks_Mix_Vol_1\",\"album_url\":\"http:\\/\\/freemusicarchive.org\\/music\\/The_Yes_Sirs\\/Through_The_Cracks_Mix_Vol_1\\/\",\"album_type\":\"Album\",\"artist_name\":\"The Yes Sirs\",\"artist_url\":\"http:\\/\\/freemusicarchive.org\\/music\\/The_Yes_Sirs\\/\",\"album_producer\":null,\"album_engineer\":null,\"album_information\":\"<p>Tracks from us and our friends that never really got a proper release, so we gave away this internet-only collection of demos, lost tracks, etc.<\\/p>\",\"album_date_released\":null,\"album_comments\":\"0\",\"album_favorites\":\"1\",\"album_tracks\":\"4\",\"album_listens\":\"1619\",\"album_date_created\":\"12\\/18\\/2011 07:29:57 PM\",\"album_image_file\":\"https:\\/\\/freemusicarchive.org\\/file\\/images\\/albums\\/The_Yes_Sirs_-_Album_Title_-_20111218183001853.png\",\"album_images\":[{\"image_id\":\"16848\",\"user_id\":null,\"artist_id\":null,\"album_id\":\"10620\",\"curator_id\":null,\"image_file\":\"https:\\/\\/freemusicarchive.org\\/file\\/images\\/albums\\/The_Yes_Sirs_-_Album_Title_-_20111218183001853.png\",\"image_title\":\"Album Image: Album Title\",\"image_caption\":\"\\\"...Through The Cracks\\\" Mix Vol. 1\",\"image_copyright\":\"2011\",\"image_source\":\"http:\\/\\/cnproachmotel.blogspot.com\",\"image_order\":\"0\"}],\"tags\":[]}]}";
+//    	extractJson(genreJson, "example.json");
+//    }
 
 }

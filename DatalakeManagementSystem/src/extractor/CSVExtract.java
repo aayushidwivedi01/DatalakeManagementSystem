@@ -23,7 +23,7 @@ public class CSVExtract {
 		Map<String,String> contents = new LinkedHashMap();
 		
 		Map<String, Integer> headers = parser.getHeaderMap();
-		String path = filename+"/content/row";
+		String path = filename+"/"+filename+"_row";
 		for(CSVRecord record : parser){
 			//Skipping non consistent records
 			if(!record.isConsistent())
@@ -49,13 +49,13 @@ public class CSVExtract {
 		return JSONObject.toJSONString(contents);
 	}
 
-	public static void main(String[] args) throws IOException {
-		// TODO Auto-generated method stub
-		Reader in = new FileReader("/home/cis455/Downloads/sample.csv");
-		Iterable<CSVRecord> records = CSVFormat.EXCEL.parse(in);
-		extractCSV("/home/cis455/Downloads/sample.csv");
-		
-		
+//	public static void main(String[] args) throws IOException {
+//		// TODO Auto-generated method stub
+//		Reader in = new FileReader("/home/cis455/Downloads/sample.csv");
+//		Iterable<CSVRecord> records = CSVFormat.EXCEL.parse(in);
+//		extractCSV("/home/cis455/Downloads/sample.csv");
+//		
+//		
 //		for(Object header : headers.keySet()){
 //			System.out.println(header+" : "+headers.get(header));
 //			
@@ -75,6 +75,6 @@ public class CSVExtract {
 		
 		
 
-	}
+//	}
 
 }

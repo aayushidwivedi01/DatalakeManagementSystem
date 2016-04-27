@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-
 import bean.ForwardIndex;
 import bean.Link;
 import bean.PathAttribute;
@@ -21,10 +20,29 @@ import bean.PathAttribute;
  * 6. Go Back to step 1
  */
 
+/*
+ * You should at least link two items if:
+ * 
+ * You have a parent data item and a nested data item, e.g., the parent is a
+ * JSON map and the nested data item is one of its properties.
+ * 
+ * One attribute’s value is the same as the key attribute of another data
+ * item
+ * 
+ * One attribute’s value is the same as the file or path name of another
+ * data item
+ * 
+ * Both attributes have the same value, which is the ID of a known entity
+ * 
+ * You may also want to look at measures of approximate matches among
+ * strings, including string edit distance and n-grams.
+ * 
+ */
+
 public class Linker {
 
 	private static enum LinkType {
-		CONTAINS, IS_SAME, IS_PARTENT, IS_CHILD, MATCHES_ATTRIBUTE, MATCHES_CONTENT, MATCHES_FILENAME, MATCHES_PATH
+		CONTAINS, IS_CONTAINED_IN, IS_SAME, IS_PARTENT, IS_CHILD, MATCHES_ATTRIBUTE, MATCHES_CONTENT, MATCHES_FILENAME, MATCHES_PATH
 	}
 
 	private static Map<LinkType, String> linkType = new EnumMap<LinkType, String>(LinkType.class);
@@ -40,6 +58,7 @@ public class Linker {
 		linkType.put(LinkType.MATCHES_CONTENT, "MATCHES_CONTENT");
 		linkType.put(LinkType.MATCHES_FILENAME, "MATCHES_FILENAME");
 		linkType.put(LinkType.MATCHES_PATH, "MATCHES_PATH");
+		linkType.put(LinkType.IS_CONTAINED_IN, "IS_CONTAINED_IN");
 
 		linkWeight.put(LinkType.CONTAINS, DEFAULT_WEIGHT);
 		linkWeight.put(LinkType.IS_SAME, DEFAULT_WEIGHT);
@@ -49,6 +68,7 @@ public class Linker {
 		linkWeight.put(LinkType.MATCHES_CONTENT, DEFAULT_WEIGHT);
 		linkWeight.put(LinkType.MATCHES_FILENAME, DEFAULT_WEIGHT);
 		linkWeight.put(LinkType.MATCHES_PATH, DEFAULT_WEIGHT);
+		linkWeight.put(LinkType.IS_CONTAINED_IN, DEFAULT_WEIGHT);
 	}
 
 	private List<Link> getParentChildLinks(ForwardIndex f, PathAttribute pathAttribute) {
@@ -140,8 +160,7 @@ public class Linker {
 			type = LinkType.MATCHES_CONTENT;
 			dest = f1.getPath();
 			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type)));
-		} 
-		else if (f1.getValue().contains(pathAttributeF2.getFile())) {
+		} else if (f1.getValue().contains(pathAttributeF2.getFile())) {
 			source = f1.getValue();
 			type = LinkType.MATCHES_FILENAME;
 			dest = pathAttributeF2.getFile();
@@ -154,42 +173,44 @@ public class Linker {
 		return links;
 	}
 
-	/*
-	 * You should at least link two items if:
-	 * 
-	 * You have a parent data item and a nested data item, e.g., the parent is a
-	 * JSON map and the nested data item is one of its properties.
-	 * 
-	 * One attribute’s value is the same as the key attribute of another data
-	 * item
-	 * 
-	 * One attribute’s value is the same as the file or path name of another
-	 * data item
-	 * 
-	 * Both attributes have the same value, which is the ID of a known entity
-	 * 
-	 * You may also want to look at measures of approximate matches among
-	 * strings, including string edit distance and n-grams.
-	 * 
-	 */
+	private List<Link> getValueContainsLinks(ForwardIndex f1) {
+		List<Link> links = new ArrayList<Link>();
+		LinkType type;
+		String source;
+		String dest;
+		String[] tokens = f1.getValue().replaceAll("[^a-zA-Z ]", "").toLowerCase().split("\\s+");
+		for (String token : tokens) {
+			source = f1.getPath();
+			type = LinkType.CONTAINS;
+			dest = token;
+			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type) + DEFAULT_WEIGHT));
+			source = token;
+			type = LinkType.IS_CONTAINED_IN;
+			dest = f1.getPath();
+			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type) + DEFAULT_WEIGHT));
+		}
+		return links;
+
+	}
+
 	private List<Link> createLinks(ForwardIndex f1, ForwardIndex f2) {
 		List<Link> links = new ArrayList<Link>();
-		//split index paths into filename, path and attribute
+		// split index paths into filename, path and attribute
 		PathAttribute pathAttributeF1 = new PathAttribute(f1.getPath());
 		PathAttribute pathAttributeF2 = new PathAttribute(f2.getPath());
-		//generate parent child links for f1 and f2
+		// generate parent child links for f1 and f2
 		links.addAll(getParentChildLinks(f1, pathAttributeF1));
 		links.addAll(getParentChildLinks(f2, pathAttributeF2));
-		//generate links from f1 to f2
+		// generate links from f1 to f2
 		links.addAll(getValueAttributeLink(f1, f2, pathAttributeF1, pathAttributeF2));
 		links.addAll(getValuePathLink(f1, f2, pathAttributeF1, pathAttributeF2));
 		links.addAll(getValueFileLink(f1, f2, pathAttributeF1, pathAttributeF2));
 
-		//generate links from f2 to f1
+		// generate links from f2 to f1
 		links.addAll(getValueAttributeLink(f2, f1, pathAttributeF2, pathAttributeF1));
 		links.addAll(getValuePathLink(f2, f1, pathAttributeF2, pathAttributeF1));
 		links.addAll(getValueFileLink(f2, f1, pathAttributeF2, pathAttributeF1));
-		
+
 		return links;
 	}
 
@@ -203,25 +224,25 @@ public class Linker {
 
 	public static void main(String[] args) {
 
-		//test path, attribute and filename extraction
+		// test path, attribute and filename extraction
 		System.out.println("Path Atrribute Test - ");
 		PathAttribute pa = new PathAttribute("user1_doc.xml/root/content");
 		System.out.println("Source - user1_doc.xml/root/content");
 		System.out.println(pa);
 		pa = new PathAttribute("user1_doc.xml/root");
-		System.out.println("Source - user1_doc.xml/root");		
+		System.out.println("Source - user1_doc.xml/root");
 		System.out.println(pa);
 		pa = new PathAttribute("user1_doc.xml");
-		System.out.println("Source - user1_doc.xml");		
+		System.out.println("Source - user1_doc.xml");
 		System.out.println(pa);
 		System.out.println();
-		
+
 		Linker linker = new Linker();
 		// ForwardIndexDA fIndexDA = new ForwardIndexDA();
 		ForwardIndex f1 = null, f2 = null;
 		PathAttribute pathAttributeF1 = null, pathAttributeF2 = null;
 
-		//test parent child links
+		// test parent child links
 		f1 = new ForwardIndex("user1_doc.xml/root/content", "Helo There, my fiends?");
 		f2 = new ForwardIndex("user2_expenses.csv/root/table/row1/column1", "miami");
 		pathAttributeF1 = new PathAttribute(f1.getPath());
@@ -232,8 +253,8 @@ public class Linker {
 		System.out.println(f2);
 		printLinks(linker.getParentChildLinks(f1, pathAttributeF1));
 		printLinks(linker.getParentChildLinks(f2, pathAttributeF2));
-		
-		//test value to attribute links
+
+		// test value to attribute links
 		f1 = new ForwardIndex("user1_doc.xml/root/content", "Helo There, my fiends? column1");
 		f2 = new ForwardIndex("user2_expenses.csv/root/table/row1/column1", "content");
 		pathAttributeF1 = new PathAttribute(f1.getPath());
@@ -244,9 +265,10 @@ public class Linker {
 		System.out.println(f2);
 		printLinks(linker.getValueAttributeLink(f1, f2, pathAttributeF1, pathAttributeF2));
 		printLinks(linker.getValueAttributeLink(f2, f1, pathAttributeF2, pathAttributeF1));
-		
-		//test value to path links
-		f1 = new ForwardIndex("user1_doc.xml/root/content", "Helo There, my fiends? user2_expenses.csv/root/table/row1/column1");
+
+		// test value to path links
+		f1 = new ForwardIndex("user1_doc.xml/root/content",
+				"Helo There, my fiends? user2_expenses.csv/root/table/row1/column1");
 		f2 = new ForwardIndex("user2_expenses.csv/root/table/row1/column1", "content");
 		pathAttributeF1 = new PathAttribute(f1.getPath());
 		pathAttributeF2 = new PathAttribute(f2.getPath());
@@ -255,9 +277,9 @@ public class Linker {
 		System.out.println(f1);
 		System.out.println(f2);
 		printLinks(linker.getValuePathLink(f1, f2, pathAttributeF1, pathAttributeF2));
-		printLinks(linker.getValuePathLink(f2, f1, pathAttributeF2, pathAttributeF1));	
-		
-		//test value to filename links
+		printLinks(linker.getValuePathLink(f2, f1, pathAttributeF2, pathAttributeF1));
+
+		// test value to filename links
 		f1 = new ForwardIndex("user1_doc.xml/root/content", "Helo There, my fiends? column1");
 		f2 = new ForwardIndex("user2_expenses.csv/root/table/row1/column1", "user1_doc.xml");
 		pathAttributeF1 = new PathAttribute(f1.getPath());
@@ -267,9 +289,21 @@ public class Linker {
 		System.out.println(f1);
 		System.out.println(f2);
 		printLinks(linker.getValueFileLink(f1, f2, pathAttributeF1, pathAttributeF2));
-		printLinks(linker.getValueFileLink(f2, f1, pathAttributeF2, pathAttributeF1));	
-		
-		//test parent child links
+		printLinks(linker.getValueFileLink(f2, f1, pathAttributeF2, pathAttributeF1));
+
+		// test value contains links
+		f1 = new ForwardIndex("user1_doc.xml/root/content", "Helo There, my fiends?");
+		f2 = new ForwardIndex("user2_expenses.csv/root/table/row1/column1", "miami");
+		pathAttributeF1 = new PathAttribute(f1.getPath());
+		pathAttributeF2 = new PathAttribute(f2.getPath());
+		System.out.println("Value contains tokens Link Test - ");
+		System.out.println("Indices - ");
+		System.out.println(f1);
+		System.out.println(f2);
+		printLinks(linker.getValueContainsLinks(f1));
+		printLinks(linker.getValueContainsLinks(f2));
+
+		// test createLinks method
 		f1 = new ForwardIndex("user1_doc.xml/root/content", "Helo There, my fiends?");
 		f2 = new ForwardIndex("user2_expenses.csv/root/table/row1/column1", "miami");
 		pathAttributeF1 = new PathAttribute(f1.getPath());

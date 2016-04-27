@@ -88,8 +88,6 @@ public class FlatDocumentDA {
 			fDa.update(flatDocument);
 			System.out.println("Update successful");
 			System.out.println("Fetched:" + fDa.fetch("mankit"));
-			
-			
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{

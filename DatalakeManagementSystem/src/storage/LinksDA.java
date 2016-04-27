@@ -4,17 +4,13 @@ import static com.mongodb.client.model.Filters.eq;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.bson.Document;
 import org.json.JSONObject;
-
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.IndexOptions;
-
-import bean.FlatDocument;
 import bean.Links;
 
 public class LinksDA {
@@ -91,8 +87,6 @@ public class LinksDA {
 			lDa.update(links);
 			System.out.println("Update successful");
 			System.out.println("Fetched:" + lDa.fetch("mankit"));
-			
-			
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{

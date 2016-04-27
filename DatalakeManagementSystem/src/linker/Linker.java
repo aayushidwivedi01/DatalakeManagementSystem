@@ -2,10 +2,15 @@ package linker;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.json.JSONObject;
+
 import bean.ForwardIndex;
 import bean.Link;
+import bean.Links;
 import bean.PathAttribute;
 
 /*
@@ -69,6 +74,22 @@ public class Linker {
 		linkWeight.put(LinkType.MATCHES_FILENAME, DEFAULT_WEIGHT);
 		linkWeight.put(LinkType.MATCHES_PATH, DEFAULT_WEIGHT);
 		linkWeight.put(LinkType.IS_CONTAINED_IN, DEFAULT_WEIGHT);
+	}
+
+	private void addLink(Link link,  Map<String, Links> mapOfLinks) {
+		if (mapOfLinks.containsKey(link.getSource())) {
+			mapOfLinks.get(link.getSource()).getRelations().add(new JSONObject(link));
+		} else {
+			Links links = new Links(link.getSource(), new ArrayList<JSONObject>());
+			links.getRelations().add(new JSONObject(link));
+			mapOfLinks.put(link.getSource(), links);
+		}
+	}
+
+	private void addAllLink(List<Link> links,  Map<String, Links> mapOfLinks) {
+		for (Link link : links) {
+			addLink(link, mapOfLinks);
+		}
 	}
 
 	private List<Link> getParentChildLinks(ForwardIndex f, PathAttribute pathAttribute) {
@@ -173,12 +194,12 @@ public class Linker {
 		return links;
 	}
 
-	private List<Link> getValueContainsLinks(ForwardIndex f1) {
+	private List<Link> getValueContainslinks(ForwardIndex f1) {
 		List<Link> links = new ArrayList<Link>();
 		LinkType type;
 		String source;
 		String dest;
-		String[] tokens = f1.getValue().replaceAll("[^a-zA-Z ]", "").toLowerCase().split("\\s+");
+		String[] tokens = f1.getValue().replaceAll("[^a-zA-Z0-9 ]", "").toLowerCase().split("\\s+");
 		for (String token : tokens) {
 			source = f1.getPath();
 			type = LinkType.CONTAINS;
@@ -193,7 +214,7 @@ public class Linker {
 
 	}
 
-	private List<Link> createLinks(ForwardIndex f1, ForwardIndex f2) {
+	private List<Link> createlinks(ForwardIndex f1, ForwardIndex f2) {
 		List<Link> links = new ArrayList<Link>();
 		// split index paths into filename, path and attribute
 		PathAttribute pathAttributeF1 = new PathAttribute(f1.getPath());
@@ -201,20 +222,35 @@ public class Linker {
 		// generate parent child links for f1 and f2
 		links.addAll(getParentChildLinks(f1, pathAttributeF1));
 		links.addAll(getParentChildLinks(f2, pathAttributeF2));
+		// generate all contains links
+		links.addAll(getValueContainslinks(f1));
+		links.addAll(getValueContainslinks(f2));
 		// generate links from f1 to f2
 		links.addAll(getValueAttributeLink(f1, f2, pathAttributeF1, pathAttributeF2));
 		links.addAll(getValuePathLink(f1, f2, pathAttributeF1, pathAttributeF2));
 		links.addAll(getValueFileLink(f1, f2, pathAttributeF1, pathAttributeF2));
-
 		// generate links from f2 to f1
 		links.addAll(getValueAttributeLink(f2, f1, pathAttributeF2, pathAttributeF1));
 		links.addAll(getValuePathLink(f2, f1, pathAttributeF2, pathAttributeF1));
 		links.addAll(getValueFileLink(f2, f1, pathAttributeF2, pathAttributeF1));
-
 		return links;
 	}
 
-	private static void printLinks(List<Link> links) {
+	private Map<String, Links> mergeLinks(List<Link> links) {
+		Map<String, Links> mapOfLinks = new HashMap<String, Links>();
+		addAllLink(links, mapOfLinks);
+		return mapOfLinks;
+	}
+	
+	private void printLinks(Map<String, Links> mapOfLinks) {
+
+		for (Map.Entry<String, Links> link : mapOfLinks.entrySet()) {
+			System.out.println(link);
+		}
+		System.out.println();
+	}
+
+	private void printLinks(List<Link> links) {
 
 		for (Link link : links) {
 			System.out.println(link);
@@ -222,6 +258,7 @@ public class Linker {
 		System.out.println();
 	}
 
+	
 	public static void main(String[] args) {
 
 		// test path, attribute and filename extraction
@@ -247,24 +284,24 @@ public class Linker {
 		f2 = new ForwardIndex("user2_expenses.csv/root/table/row1/column1", "miami");
 		pathAttributeF1 = new PathAttribute(f1.getPath());
 		pathAttributeF2 = new PathAttribute(f2.getPath());
-		System.out.println("Parent to Child Links Test - ");
+		System.out.println("Parent to Child links Test - ");
 		System.out.println("Indices - ");
 		System.out.println(f1);
 		System.out.println(f2);
-		printLinks(linker.getParentChildLinks(f1, pathAttributeF1));
-		printLinks(linker.getParentChildLinks(f2, pathAttributeF2));
+		linker.printLinks(linker.getParentChildLinks(f1, pathAttributeF1));
+		linker.printLinks(linker.getParentChildLinks(f2, pathAttributeF2));
 
 		// test value to attribute links
 		f1 = new ForwardIndex("user1_doc.xml/root/content", "Helo There, my fiends? column1");
 		f2 = new ForwardIndex("user2_expenses.csv/root/table/row1/column1", "content");
 		pathAttributeF1 = new PathAttribute(f1.getPath());
 		pathAttributeF2 = new PathAttribute(f2.getPath());
-		System.out.println("Value to Attribute Links Test - ");
+		System.out.println("Value to Attribute links Test - ");
 		System.out.println("Indices - ");
 		System.out.println(f1);
 		System.out.println(f2);
-		printLinks(linker.getValueAttributeLink(f1, f2, pathAttributeF1, pathAttributeF2));
-		printLinks(linker.getValueAttributeLink(f2, f1, pathAttributeF2, pathAttributeF1));
+		linker.printLinks(linker.getValueAttributeLink(f1, f2, pathAttributeF1, pathAttributeF2));
+		linker.printLinks(linker.getValueAttributeLink(f2, f1, pathAttributeF2, pathAttributeF1));
 
 		// test value to path links
 		f1 = new ForwardIndex("user1_doc.xml/root/content",
@@ -272,24 +309,24 @@ public class Linker {
 		f2 = new ForwardIndex("user2_expenses.csv/root/table/row1/column1", "content");
 		pathAttributeF1 = new PathAttribute(f1.getPath());
 		pathAttributeF2 = new PathAttribute(f2.getPath());
-		System.out.println("Value to Path Links Test - ");
+		System.out.println("Value to Path links Test - ");
 		System.out.println("Indices - ");
 		System.out.println(f1);
 		System.out.println(f2);
-		printLinks(linker.getValuePathLink(f1, f2, pathAttributeF1, pathAttributeF2));
-		printLinks(linker.getValuePathLink(f2, f1, pathAttributeF2, pathAttributeF1));
+		linker.printLinks(linker.getValuePathLink(f1, f2, pathAttributeF1, pathAttributeF2));
+		linker.printLinks(linker.getValuePathLink(f2, f1, pathAttributeF2, pathAttributeF1));
 
 		// test value to filename links
 		f1 = new ForwardIndex("user1_doc.xml/root/content", "Helo There, my fiends? column1");
 		f2 = new ForwardIndex("user2_expenses.csv/root/table/row1/column1", "user1_doc.xml");
 		pathAttributeF1 = new PathAttribute(f1.getPath());
 		pathAttributeF2 = new PathAttribute(f2.getPath());
-		System.out.println("Value to Filename Links Test - ");
+		System.out.println("Value to Filename links Test - ");
 		System.out.println("Indices - ");
 		System.out.println(f1);
 		System.out.println(f2);
-		printLinks(linker.getValueFileLink(f1, f2, pathAttributeF1, pathAttributeF2));
-		printLinks(linker.getValueFileLink(f2, f1, pathAttributeF2, pathAttributeF1));
+		linker.printLinks(linker.getValueFileLink(f1, f2, pathAttributeF1, pathAttributeF2));
+		linker.printLinks(linker.getValueFileLink(f2, f1, pathAttributeF2, pathAttributeF1));
 
 		// test value contains links
 		f1 = new ForwardIndex("user1_doc.xml/root/content", "Helo There, my fiends?");
@@ -300,18 +337,20 @@ public class Linker {
 		System.out.println("Indices - ");
 		System.out.println(f1);
 		System.out.println(f2);
-		printLinks(linker.getValueContainsLinks(f1));
-		printLinks(linker.getValueContainsLinks(f2));
+		linker.printLinks(linker.getValueContainslinks(f1));
+		linker.printLinks(linker.getValueContainslinks(f2));
 
-		// test createLinks method
+		// test createlinks method
 		f1 = new ForwardIndex("user1_doc.xml/root/content", "Helo There, my fiends?");
 		f2 = new ForwardIndex("user2_expenses.csv/root/table/row1/column1", "miami");
 		pathAttributeF1 = new PathAttribute(f1.getPath());
 		pathAttributeF2 = new PathAttribute(f2.getPath());
-		System.out.println("Creating Links - ");
+		System.out.println("Creating links - ");
 		System.out.println("Indices - ");
 		System.out.println(f1);
 		System.out.println(f2);
-		printLinks(linker.createLinks(f1, f2));
+		linker.printLinks(linker.createlinks(f1, f2));
+		linker.printLinks(linker.mergeLinks(linker.createlinks(f1, f2)));
+		
 	}
 }

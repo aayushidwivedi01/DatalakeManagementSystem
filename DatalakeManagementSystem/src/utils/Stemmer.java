@@ -8,6 +8,8 @@ import java.io.*;
   * The Stemmer class transforms a word into its root form.  The input
   * word can be provided a character at time (by calling add()), or at once
   * by calling one of the various stem(something) methods.
+  * 
+  * SOURCE: http://tartarus.org/martin/PorterStemmer/java.txt
   */
 
 public class Stemmer

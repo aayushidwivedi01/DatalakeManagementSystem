@@ -1,0 +1,19 @@
+extends layout
+
+block content
+	h1= title
+	link(rel='stylesheet', href='/stylesheets/style.css')
+	p Welcome to #{title} change permission!
+	br
+	form#fileUpload(method="post" action="/updatepermission" enctype="multipart/form-data")
+		input(type='hidden', name='filename', value=file)
+		label(for="docType") File scope:
+		br
+		input#Element1(type="radio", name="scope", value="Private", checked=false)
+		|Private
+		br
+		input#Element2(type="radio", name="scope", value="Public", checked=false)
+		|Public
+		
+		br
+		button#update Update

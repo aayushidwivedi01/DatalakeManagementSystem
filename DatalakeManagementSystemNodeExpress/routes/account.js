@@ -11,7 +11,7 @@ function verify_account(req, res){
 		//res.redirect()
 		console.log("Incorrect Username/password");
 		res.send("Username or password incorrect. %s", usr);
-	} else if (passwd != passwdconfirm){
+	} else if (passwd !== passwdconfirm){
 		console.log("Passwords don't match");
 		res.send("Passwords don't match %s", usr);
 	} else {

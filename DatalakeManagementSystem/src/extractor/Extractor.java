@@ -28,10 +28,9 @@ import bean.ForwardIndex;
  *
  */
 
-public class TestExtractor {
+public class Extractor {
 
 	public static void main(String[] args) throws IOException {
-//		String file_arg = "/home/cis455/git/dlms_little_bobby_tables/DatalakeManagementSystem/src/extractor/generated.json";
 		String file_arg = args[0];
 		
 		//Check if directory or file
@@ -48,8 +47,6 @@ public class TestExtractor {
 		Multimap<String,String> extracted_pairs_leaf = ArrayListMultimap.create();
 		Multimap<String,String> extracted_pairs_all = ArrayListMultimap.create();
 		Multimap<String,String> metadata = ArrayListMultimap.create();
-		
-		Boolean isOther = false;
 		
 		TikaExtractor tikaextract = new TikaExtractor();
 		
@@ -103,7 +100,7 @@ public class TestExtractor {
 				//Call apache tika
 				metadata = tikaextract.getMetadata(filename);
 				extracted_pairs_all = tikaextract.extract(filename);
-				extracted_pairs_leaf = tikaextract.extract(filename);
+				extracted_pairs_leaf = extracted_pairs_all;
 			}
 		}
 		

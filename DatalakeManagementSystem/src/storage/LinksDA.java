@@ -17,7 +17,7 @@ public class LinksDA {
 
 	private static MongoClientURI URI = new MongoClientURI(
 			"mongodb://dlms_webapp:webapp@ds013971.mlab.com:13971/webappdb");
-	public static String COLLECTION_NAME = "flat_documents";
+	public static String COLLECTION_NAME = "links";
 	public static String SOURCE_KEY = "source";
 	public static String RELATIONS_KEY = "relations";
 	private MongoClient client;

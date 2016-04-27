@@ -12,6 +12,7 @@ import bean.ForwardIndex;
 import bean.Link;
 import bean.Links;
 import bean.PathAttribute;
+import storage.LinksDA;
 
 /*
  * Linker Steps - 
@@ -76,7 +77,7 @@ public class Linker {
 		linkWeight.put(LinkType.IS_CONTAINED_IN, DEFAULT_WEIGHT);
 	}
 
-	private void addLink(Link link,  Map<String, Links> mapOfLinks) {
+	private void addLink(Link link, Map<String, Links> mapOfLinks) {
 		if (mapOfLinks.containsKey(link.getSource())) {
 			mapOfLinks.get(link.getSource()).getRelations().add(new JSONObject(link));
 		} else {
@@ -86,7 +87,7 @@ public class Linker {
 		}
 	}
 
-	private void addAllLink(List<Link> links,  Map<String, Links> mapOfLinks) {
+	private void addAllLink(List<Link> links, Map<String, Links> mapOfLinks) {
 		for (Link link : links) {
 			addLink(link, mapOfLinks);
 		}
@@ -211,7 +212,6 @@ public class Linker {
 			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type) + DEFAULT_WEIGHT));
 		}
 		return links;
-
 	}
 
 	private List<Link> createlinks(ForwardIndex f1, ForwardIndex f2) {
@@ -241,8 +241,21 @@ public class Linker {
 		addAllLink(links, mapOfLinks);
 		return mapOfLinks;
 	}
-	
-	private void printLinks(Map<String, Links> mapOfLinks) {
+
+	private void storeLinks(Map<String, Links> mapOfLinks) {
+		LinksDA linksDA = new LinksDA();
+		for (Map.Entry<String, Links> links : mapOfLinks.entrySet()) {
+			Links storedLinks = linksDA.fetch(links.getKey());
+			if (storedLinks == null) {
+				linksDA.store(links.getValue());
+			} else {
+				storedLinks.getRelations().addAll(links.getValue().getRelations());
+				linksDA.update(storedLinks);
+			}
+		}
+	}
+
+	public void printLinks(Map<String, Links> mapOfLinks) {
 
 		for (Map.Entry<String, Links> link : mapOfLinks.entrySet()) {
 			System.out.println(link);
@@ -250,14 +263,13 @@ public class Linker {
 		System.out.println();
 	}
 
-	private void printLinks(List<Link> links) {
+	public void printLinks(List<Link> links) {
 
 		for (Link link : links) {
 			System.out.println(link);
 		}
 		System.out.println();
 	}
-
 	
 	public static void main(String[] args) {
 
@@ -350,7 +362,9 @@ public class Linker {
 		System.out.println(f1);
 		System.out.println(f2);
 		linker.printLinks(linker.createlinks(f1, f2));
-		linker.printLinks(linker.mergeLinks(linker.createlinks(f1, f2)));
 		
+		// store links in the Mongo Collection
+		linker.storeLinks(linker.mergeLinks(linker.createlinks(f1, f2)));
 	}
+
 }

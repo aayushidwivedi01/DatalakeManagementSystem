@@ -1,0 +1,26 @@
+ .center {
+    margin: auto;
+    width: 60%;
+    border: 3px solid #73AD21;
+    padding: 30px;
+}
+ h1 {
+    font-size: 250%;
+    font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+h2 {
+    font-size: 200%;
+}
+body {
+  background:url(../images/blue.jpg)no-repeat;
+  background-size: 1200px 110px;
+  padding: 30px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+p {
+    font-size: 100%;
+}
+a {
+  color: #00B7FF;
+}

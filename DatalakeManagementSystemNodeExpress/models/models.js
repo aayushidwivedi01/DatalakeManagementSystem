@@ -17,6 +17,7 @@ var User = mongoose.model("User", userSchema);
 
 var docSchema = new Schema({
 	id: { type: String, required: true, index: { unique: true }},
+	username: {type: String, required: true},
     path: { type: String, required: true },
     permission: { type: String, required: true }
 });
@@ -26,16 +27,16 @@ mongoosePages.skip(docSchema);
 var Doc = mongoose.model("Doc", docSchema);
 
 
-var ownerSchema = new Schema({
-	username: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-    document_id: { type: mongoose.Schema.Types.ObjectId, ref: "Doc", required: true }
-});
-ownerSchema.index({"username": 1, "document_id": 1}, { unique: true });
-
-var Owner = mongoose.model("Owner", ownerSchema);
+//var ownerSchema = new Schema({
+//	username: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+//    document_id: { type: mongoose.Schema.Types.ObjectId, ref: "Doc", required: true }
+//});
+//ownerSchema.index({"username": 1, "document_id": 1}, { unique: true });
+//
+//var Owner = mongoose.model("Owner", ownerSchema);
 
 module.exports = {
 	    User: User,
 	    Doc: Doc,
-	    Owner: Owner
+	    //Owner: Owner
 	};

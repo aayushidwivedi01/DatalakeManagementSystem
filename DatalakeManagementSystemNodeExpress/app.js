@@ -13,7 +13,7 @@ var login = require('./routes/login');
 var homepage = require('./routes/homepage');
 var account = require('./routes/account');
 var uploadfile = require('./routes/uploadfile');
-
+var permissions = require('./routes/permissions');
 var app = express();
 app.use(cookieParser());
 app.use(session({secret: 'shh1243',
@@ -47,6 +47,7 @@ app.get('/logout', function(req,res){
 });
 app.use('/homepage', homepage);
 app.use('/uploadfile',uploadfile.do_work);
+app.use('/permissions', permissions.do_work);
 
 
 var server = app.listen(8081, function() {

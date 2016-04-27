@@ -20,6 +20,8 @@ block content
     br
     button#view View My Files
     br
-    button#update Update Permissions
+    form(method = "get", action ="/permissions")
+      button#update(type="submit", name="permissions") Update Permissions
+    br
     form(method = 'post', action = '/upload')
       button#upload(type = 'submit', name = 'upload') Upload File

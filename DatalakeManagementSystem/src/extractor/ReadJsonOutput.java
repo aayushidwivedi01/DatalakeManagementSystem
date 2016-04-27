@@ -7,7 +7,9 @@ import java.util.Iterator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeType;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 
 /**
  * For reading the extracted JSON Output
@@ -24,14 +26,14 @@ public class ReadJsonOutput {
 	 * @param idx
 	 * @param pairs 
 	 */
-	private  ArrayList<String> leaf_pairs = null;
-	private  ArrayList<String> all_pairs = null;
+	private  Multimap<String,String>  leaf_pairs = null;
+	private  Multimap<String,String> all_pairs = null;
 	
 	/**
 	 * Returns list of all leaf node and values - to be used to create inverted index
 	 * @return
 	 */
-	public ArrayList<String> getLeafNodes(){
+	public Multimap<String,String> getLeafNodes(){
 		return leaf_pairs;
 	}
 	
@@ -39,7 +41,7 @@ public class ReadJsonOutput {
 	 * Returns list of all nodes - to be used to link documents
 	 * @return
 	 */
-	public ArrayList<String> getAllNodes(){
+	public Multimap<String,String> getAllNodes(){
 		return all_pairs;
 	}
 	
@@ -49,9 +51,9 @@ public class ReadJsonOutput {
         	JsonNode child = children.next();
         	if(!child.isContainerNode()){
         		//Leaf Node
-        		String con = names.get(++idx)+" : "+child;
-        		leaf_pairs.add(con);
-        		all_pairs.add(con);
+        		String curr = names.get(++idx);
+        		leaf_pairs.put(curr, child.toString());
+        		all_pairs.put(curr,child.toString());
         		
         	}else{
         		//container node
@@ -66,7 +68,7 @@ public class ReadJsonOutput {
     	        }
         		
         		printJson(child, field_names, -1);
-        		all_pairs.add(current_name+" : DONOTLINK");
+        		all_pairs.put(current_name,"DONOTLINK");
         	}
         }
 	}
@@ -80,8 +82,8 @@ public class ReadJsonOutput {
 			names.add(fieldNames.next());
 		}
 		
-		leaf_pairs = new ArrayList<String>();
-		all_pairs = new ArrayList<String>();
+		leaf_pairs = ArrayListMultimap.create();
+		all_pairs = ArrayListMultimap.create();
 		printJson(node, names, -1);
 	}
 

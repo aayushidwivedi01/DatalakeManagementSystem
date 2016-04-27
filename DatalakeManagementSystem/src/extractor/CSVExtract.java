@@ -2,7 +2,6 @@ package extractor;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -31,7 +30,7 @@ public class CSVExtract {
 			      new FileReader(filename), 
 			      CSVFormat.DEFAULT.withHeader());
 		
-		Map<String,String> contents = new LinkedHashMap();
+		Map<String,String> contents = new LinkedHashMap<String,String>();
 		
 		Map<String, Integer> headers = parser.getHeaderMap();
 		String path = filename+"/"+filename+"_row";

@@ -124,9 +124,8 @@ public class Extractor {
         }
 		
 		//CALL INVERTED INDEX METHOD
-//		InvertedIndexDLMS inverted = new InvertedIndexDLMS();
-//		InvertedIndexDLMS.buildInvertedIndex(extracted_pairs_leaf);
-//		InvertedIndexDLMS.buildInvertedIndex(metadata);
+		InvertedIndexDLMS.buildInvertedIndex(extracted_pairs_leaf);
+		InvertedIndexDLMS.buildInvertedIndex(metadata);
 
 	}
 

@@ -3,6 +3,9 @@ package extractor;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Map;
@@ -20,24 +23,24 @@ public class XMLExtract extends DefaultHandler {
 	Stack<Map> contents = new Stack<Map>();
 	
 	//Stores the leaf nodes for indexing
-	ArrayList<String> leaf_nodes = null;
+	Multimap<String,String> leaf_nodes = null;
 	
-	public ArrayList<String> getLeafNodes(){
+	public Multimap<String,String> getLeafNodes(){
 		return leaf_nodes;
 	}
 	
 	//Stores the intermediate nodes as well
-	ArrayList <String>all_nodes = null;
+	Multimap<String,String> all_nodes = null;
 	
-	public ArrayList<String> getAllNodes(){
+	public Multimap<String,String> getAllNodes(){
 		return all_nodes;
 	}
    
 	 public void startDocument( ) throws SAXException {
 	      list = new ArrayList<String>();
 	      
-	      leaf_nodes = new ArrayList<String>();
-	      all_nodes = new ArrayList<String>();
+	      leaf_nodes = ArrayListMultimap.create();
+	      all_nodes = ArrayListMultimap.create();
 	      
 	      list.add(filename);
 	      
@@ -58,16 +61,16 @@ public class XMLExtract extends DefaultHandler {
 		   	for ( int i = 0; i < attr.getLength(); i++ ){
 		   		String key = current_path+"/"+attr.getLocalName(i);
 		   		
-		   		leaf_nodes.add(key+" : "+attr.getValue(i));
-		   		all_nodes.add(key+" : "+attr.getValue(i));
+		   		leaf_nodes.put(key,attr.getValue(i));
+		   		all_nodes.put(key,attr.getValue(i));
 		   	}
 	   }
 	   
 	   public void endElement( String namespaceURI, String localName, String qName ) throws SAXException {
 	      String key = getList();
 	      
-	      if(!leaf_nodes.contains(key)){
-	    	  all_nodes.add(key+" : DONOTLINK");
+	      if(!leaf_nodes.containsKey(key)){
+	    	  all_nodes.put(key,"DONOTLINK");
 	      }
 	      int idx = list.lastIndexOf(localName);
 	      list.remove(idx);
@@ -87,8 +90,8 @@ public class XMLExtract extends DefaultHandler {
 		  
 		  String key = current_path;
 		  if(s.toString().trim().length() > 0){
-			  leaf_nodes.add(key+" : "+s.toString());
-			  all_nodes.add(key+" : "+s.toString());
+			  leaf_nodes.put(key,s.toString());
+			  all_nodes.put(key,s.toString());
 		  }
 	   }
 	   

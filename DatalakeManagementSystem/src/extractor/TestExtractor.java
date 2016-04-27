@@ -1,5 +1,7 @@
 package extractor;
 
+import indexer.InvertedIndexDLMS;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -7,9 +9,13 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.tika.Tika;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 
 import storage.ForwardIndexDA;
 import bean.ForwardIndex;
@@ -39,25 +45,37 @@ public class TestExtractor {
 		}
 		
 		Tika tika = new Tika();
-		ArrayList<String> extracted_pairs = new ArrayList<String>();
+		Multimap<String,String> extracted_pairs_leaf = ArrayListMultimap.create();
+		Multimap<String,String> extracted_pairs_all = ArrayListMultimap.create();
+		Multimap<String,String> metadata = ArrayListMultimap.create();
+		
+		Boolean isOther = false;
+		
+		TikaExtractor tikaextract = new TikaExtractor();
 		
 		for(String filename: files){
 			String mediaType = tika.detect(filename);
-//			System.out.println(mediaType);
 			
 			//PARSE JSON
 			if(mediaType.equals("application/json")){
 				
 				InputStream is = new FileInputStream(filename);
 		        String jsonTxt = IOUtils.toString(is);
-		        String out = JsonExtract.extractJson(jsonTxt,filename);
+		        String out = JsonExtract.extractJson(jsonTxt,"generated.json");
 		        ReadJsonOutput read_out = new ReadJsonOutput();
 				read_out.getExtractedPairs(out);
-//				extracted_pairs = read_out.getLeafNodes();
-				extracted_pairs = read_out.getAllNodes();
+				
+				
+				extracted_pairs_leaf = read_out.getLeafNodes();
+				extracted_pairs_all = read_out.getAllNodes();
+				
+				metadata = tikaextract.getMetadata(filename);
 		        
-//		        for(String pair : extracted_pairs){
-//		        	System.out.println(pair);
+//				Set<String> keys = extracted_pairs_all.keySet();
+//		        for(String key : keys){
+//		        	for(String value : extracted_pairs_all.get(key)){
+//		        		System.out.println(key+" : "+value);
+//		        	}
 //		        }
 			}
 			//PARSE CSV
@@ -66,35 +84,54 @@ public class TestExtractor {
 				ReadJsonOutput read_out = new ReadJsonOutput();
 				read_out.getExtractedPairs(out);
 				
-//				extracted_pairs = read_out.getLeafNodes();
-				extracted_pairs = read_out.getAllNodes();
+				extracted_pairs_leaf = read_out.getLeafNodes();
+				extracted_pairs_all = read_out.getAllNodes();
+				
+				metadata = tikaextract.getMetadata(filename);
 		        
-//		        for(String pair : extracted_pairs){
-//		        	System.out.println(pair);
-//		        }
 			} 
 			//PARSE XML
 			else if(mediaType.equals("application/xml")){
 				XMLExtract saxparser = new XMLExtract();
 				saxparser.extractXML(filename);
-//				extracted_pairs = saxparser.getLeafNodes();
-				extracted_pairs = saxparser.getAllNodes();
+				extracted_pairs_leaf = saxparser.getLeafNodes();
+				extracted_pairs_all = saxparser.getAllNodes();
 				
-//				for(String pair : extracted_pairs){
-//		        	System.out.println(pair);
-//		        }
+				metadata = tikaextract.getMetadata(filename);
 				
+			}else{
+				//Call apache tika
+				metadata = tikaextract.getMetadata(filename);
+				extracted_pairs_all = tikaextract.extract(filename);
+				extracted_pairs_leaf = tikaextract.extract(filename);
 			}
 		}
 		
 		//Store in forward index
 		ForwardIndexDA fIndexDA = new ForwardIndexDA();
-		for(String pair : extracted_pairs){
-			ForwardIndex fIndex = new ForwardIndex(pair.split(" : ")[0], pair.split(" : ")[1]);
-			fIndexDA.store(fIndex);
-		}
+		
+		//ALL CONTENT
+		Set<String> keys = extracted_pairs_all.keySet();
+		for(String key : keys){
+        	for(String value : extracted_pairs_all.get(key)){
+        		ForwardIndex fIndex = new ForwardIndex(key,value);
+    			fIndexDA.store(fIndex);
+        	}
+        }
+		
+		//METADATA
+		Set<String> meta_keys = metadata.keySet();
+		for(String key : meta_keys){
+        	for(String value : metadata.get(key)){
+        		ForwardIndex fIndex = new ForwardIndex(key,value);
+    			fIndexDA.store(fIndex);
+        	}
+        }
 		
 		//CALL INVERTED INDEX METHOD
+//		InvertedIndexDLMS inverted = new InvertedIndexDLMS();
+//		InvertedIndexDLMS.buildInvertedIndex(extracted_pairs_leaf);
+//		InvertedIndexDLMS.buildInvertedIndex(metadata);
 
 	}
 

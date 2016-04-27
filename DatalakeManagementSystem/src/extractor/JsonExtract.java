@@ -2,7 +2,6 @@ package extractor;
 
 import java.io.IOException;
 
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;

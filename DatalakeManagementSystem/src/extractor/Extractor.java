@@ -48,11 +48,9 @@ public class Extractor {
 		Multimap<String,String> extracted_pairs_all = ArrayListMultimap.create();
 		Multimap<String,String> metadata = ArrayListMultimap.create();
 		
-		TikaExtractor tikaextract = new TikaExtractor();
-		
 		for(String filename: files){
 			String mediaType = tika.detect(filename);
-			
+			TikaExtractor tikaextract = new TikaExtractor();
 			//PARSE JSON
 			if(mediaType.equals("application/json")){
 				

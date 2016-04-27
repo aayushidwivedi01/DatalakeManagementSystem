@@ -20,13 +20,10 @@ package extractor;
 import java.io.File;
 
 import org.apache.tika.config.TikaConfig;
-import org.apache.tika.detect.Detector;
 import org.apache.tika.io.TikaInputStream;
-import org.apache.tika.language.LanguageIdentifier;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
-import org.apache.tika.parser.Parser;
 import org.apache.tika.sax.BodyContentHandler;
 import org.xml.sax.ContentHandler;
 

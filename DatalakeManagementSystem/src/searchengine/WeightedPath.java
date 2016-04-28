@@ -2,22 +2,25 @@ package searchengine;
 
 import java.util.ArrayList;
 
-class WeightedPath
+public class WeightedPath implements Comparable<WeightedPath>
 {
-	ArrayList<String> path;
-	int cost;
-	String node;
+	private ArrayList<String> path;
+	private double cost;
+	private String node;
 
-	public WeightedPath(ArrayList<String> path, int cost)
+	public WeightedPath(ArrayList<String> path, double cost)
 	{
 		this.path = path;
 		this.node = path.get(path.size());
+		this.cost = cost;
 	}
 	
-	public WeightedPath(String node, int cost)
+	public WeightedPath(String node, double cost)
 	{
 		this.path = new ArrayList<String>();
 		path.add(node);
+		this.node = node;
+		this.cost = cost;
 	}
 	
 	public ArrayList<String> getPath() {
@@ -28,11 +31,19 @@ class WeightedPath
 //		this.path = path;
 //	}
 
-	public int getCost() {
+	public double getCost() {
 		return cost;
 	}
 
-	public void updateCost(int new_cost) {
+	public String getNode() {
+		return node;
+	}
+
+	public void setNode(String node) {
+		this.node = node;
+	}
+	
+	public void updateCost(double new_cost) {
 		cost += new_cost;
 	}
 	
@@ -40,5 +51,10 @@ class WeightedPath
 	{
 		path.add(node);
 		this.node = node;
+	}
+	
+	public int compareTo(WeightedPath p)
+	{
+		return (int) (this.getCost() - p.getCost());
 	}
 }

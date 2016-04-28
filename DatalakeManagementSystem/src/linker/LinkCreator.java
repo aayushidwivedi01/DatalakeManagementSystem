@@ -3,8 +3,11 @@ package linker;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import org.json.JSONObject;
 import bean.ForwardIndex;
 import bean.Link;
@@ -94,19 +97,29 @@ public class LinkCreator {
 		return stemmedWord;
 	}
 
-	private void addLink(Link link, Map<String, Links> mapOfLinks) {
+	private void addLink(Link link, Map<String, Links> mapOfLinks, Map<String, Set<String>> mapOfSetOfLinks) {
 		if (mapOfLinks.containsKey(link.getSource())) {
-			mapOfLinks.get(link.getSource()).getRelations().add(new JSONObject(link));
+			if (link.getSource().equals("sample3.json/root3/content/text")) {
+				//System.out.println("source - sample3.json/root3/content/text");
+				//System.out.println(mapOfSetOfLinks);
+			}
+			if (!mapOfSetOfLinks.get(link.getSource()).contains(link))
+			{
+				mapOfLinks.get(link.getSource()).getRelations().add(new JSONObject(link));
+				mapOfSetOfLinks.get(link.getSource()).add(link.toString());
+			}
+				
 		} else {
 			Links links = new Links(link.getSource(), new ArrayList<JSONObject>());
 			links.getRelations().add(new JSONObject(link));
 			mapOfLinks.put(link.getSource(), links);
+			mapOfSetOfLinks.put(link.getSource(), new HashSet<String>());
 		}
 	}
 
-	private void addAllLink(List<Link> links, Map<String, Links> mapOfLinks) {
+	private void addAllLink(List<Link> links, Map<String, Links> mapOfLinks, Map<String, Set<String>> mapOfSetOfLinks) {
 		for (Link link : links) {
-			addLink(link, mapOfLinks);
+			addLink(link, mapOfLinks, mapOfSetOfLinks);
 		}
 	}
 
@@ -280,9 +293,12 @@ public class LinkCreator {
 		return links;
 	}
 
-	public Map<String, Links> mergeLinks(List<Link> links) {
+	public Map<String, Links> mergeLinks(Set<Link> links) {
+		ArrayList<Link> mergedLinks = new ArrayList<Link>(links);
+		
 		Map<String, Links> mapOfLinks = new HashMap<String, Links>();
-		addAllLink(links, mapOfLinks);
+		Map<String, Set<String>> mapOfSetOfLinks = new HashMap<String, Set<String>>();
+		addAllLink(mergedLinks, mapOfLinks, mapOfSetOfLinks);
 		return mapOfLinks;
 	}
 
@@ -309,6 +325,7 @@ public class LinkCreator {
 					if (!thread.getState().equals(Thread.State.RUNNABLE)) {
 						done = true;
 						thread.run(links.getValue());
+						break;
 					}
 				}
 				try {

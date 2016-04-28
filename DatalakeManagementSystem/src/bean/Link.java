@@ -51,5 +51,30 @@ public class Link {
 	public String toString() {
 		return "Link [source=" + source + ", type=" + type + ", dest=" + dest + ", weight=" + weight + "]";
 	}
+	
+	public boolean equals( Link obj )
+	{
+		return this.source.equals(obj.getSource()) && this.dest.equals(obj.getDest()) && this.type.equals(obj.getType()) && this.getWeight() == obj.getWeight() ?true:false;
+
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((dest == null) ? 0 : dest.hashCode());
+		result = prime * result + ((source == null) ? 0 : source.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		long temp;
+		temp = Double.doubleToLongBits(weight);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object object) {
+		Link obj = (Link) object;
+		return this.source.equalsIgnoreCase(obj.getSource()) && this.dest.equalsIgnoreCase(obj.getDest()) && this.type.equalsIgnoreCase(obj.getType()) && this.getWeight() == obj.getWeight() ?true:false;
+	}
 
 }

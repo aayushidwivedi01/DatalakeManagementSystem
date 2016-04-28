@@ -17,21 +17,21 @@ public class LinksDA {
 
 	private static MongoClientURI URI = new MongoClientURI(
 			"mongodb://dlms_webapp:webapp@ds013971.mlab.com:13971/webappdb");
-	public static String COLLECTION_NAME = "links";
+	public static String COLLECTION_NAME = "links_test";
 	public static String SOURCE_KEY = "source";
 	public static String RELATIONS_KEY = "relations";
 	private MongoClient client;
 	private MongoDatabase db;
 	private MongoCollection<Document> collection;
-	
-	public LinksDA(){
+
+	public LinksDA() {
 		super();
 		this.client = new MongoClient(URI);
 		this.db = client.getDatabase(URI.getDatabase());
 		db.getCollection(COLLECTION_NAME).createIndex(new Document(SOURCE_KEY, 1), new IndexOptions().unique(true));
 		this.collection = db.getCollection(COLLECTION_NAME);
 	}
-	
+
 	public MongoClient getClient() {
 		return client;
 	}
@@ -39,27 +39,36 @@ public class LinksDA {
 	public MongoDatabase getDb() {
 		return db;
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	public Links fetch(String source){
+	public Links fetch(String source) {
 		Document doc = collection.find(eq(SOURCE_KEY, source)).first();
 		Links links = null;
-		if(doc != null){
-			List<JSONObject>relations = (List<JSONObject>) doc.get(RELATIONS_KEY);
+		if (doc != null) {
+			List<JSONObject> relations = new ArrayList<JSONObject>();
+			for (Document o : (ArrayList<Document>) doc.get(RELATIONS_KEY)) {
+				JSONObject json = new JSONObject();
+				json.append("dest", o.getString("dest"));
+				json.append("source", o.getString("source"));
+				json.append("weight", o.getString("weight"));
+				json.append("type", o.getString("type"));
+				relations.add(json);
+			}
 			links = new Links(source, relations);
 		}
 		return links;
 	}
-	
-	public void store(Links links){
+
+	public void store(Links links) {
 		Document doc = Document.parse(new JSONObject(links).toString());
 		collection.insertOne(doc);
 	}
-	
-	public void update(Links links){
+
+	public void update(Links links) {
 		delete(links);
 		store(links);
 	}
+
 	public void delete(Links links) {
 		collection.deleteOne(eq(SOURCE_KEY, links.getSource()));
 	}
@@ -71,29 +80,32 @@ public class LinksDA {
 	public void close() {
 		client.close();
 	}
-	
-	public static void main(String[] args){
-		ArrayList<JSONObject>relations = new ArrayList<JSONObject>();
+
+	public static void main(String[] args) {
+		ArrayList<JSONObject> relations = new ArrayList<JSONObject>();
 		JSONObject jsonObj = new JSONObject("{\"phonetype\":\"N95\",\"cat\":\"WP\"}");
 		relations.add(jsonObj);
 		relations.add(jsonObj);
-		Links links = new Links("mankit", relations);
+		Links links = new Links("source", relations);
 		LinksDA lDa = new LinksDA();
-		try{
+		try {
 			lDa.store(links);
 			System.out.println("Store successful");
-			System.out.println("Fetched:" + lDa.fetch("mankit"));
+			System.out.println("Fetched:" + lDa.fetch("source"));
 			relations.add(jsonObj);
 			lDa.update(links);
 			System.out.println("Update successful");
-			System.out.println("Fetched:" + lDa.fetch("mankit"));
-		}catch(Exception e){
+			Links test = lDa.fetch("source");
+			System.out.println(test.getRelations());
+			System.out.println(test.getRelations().get(0).getClass());
+			System.out.println("Fetched:" + test);
+		} catch (Exception e) {
 			e.printStackTrace();
-		}finally{
-			lDa.delete("mankit");
-			System.out.println(lDa.fetch("mankit"));
+		} finally {
+			lDa.delete("source");
+			System.out.println(lDa.fetch("source"));
 			lDa.close();
 		}
 	}
-	
+
 }

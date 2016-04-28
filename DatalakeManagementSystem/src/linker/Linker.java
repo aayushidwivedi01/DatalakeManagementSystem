@@ -2,9 +2,11 @@ package linker;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Set;
+import org.json.JSONObject;
 import bean.FlatDocument;
 import bean.ForwardIndex;
 import bean.Link;
@@ -44,7 +46,7 @@ public class Linker {
 
 	public void linkNewDocuments() {
 		Map<String, List<ForwardIndex>> docForwardIndices = new HashMap<String, List<ForwardIndex>>();
-		List<Link> links = new ArrayList<Link>();
+		Set<Link> links = new HashSet<Link>();
 		FlatDocumentDA fDAOld = new FlatDocumentDA(OLD_COLLECTION_NAME);
 		FlatDocumentDA fDANew = new FlatDocumentDA(NEW_COLLECTION_NAME);
 
@@ -81,6 +83,9 @@ public class Linker {
 		// merge links and store them
 		Map<String, Links> mapOfLinks = linkCreator.mergeLinks(links);
 		System.out.println("Unique sources - "+ mapOfLinks.size());
+		for (JSONObject json : mapOfLinks.get("sample3.json/root3/content/text").getRelations()) {
+			System.out.println(json);
+		}
 		//System.out.println(mapOfLinks);
 		long startTime = System.nanoTime();
 		linkCreator.storeLinks(mapOfLinks);

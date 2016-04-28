@@ -17,7 +17,7 @@ public class LinksDA {
 
 	private static MongoClientURI URI = new MongoClientURI(
 			"mongodb://dlms_webapp:webapp@ds013971.mlab.com:13971/webappdb");
-	public static String COLLECTION_NAME = "links_test";
+	public static String COLLECTION_NAME = "links";
 	public static String SOURCE_KEY = "source";
 	public static String RELATIONS_KEY = "relations";
 	private MongoClient client;
@@ -48,10 +48,10 @@ public class LinksDA {
 			List<JSONObject> relations = new ArrayList<JSONObject>();
 			for (Document o : (ArrayList<Document>) doc.get(RELATIONS_KEY)) {
 				JSONObject json = new JSONObject();
-				json.append("dest", o.getString("dest"));
-				json.append("source", o.getString("source"));
-				json.append("weight", o.getString("weight"));
-				json.append("type", o.getString("type"));
+				json.put("dest", o.getString("dest"));
+				json.put("source", o.getString("source"));
+				json.put("weight", o.getInteger("weight"));
+				json.put("type", o.getString("type"));
 				relations.add(json);
 			}
 			links = new Links(source, relations);
@@ -95,9 +95,10 @@ public class LinksDA {
 			relations.add(jsonObj);
 			lDa.update(links);
 			System.out.println("Update successful");
-			Links test = lDa.fetch("source");
+			Links test = lDa.fetch("tom");
 			System.out.println(test.getRelations());
 			System.out.println(test.getRelations().get(0).getClass());
+			System.out.println(test.getRelations().get(0));
 			System.out.println("Fetched:" + test);
 		} catch (Exception e) {
 			e.printStackTrace();

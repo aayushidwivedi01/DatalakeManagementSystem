@@ -82,7 +82,12 @@ public class Linker {
 		Map<String, Links> mapOfLinks = linkCreator.mergeLinks(links);
 		System.out.println("Unique sources - "+ mapOfLinks.size());
 		//System.out.println(mapOfLinks);
+		long startTime = System.nanoTime();
 		linkCreator.storeLinks(mapOfLinks);
+		long endTime = System.nanoTime();
+
+		System.out.println("Time to store - " + (endTime - startTime)/1000000 + " mSec");  //divide by 1000000 to get milliseconds.
+		
 	}
 
 	public static void main(String[] args) {

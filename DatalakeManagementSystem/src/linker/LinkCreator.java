@@ -10,7 +10,6 @@ import bean.ForwardIndex;
 import bean.Link;
 import bean.Links;
 import bean.PathAttribute;
-import storage.LinksDA;
 import utils.Stemmer;
 
 /*
@@ -53,8 +52,10 @@ public class LinkCreator {
 	private static Map<LinkType, String> linkType = new EnumMap<LinkType, String>(LinkType.class);
 	private static Map<LinkType, Double> linkWeight = new EnumMap<LinkType, Double>(LinkType.class);
 	private static final double DEFAULT_WEIGHT = 1.0;
+	private static final int STORE_THREAD_COUNT = 5;
 	private static final String DNL = "donotlink";
-	private Stemmer stemmer = new Stemmer();
+	private Stemmer stemmer;
+	private ArrayList<LinkStoreThread> linkStoreThreads;
 
 	static {
 		linkType.put(LinkType.CONTAINS, "CONTAINS");
@@ -76,6 +77,14 @@ public class LinkCreator {
 		linkWeight.put(LinkType.MATCHES_FILENAME, DEFAULT_WEIGHT);
 		linkWeight.put(LinkType.MATCHES_PATH, DEFAULT_WEIGHT);
 		linkWeight.put(LinkType.IS_CONTAINED_IN, DEFAULT_WEIGHT);
+	}
+
+	public LinkCreator() {
+		stemmer = new Stemmer();
+		linkStoreThreads = new ArrayList<LinkStoreThread>();
+		for (int i = 0; i < STORE_THREAD_COUNT; i++) {
+			linkStoreThreads.add(new LinkStoreThread(i));
+		}
 	}
 
 	private String stem(String word) {
@@ -227,7 +236,7 @@ public class LinkCreator {
 		String[] tokens = f1.getValue().replaceAll("[^a-zA-Z0-9 ]", "").toLowerCase().split("\\s+");
 		for (String token : tokens) {
 			token = stem(token);
-			System.out.println(token);
+			// System.out.println(token);
 			source = f1.getPath();
 			type = LinkType.CONTAINS;
 			dest = token;
@@ -278,16 +287,38 @@ public class LinkCreator {
 	}
 
 	public void storeLinks(Map<String, Links> mapOfLinks) {
-		LinksDA linksDA = new LinksDA();
-		for (Map.Entry<String, Links> links : mapOfLinks.entrySet()) {
-			Links storedLinks = linksDA.fetch(links.getKey());
-			if (storedLinks == null) {
-				linksDA.store(links.getValue());
-			} else {
-				storedLinks.getRelations().addAll(links.getValue().getRelations());
-				linksDA.update(storedLinks);
+		boolean done = false;
+		while (!done) {
+			done = true;
+			for (LinkStoreThread thread : linkStoreThreads) {
+				if (thread.getState().equals(Thread.State.RUNNABLE)) {
+					done = false;
+				}
+			}
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
 		}
+		System.out.println("All storage threads free");
+		for (Map.Entry<String, Links> links : mapOfLinks.entrySet()) {
+			done = false;
+			while (!done) {
+				for (LinkStoreThread thread : linkStoreThreads) {
+					if (!thread.getState().equals(Thread.State.RUNNABLE)) {
+						done = true;
+						thread.run(links.getValue());
+					}
+				}
+				try {
+					Thread.sleep(200);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		System.out.println("done writing");
 	}
 
 	public void printLinks(Map<String, Links> mapOfLinks) {

@@ -38,8 +38,8 @@ public class ForwardIndexDA {
 		return db;
 	}
 
-	public ForwardIndex fetch(String username) {
-		Document doc = collection.find(eq(PATH_KEY, username)).first();
+	public ForwardIndex fetch(String fIndexPath) {
+		Document doc = collection.find(eq(PATH_KEY, fIndexPath)).first();
 		ForwardIndex fIndex = null;
 		if (doc != null) {
 			fIndex = new ForwardIndex(doc.getString(PATH_KEY), doc.getString(VALUE_KEY));

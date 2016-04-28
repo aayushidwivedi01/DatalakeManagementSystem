@@ -1,13 +1,10 @@
 package storage;
 
 import static com.mongodb.client.model.Filters.eq;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import org.bson.Document;
 import org.json.JSONObject;
-
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
@@ -43,8 +40,7 @@ public class FlatDocumentDA {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public FlatDocument fetch(String document){
-		Document doc = collection.find(eq(DOC_KEY, document)).first();
+	public FlatDocument docToFlatDocument(Document doc) {
 		FlatDocument flatDocument= null;
 		if (doc != null) {
 			List<String>fIndex =(List<String>) doc.get(INDEX_KEY);
@@ -52,7 +48,21 @@ public class FlatDocumentDA {
 		}
 		return flatDocument;
 	}
-
+	
+	
+	public FlatDocument fetch(String document){
+		Document doc = collection.find(eq(DOC_KEY, document)).first();
+		return docToFlatDocument(doc);
+	}
+	
+	public List<FlatDocument> fetchAll() {
+		List<FlatDocument> flatDocuments = new ArrayList<FlatDocument>();
+		for (Document doc : collection.find()) {
+			flatDocuments.add(docToFlatDocument(doc));
+		}
+		return flatDocuments;
+	}
+	
 	public void store(FlatDocument flatDocument){
 		Document doc = Document.parse(new JSONObject(flatDocument).toString());
 		collection.insertOne(doc);

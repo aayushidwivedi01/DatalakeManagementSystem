@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import org.json.simple.JSONObject;
+
+import com.google.common.collect.Multimap;
 
 import bean.InvertedIndex;
 import bean.Occurance;
@@ -22,48 +25,78 @@ import utils.Stemmer;
 
 public class InvertedIndexDLMS {
 	
-	public static void buildInvertedIndex(ArrayList<String> extractedPairs)
+	public static void buildInvertedIndex(Multimap<String, String> extracted_pairs_leaf)
 	{
+		System.out.println("BUILDING INVERTED INDEX");
 		List<String> words = new ArrayList<String>();
 		List<Occurance> occurs = new ArrayList<Occurance>();
-		InvertedIndexDA iIndexDA = new InvertedIndexDA();
-
-		for (String pair : extractedPairs)
+		//InvertedIndexDA iIndexDA = new InvertedIndexDA();
+		HashMap<String, List<Occurance>> occurances = new HashMap<String, List<Occurance>>();
+		
+		Set<String> keys = extracted_pairs_leaf.keySet();
+		for (String key : keys)
 		{
-			String path = pair.split(" : ", 2)[0].trim();
-			String[] nodePath = path.split("/");
-			String attribute = nodePath[nodePath.length - 1];
-			words = Arrays.asList(pair.split(" : ", 2)[1].trim().split("\\s+"));
-			for (String word: words)
-			{
-				word = word.toLowerCase().replaceAll("^\\p{Punct}+|\\p{Punct}+$", "");
-				if (stopwords.contains(word))
-					continue;
-				word = stem(word);
-				Occurance current_occurance = new Occurance(path, attribute);
-				InvertedIndex idx = iIndexDA.fetch(word);
-				if (idx != null)
+			for(String value : extracted_pairs_leaf.get(key)){
+//				String path = pair.split(" : ", 2)[0].trim();
+				String[] nodePath = key.split("/");
+				String attribute = nodePath[nodePath.length - 1];
+				words = Arrays.asList(value.trim().split("\\s+"));
+				for (String word: words)
 				{
-					System.out.println("word " + word + " in store");
-					occurs = idx.getOccurs();
-					occurs.add(current_occurance);
-					InvertedIndex new_idx = new InvertedIndex(word, occurs);
-					iIndexDA.update(new_idx);
-				}
-				else
-				{
-					System.out.println("word " + word + " not in store");
-					occurs = new ArrayList<Occurance>();
-					occurs.add(current_occurance);
-					InvertedIndex new_idx = new InvertedIndex(word, occurs);
-					iIndexDA.store(new_idx);
+					word = word.toLowerCase().replaceAll("^\\p{Punct}+|\\p{Punct}+$", "");
+					if (stopwords.contains(word))
+						continue;
+					word = stem(word);
+					Occurance current_occurance = new Occurance(key, attribute);
+					//InvertedIndex idx = iIndexDA.fetch(word);
+					if (occurances.containsKey(word))
+					{
+						//System.out.println("word " + word + " in store");
+						occurs = occurances.get(word);
+						occurs.add(current_occurance);
+						//InvertedIndex new_idx = new InvertedIndex(word, occurs);
+						//iIndexDA.update(new_idx);
+						occurances.put(word, occurs);
+					}
+					else
+					{
+						//System.out.println("word " + word + " not in store");
+						occurs = new ArrayList<Occurance>();
+						occurs.add(current_occurance);
+						//InvertedIndex new_idx = new InvertedIndex(word, occurs);
+						//iIndexDA.store(new_idx);
+						occurances.put(word, occurs);
+					}
 				}
 			}
 		}
 		
-		//printIndex(index);
+		System.out.println("number of words: " + occurances.size());
+		//printIndex(occurances);
+		writeToDB(occurances);
 	}
 	
+	private static void writeToDB(HashMap<String, List<Occurance>> index) {
+		System.out.println("Writing to DB");
+		InvertedIndexDA iIndexDA= new InvertedIndexDA();
+		for (Entry<String, List<Occurance>> entry: index.entrySet())
+		{
+			//System.out.println("Storing word: " + entry.getKey());
+			InvertedIndex idx = iIndexDA.fetch(entry.getKey());
+			if (idx != null)
+			{
+				idx.getOccurs().addAll(entry.getValue());
+				iIndexDA.update(idx);
+			}
+			else
+			{
+				idx = new InvertedIndex(entry.getKey(), entry.getValue());
+				iIndexDA.store(idx);
+			}
+		}
+		
+	}
+
 	private static String stem(String word)
 	{
 		//System.out.println("received word: " + word);
@@ -76,9 +109,9 @@ public class InvertedIndexDLMS {
 		return stemmedWord;
 	}
 	
-	private static void printIndex(HashMap<String, ArrayList<Occurance>> index)
+	private static void printIndex(HashMap<String, List<Occurance>> index)
 	{
-		for (Entry<String, ArrayList<Occurance>> entry: index.entrySet())
+		for (Entry<String, List<Occurance>> entry: index.entrySet())
 		{
 			System.out.print("word: " + entry.getKey());
 			for (Occurance ob: entry.getValue())

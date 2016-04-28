@@ -17,7 +17,9 @@ import org.apache.tika.Tika;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
+import storage.FlatDocumentDA;
 import storage.ForwardIndexDA;
+import bean.FlatDocument;
 import bean.ForwardIndex;
 
 
@@ -44,14 +46,15 @@ public class Extractor {
 		}
 		
 		Tika tika = new Tika();
-		Multimap<String,String> extracted_pairs_leaf = ArrayListMultimap.create();
-		Multimap<String,String> extracted_pairs_all = ArrayListMultimap.create();
-		Multimap<String,String> metadata = ArrayListMultimap.create();
-		
-		TikaExtractor tikaextract = new TikaExtractor();
 		
 		for(String filename: files){
+			
+			Multimap<String,String> extracted_pairs_leaf = ArrayListMultimap.create();
+			Multimap<String,String> extracted_pairs_all = ArrayListMultimap.create();
+			Multimap<String,String> metadata = ArrayListMultimap.create();
+			
 			String mediaType = tika.detect(filename);
+			TikaExtractor tikaextract = new TikaExtractor();
 			
 			//PARSE JSON
 			if(mediaType.equals("application/json")){
@@ -68,12 +71,6 @@ public class Extractor {
 				
 				metadata = tikaextract.getMetadata(filename);
 		        
-//				Set<String> keys = extracted_pairs_all.keySet();
-//		        for(String key : keys){
-//		        	for(String value : extracted_pairs_all.get(key)){
-//		        		System.out.println(key+" : "+value);
-//		        	}
-//		        }
 			}
 			//PARSE CSV
 			else if(mediaType.equals("text/csv")){
@@ -102,34 +99,50 @@ public class Extractor {
 				extracted_pairs_all = tikaextract.extract(filename);
 				extracted_pairs_leaf = extracted_pairs_all;
 			}
+			
+			/**
+			 * Store in forward index
+			 */
+			ForwardIndexDA fIndexDA = new ForwardIndexDA();
+			ArrayList <String> all_doc_keys = new ArrayList<String>();
+			
+			//ALL CONTENT
+			Set<String> keys = extracted_pairs_all.keySet();
+			for(String key : keys){
+	        	for(String value : extracted_pairs_all.get(key)){
+	        		ForwardIndex fIndex = new ForwardIndex(key,value);
+	    			fIndexDA.store(fIndex);
+	        	}
+	        }
+			
+			all_doc_keys.addAll(keys);
+			
+			//METADATA
+			Set<String> meta_keys = metadata.keySet();
+			for(String key : meta_keys){
+	        	for(String value : metadata.get(key)){
+	        		ForwardIndex fIndex = new ForwardIndex(key,value);
+	    			fIndexDA.store(fIndex);
+	        	}
+	        }
+			
+			all_doc_keys.addAll(meta_keys);
+			
+			/**
+			 * Add flat document DA
+			 */
+			FlatDocumentDA fda = new FlatDocumentDA();
+			FlatDocument flatDocument = new FlatDocument(filename, all_doc_keys);
+			
+			fda.store(flatDocument);
+			
+			/**
+			 * CALL INVERTED INDEX METHOD
+			 */
+			InvertedIndexDLMS.buildInvertedIndex(extracted_pairs_leaf);
+			InvertedIndexDLMS.buildInvertedIndex(metadata);
 		}
 		
-		//Store in forward index
-		ForwardIndexDA fIndexDA = new ForwardIndexDA();
-		
-		//ALL CONTENT
-		Set<String> keys = extracted_pairs_all.keySet();
-		for(String key : keys){
-        	for(String value : extracted_pairs_all.get(key)){
-        		ForwardIndex fIndex = new ForwardIndex(key,value);
-    			fIndexDA.store(fIndex);
-        	}
-        }
-		
-		//METADATA
-		Set<String> meta_keys = metadata.keySet();
-		for(String key : meta_keys){
-        	for(String value : metadata.get(key)){
-        		ForwardIndex fIndex = new ForwardIndex(key,value);
-    			fIndexDA.store(fIndex);
-        	}
-        }
-		
-		//CALL INVERTED INDEX METHOD
-//		InvertedIndexDLMS inverted = new InvertedIndexDLMS();
-//		InvertedIndexDLMS.buildInvertedIndex(extracted_pairs_leaf);
-//		InvertedIndexDLMS.buildInvertedIndex(metadata);
-
 	}
 
 }

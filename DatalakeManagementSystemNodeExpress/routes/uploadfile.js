@@ -3,14 +3,14 @@ var fs = require("fs");
 var Models = require("../models/models");
 var User = Models.User;
 var Doc = Models.Doc;
-var Owner = Models.Owner;
+//var Owner = Models.Owner;
 
 function savePermissions(req, res, status) {
 	var code = 0;
 	var file_path = "/home/cis550/bobby_tables/uploads/" +
 	"" + req.session.user + "_"+req.files.dataitem.name;
 	var doc_id = req.session.user + "_" + req.files.dataitem.name;
-	var doc = new Doc({id: doc_id, path: file_path, permission: req.body.scope});
+	var doc = new Doc({id: doc_id, username: req.session.user, path: file_path, permission: req.body.scope});
 	doc.save(function(err){
 		if(err){
 			status(-1);
@@ -18,16 +18,7 @@ function savePermissions(req, res, status) {
 			}
 		else {
 			console.log("Document has been saved!");
-			var owner = new Owner({username: req.session.user_id, document_id: doc._id});
-			owner.save(function(err){
-				if(err){
-					status(-2);
-					console.log("Document id exists");					
-					}
-				console.log("Ownership has been saved!");
 				status(0);
-				
-			});
 		}
 	});
 	
@@ -56,8 +47,6 @@ function uploadFile(req, res, next) {
 					savePermissions(req, res, function(status){
 						if(status === -1){
 							res.send("File already exists in DLMS");
-						} else if (status === -2){
-							res.send("Error saving ownership");
 						}else{
 						res.send("File saved successfully!");
 						}

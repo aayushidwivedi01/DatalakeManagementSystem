@@ -33,7 +33,7 @@ public class CSVExtract {
 		Map<String,String> contents = new LinkedHashMap<String,String>();
 		
 		Map<String, Integer> headers = parser.getHeaderMap();
-		String path = filename+"/"+filename+"_row";
+		String path = filename+"/DONOTLINK_row";
 		for(CSVRecord record : parser){
 			//Skipping non consistent records
 			if(!record.isConsistent())

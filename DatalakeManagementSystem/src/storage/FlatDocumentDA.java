@@ -16,7 +16,7 @@ import bean.FlatDocument;
 public class FlatDocumentDA {
 	private static MongoClientURI URI = new MongoClientURI(
 			"mongodb://dlms_webapp:webapp@ds013971.mlab.com:13971/webappdb");
-	public static String COLLECTION_NAME_NEW = "flat_documents";
+	public String COLLECTION_NAME = "flat_documents_new";
 	public static String DOC_KEY = "document";
 	public static String INDEX_KEY = "forwardIndex";
 	private MongoClient client;
@@ -27,8 +27,17 @@ public class FlatDocumentDA {
 		super();
 		this.client = new MongoClient(URI);
 		this.db = client.getDatabase(URI.getDatabase());
-		db.getCollection(COLLECTION_NAME_NEW).createIndex(new Document(DOC_KEY, 1), new IndexOptions().unique(true));
-		this.collection = db.getCollection(COLLECTION_NAME_NEW);
+		db.getCollection(COLLECTION_NAME).createIndex(new Document(DOC_KEY, 1), new IndexOptions().unique(true));
+		this.collection = db.getCollection(COLLECTION_NAME);
+	}
+	
+	public FlatDocumentDA(String collection){
+		super();
+		this.COLLECTION_NAME = collection;
+		this.client = new MongoClient(URI);
+		this.db = client.getDatabase(URI.getDatabase());
+		db.getCollection(COLLECTION_NAME).createIndex(new Document(DOC_KEY, 1), new IndexOptions().unique(true));
+		this.collection = db.getCollection(COLLECTION_NAME);
 	}
 	
 	public MongoClient getClient() {

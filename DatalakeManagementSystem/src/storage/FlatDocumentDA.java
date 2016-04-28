@@ -22,16 +22,16 @@ public class FlatDocumentDA {
 	private MongoClient client;
 	private MongoDatabase db;
 	private MongoCollection<Document> collection;
-	
-	public FlatDocumentDA(){
+
+	public FlatDocumentDA() {
 		super();
 		this.client = new MongoClient(URI);
 		this.db = client.getDatabase(URI.getDatabase());
 		db.getCollection(COLLECTION_NAME).createIndex(new Document(DOC_KEY, 1), new IndexOptions().unique(true));
 		this.collection = db.getCollection(COLLECTION_NAME);
 	}
-	
-	public FlatDocumentDA(String collection){
+
+	public FlatDocumentDA(String collection) {
 		super();
 		this.COLLECTION_NAME = collection;
 		this.client = new MongoClient(URI);
@@ -39,7 +39,7 @@ public class FlatDocumentDA {
 		db.getCollection(COLLECTION_NAME).createIndex(new Document(DOC_KEY, 1), new IndexOptions().unique(true));
 		this.collection = db.getCollection(COLLECTION_NAME);
 	}
-	
+
 	public MongoClient getClient() {
 		return client;
 	}
@@ -47,23 +47,22 @@ public class FlatDocumentDA {
 	public MongoDatabase getDb() {
 		return db;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public FlatDocument docToFlatDocument(Document doc) {
-		FlatDocument flatDocument= null;
+		FlatDocument flatDocument = null;
 		if (doc != null) {
-			List<String>fIndex =(List<String>) doc.get(INDEX_KEY);
+			List<String> fIndex = (List<String>) doc.get(INDEX_KEY);
 			flatDocument = new FlatDocument(doc.getString(DOC_KEY), fIndex);
 		}
 		return flatDocument;
 	}
-	
-	
-	public FlatDocument fetch(String document){
+
+	public FlatDocument fetch(String document) {
 		Document doc = collection.find(eq(DOC_KEY, document)).first();
 		return docToFlatDocument(doc);
 	}
-	
+
 	public List<FlatDocument> fetchAll() {
 		List<FlatDocument> flatDocuments = new ArrayList<FlatDocument>();
 		for (Document doc : collection.find()) {
@@ -71,16 +70,17 @@ public class FlatDocumentDA {
 		}
 		return flatDocuments;
 	}
-	
-	public void store(FlatDocument flatDocument){
+
+	public void store(FlatDocument flatDocument) {
 		Document doc = Document.parse(new JSONObject(flatDocument).toString());
 		collection.insertOne(doc);
 	}
-	
-	public void update(FlatDocument flatDocument){
+
+	public void update(FlatDocument flatDocument) {
 		delete(flatDocument);
 		store(flatDocument);
 	}
+
 	public void delete(FlatDocument flatDocument) {
 		collection.deleteOne(eq(DOC_KEY, flatDocument.getDocument()));
 	}
@@ -92,14 +92,14 @@ public class FlatDocumentDA {
 	public void close() {
 		client.close();
 	}
-	
-	public static void main(String[] args){
-		ArrayList<String>fIndex = new ArrayList<String>();
+
+	public static void main(String[] args) {
+		ArrayList<String> fIndex = new ArrayList<String>();
 		fIndex.add("f1");
 		fIndex.add("f2");
 		FlatDocument flatDocument = new FlatDocument("mankit", fIndex);
 		FlatDocumentDA fDa = new FlatDocumentDA();
-		try{
+		try {
 			fDa.store(flatDocument);
 			System.out.println("Store successful");
 			System.out.println("Fetched:" + fDa.fetch("mankit"));
@@ -107,9 +107,9 @@ public class FlatDocumentDA {
 			fDa.update(flatDocument);
 			System.out.println("Update successful");
 			System.out.println("Fetched:" + fDa.fetch("mankit"));
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
-		}finally{
+		} finally {
 			fDa.delete("mankit");
 			System.out.println(fDa.fetch("mankit"));
 			fDa.close();

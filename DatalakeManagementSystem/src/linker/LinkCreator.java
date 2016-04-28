@@ -5,14 +5,13 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.json.JSONObject;
-
 import bean.ForwardIndex;
 import bean.Link;
 import bean.Links;
 import bean.PathAttribute;
 import storage.LinksDA;
+import utils.Stemmer;
 
 /*
  * Linker Steps - 
@@ -48,13 +47,14 @@ import storage.LinksDA;
 public class LinkCreator {
 
 	private static enum LinkType {
-		CONTAINS, IS_CONTAINED_IN, IS_SAME, IS_PARTENT, IS_CHILD, MATCHES_ATTRIBUTE, MATCHES_CONTENT,
-		MATCHES_FILENAME, MATCHES_PATH
+		CONTAINS, IS_CONTAINED_IN, IS_SAME, IS_PARTENT, IS_CHILD, MATCHES_ATTRIBUTE, MATCHES_CONTENT, MATCHES_FILENAME, MATCHES_PATH
 	}
 
 	private static Map<LinkType, String> linkType = new EnumMap<LinkType, String>(LinkType.class);
 	private static Map<LinkType, Double> linkWeight = new EnumMap<LinkType, Double>(LinkType.class);
 	private static final double DEFAULT_WEIGHT = 1.0;
+	private static final String DNL = "donotlink";
+	private Stemmer stemmer = new Stemmer();
 
 	static {
 		linkType.put(LinkType.CONTAINS, "CONTAINS");
@@ -78,6 +78,13 @@ public class LinkCreator {
 		linkWeight.put(LinkType.IS_CONTAINED_IN, DEFAULT_WEIGHT);
 	}
 
+	private String stem(String word) {
+		stemmer.add(word.toCharArray(), word.length());
+		stemmer.stem();
+		String stemmedWord = stemmer.toString();
+		return stemmedWord;
+	}
+
 	private void addLink(Link link, Map<String, Links> mapOfLinks) {
 		if (mapOfLinks.containsKey(link.getSource())) {
 			mapOfLinks.get(link.getSource()).getRelations().add(new JSONObject(link));
@@ -93,7 +100,7 @@ public class LinkCreator {
 			addLink(link, mapOfLinks);
 		}
 	}
-	
+
 	private List<Link> getParentChildLinks(ForwardIndex f, PathAttribute pathAttribute) {
 		List<Link> links = new ArrayList<Link>();
 		LinkType type;
@@ -111,7 +118,7 @@ public class LinkCreator {
 		}
 		return links;
 	}
-	
+
 	private List<Link> getAttributePathLinks(ForwardIndex f, PathAttribute pathAttribute) {
 		List<Link> links = new ArrayList<Link>();
 		LinkType type;
@@ -129,7 +136,7 @@ public class LinkCreator {
 		}
 		return links;
 	}
-	
+
 	private List<Link> getValueAttributeLink(ForwardIndex f1, ForwardIndex f2, PathAttribute pathAttributeF1,
 			PathAttribute pathAttributeF2) {
 		List<Link> links = new ArrayList<Link>();
@@ -145,16 +152,15 @@ public class LinkCreator {
 			type = LinkType.MATCHES_CONTENT;
 			dest = f1.getPath();
 			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type)));
-		} else if (f1.getValue().contains(pathAttributeF2.getAttribute())) {
-			source = f1.getValue();
-			type = LinkType.MATCHES_ATTRIBUTE;
-			dest = f2.getPath();
-			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type) + DEFAULT_WEIGHT));
-			source = f2.getPath();
-			type = LinkType.MATCHES_CONTENT;
-			dest = f1.getPath();
-			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type) + DEFAULT_WEIGHT));
-		}
+		} /*
+			 * else if (f1.getValue().contains(pathAttributeF2.getAttribute()))
+			 * { source = f1.getValue(); type = LinkType.MATCHES_ATTRIBUTE; dest
+			 * = f2.getPath(); links.add(new Link(source, linkType.get(type),
+			 * dest, linkWeight.get(type) + DEFAULT_WEIGHT)); source =
+			 * f2.getPath(); type = LinkType.MATCHES_CONTENT; dest =
+			 * f1.getPath(); links.add(new Link(source, linkType.get(type),
+			 * dest, linkWeight.get(type) + DEFAULT_WEIGHT)); }
+			 */
 		return links;
 	}
 
@@ -173,16 +179,15 @@ public class LinkCreator {
 			type = LinkType.MATCHES_CONTENT;
 			dest = f1.getPath();
 			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type)));
-		} else if (f1.getValue().contains(f2.getPath())) {
-			source = f1.getValue();
-			type = LinkType.MATCHES_PATH;
-			dest = f2.getPath();
-			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type) + DEFAULT_WEIGHT));
-			source = f2.getPath();
-			type = LinkType.MATCHES_CONTENT;
-			dest = f1.getPath();
-			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type) + DEFAULT_WEIGHT));
-		}
+		} /*
+			 * else if (f1.getValue().contains(f2.getPath())) { source =
+			 * f1.getValue(); type = LinkType.MATCHES_PATH; dest = f2.getPath();
+			 * links.add(new Link(source, linkType.get(type), dest,
+			 * linkWeight.get(type) + DEFAULT_WEIGHT)); source = f2.getPath();
+			 * type = LinkType.MATCHES_CONTENT; dest = f1.getPath();
+			 * links.add(new Link(source, linkType.get(type), dest,
+			 * linkWeight.get(type) + DEFAULT_WEIGHT)); }
+			 */
 		return links;
 	}
 
@@ -201,16 +206,16 @@ public class LinkCreator {
 			type = LinkType.MATCHES_CONTENT;
 			dest = f1.getPath();
 			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type)));
-		} else if (f1.getValue().contains(pathAttributeF2.getFile())) {
-			source = f1.getValue();
-			type = LinkType.MATCHES_FILENAME;
-			dest = pathAttributeF2.getFile();
-			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type) + DEFAULT_WEIGHT));
-			source = pathAttributeF2.getFile();
-			type = LinkType.MATCHES_CONTENT;
-			dest = f1.getPath();
-			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type) + DEFAULT_WEIGHT));
-		}
+		} /*
+			 * else if (f1.getValue().contains(pathAttributeF2.getFile())) {
+			 * source = f1.getValue(); type = LinkType.MATCHES_FILENAME; dest =
+			 * pathAttributeF2.getFile(); links.add(new Link(source,
+			 * linkType.get(type), dest, linkWeight.get(type) +
+			 * DEFAULT_WEIGHT)); source = pathAttributeF2.getFile(); type =
+			 * LinkType.MATCHES_CONTENT; dest = f1.getPath(); links.add(new
+			 * Link(source, linkType.get(type), dest, linkWeight.get(type) +
+			 * DEFAULT_WEIGHT)); }
+			 */
 		return links;
 	}
 
@@ -221,6 +226,8 @@ public class LinkCreator {
 		String dest;
 		String[] tokens = f1.getValue().replaceAll("[^a-zA-Z0-9 ]", "").toLowerCase().split("\\s+");
 		for (String token : tokens) {
+			token = stem(token);
+			System.out.println(token);
 			source = f1.getPath();
 			type = LinkType.CONTAINS;
 			dest = token;
@@ -233,7 +240,7 @@ public class LinkCreator {
 		return links;
 	}
 
-	private List<Link> createlinks(ForwardIndex f1, ForwardIndex f2) {
+	public List<Link> createlinks(ForwardIndex f1, ForwardIndex f2) {
 		List<Link> links = new ArrayList<Link>();
 		// split index paths into filename, path and attribute
 		PathAttribute pathAttributeF1 = new PathAttribute(f1.getPath());
@@ -243,28 +250,34 @@ public class LinkCreator {
 		links.addAll(getParentChildLinks(f2, pathAttributeF2));
 		// generate attribute path links for f1 and f2
 		links.addAll(getAttributePathLinks(f1, pathAttributeF1));
-		links.addAll(getAttributePathLinks(f2, pathAttributeF2));		
-		// generate all contains links
-		links.addAll(getValueContainslinks(f1));
-		links.addAll(getValueContainslinks(f2));
-		// generate links from f1 to f2
-		links.addAll(getValueAttributeLink(f1, f2, pathAttributeF1, pathAttributeF2));
-		links.addAll(getValuePathLink(f1, f2, pathAttributeF1, pathAttributeF2));
-		links.addAll(getValueFileLink(f1, f2, pathAttributeF1, pathAttributeF2));
-		// generate links from f2 to f1
-		links.addAll(getValueAttributeLink(f2, f1, pathAttributeF2, pathAttributeF1));
-		links.addAll(getValuePathLink(f2, f1, pathAttributeF2, pathAttributeF1));
-		links.addAll(getValueFileLink(f2, f1, pathAttributeF2, pathAttributeF1));
+		links.addAll(getAttributePathLinks(f2, pathAttributeF2));
+		if (!f1.getValue().equalsIgnoreCase(DNL)) {
+			// generate all contains links
+			links.addAll(getValueContainslinks(f1));
+			// generate links from f1 to f2
+			links.addAll(getValueAttributeLink(f1, f2, pathAttributeF1, pathAttributeF2));
+			links.addAll(getValuePathLink(f1, f2, pathAttributeF1, pathAttributeF2));
+			links.addAll(getValueFileLink(f1, f2, pathAttributeF1, pathAttributeF2));
+		}
+		if (!f2.getValue().equalsIgnoreCase(DNL)) {
+			// generate all contains links
+			links.addAll(getValueContainslinks(f2));
+			// generate links from f2 to f1
+			links.addAll(getValueAttributeLink(f2, f1, pathAttributeF2, pathAttributeF1));
+			links.addAll(getValuePathLink(f2, f1, pathAttributeF2, pathAttributeF1));
+			links.addAll(getValueFileLink(f2, f1, pathAttributeF2, pathAttributeF1));
+		}
+
 		return links;
 	}
 
-	private Map<String, Links> mergeLinks(List<Link> links) {
+	public Map<String, Links> mergeLinks(List<Link> links) {
 		Map<String, Links> mapOfLinks = new HashMap<String, Links>();
 		addAllLink(links, mapOfLinks);
 		return mapOfLinks;
 	}
 
-	private void storeLinks(Map<String, Links> mapOfLinks) {
+	public void storeLinks(Map<String, Links> mapOfLinks) {
 		LinksDA linksDA = new LinksDA();
 		for (Map.Entry<String, Links> links : mapOfLinks.entrySet()) {
 			Links storedLinks = linksDA.fetch(links.getKey());
@@ -292,9 +305,7 @@ public class LinkCreator {
 		}
 		System.out.println();
 	}
-	
-	
-	
+
 	public static void main(String[] args) {
 
 		// test path, attribute and filename extraction
@@ -326,7 +337,7 @@ public class LinkCreator {
 		System.out.println(f2);
 		linkCreator.printLinks(linkCreator.getParentChildLinks(f1, pathAttributeF1));
 		linkCreator.printLinks(linkCreator.getParentChildLinks(f2, pathAttributeF2));
-		
+
 		// test attribute path links
 		f1 = new ForwardIndex("user1_doc.xml/root/content", "Helo There, my fiends?");
 		f2 = new ForwardIndex("user2_expenses.csv/root/table/row1/column1", "miami");
@@ -337,7 +348,7 @@ public class LinkCreator {
 		System.out.println(f1);
 		System.out.println(f2);
 		linkCreator.printLinks(linkCreator.getAttributePathLinks(f1, pathAttributeF1));
-		linkCreator.printLinks(linkCreator.getAttributePathLinks(f2, pathAttributeF2));		
+		linkCreator.printLinks(linkCreator.getAttributePathLinks(f2, pathAttributeF2));
 
 		// test value to attribute links
 		f1 = new ForwardIndex("user1_doc.xml/root/content", "Helo There, my fiends? column1");
@@ -398,9 +409,10 @@ public class LinkCreator {
 		System.out.println(f1);
 		System.out.println(f2);
 		linkCreator.printLinks(linkCreator.createlinks(f1, f2));
-		
+
 		// store links in the Mongo Collection
-		linkCreator.storeLinks(linkCreator.mergeLinks(linkCreator.createlinks(f1, f2)));
+		// linkCreator.storeLinks(linkCreator.mergeLinks(linkCreator.createlinks(f1,
+		// f2)));
 	}
 
 }

@@ -1,17 +1,10 @@
 package searchengine;
 
-<<<<<<< HEAD
 import java.util.HashMap;
 import java.util.Map;
-=======
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
->>>>>>> 975cf6dc87ae2c39a58d98ec0eb53d9fcf38d756
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-import storage.LinksDA;
 import utils.Stemmer;
 
 public class SearchEngine
@@ -19,13 +12,8 @@ public class SearchEngine
 	public static boolean flag = true;
 	int NUM_THREADS = 10;
 	Thread[] workerThreads = new Thread[2];
-<<<<<<< HEAD
 	Map<String, WeightedPath> seenWorker1 = new HashMap<String, WeightedPath>();
 	Map<String, WeightedPath> seenWorker2 = new HashMap<String, WeightedPath>();
-=======
-	HashSet<ArrayList<String>> seenWorker1 = new HashSet<ArrayList<String>>();
-	HashSet<ArrayList<String>> seenWorker2 = new HashSet<ArrayList<String>>();
->>>>>>> 975cf6dc87ae2c39a58d98ec0eb53d9fcf38d756
 	Queue<WeightedPath> frontier = new PriorityQueue<WeightedPath>();
 	
 	public void search(String[] query)
@@ -34,28 +22,14 @@ public class SearchEngine
 		String keyword1 = query[0];
 		if (query.length > 1)
 		{
-<<<<<<< HEAD
 			String keyword2 = stem(query[1]);
 			WeightedPath p1 = new WeightedPath(keyword1, 0);
 			WeightedPath p2 = new WeightedPath(keyword2, 0);
 			seenWorker1.put(keyword1, p1);
 			seenWorker2.put(keyword2, p2);
-=======
-			//String keyword2 = stem(query[1]);
-			String keyword2 = query[1];
-			seenWorker1.add(new ArrayList<String>(Arrays.asList(keyword1)));
-			seenWorker2.add(new ArrayList<String>(Arrays.asList(keyword2)));
->>>>>>> 975cf6dc87ae2c39a58d98ec0eb53d9fcf38d756
-			SearchEngineWorker worker1 = new SearchEngineWorker(seenWorker1, seenWorker2, keyword1);
-			SearchEngineWorker worker2 = new SearchEngineWorker(seenWorker2, seenWorker1, keyword2);
-			workerThreads[0] = new Thread(worker1);
-			workerThreads[1] = new Thread(worker2);
 			workerThreads[0].start();
-<<<<<<< HEAD
 			workerThreads[1].start();
-=======
 			//workerThreads[1].start();
->>>>>>> 975cf6dc87ae2c39a58d98ec0eb53d9fcf38d756
 			
 			//TESTING
 			

@@ -3,19 +3,21 @@ extends layout
 block content
   h1= title
   link(rel='stylesheet', href='/stylesheets/style.css')
-  p
-    | Login:
-    form(method='post', action='/login')
-      label Username:
-      input(type='text', name='username', value='')
-      br
-      label Password:
-      input(type = 'password', name='password', value='')
-      br
-      br
-      input(type='submit', value='Login')
-  br
-  p
-    | Don't have an account?
-    form(method='get', action='/createaccount')
-      input(type = 'submit', value = 'Create Account')
+  .login-page
+    p
+      | Login:
+      form(method='post', action='/login')
+        label Username:
+        input(type='text', name='username', value='')
+        br
+        label Password:
+        input(type = 'password', name='password', value='')
+        br
+        br
+        input(type='submit', value='Login')
+    br
+  form.register-form
+    p
+      | Don't have an account?
+      form(method='get', action='/createaccount')
+        input(type = 'submit', value = 'Create Account')

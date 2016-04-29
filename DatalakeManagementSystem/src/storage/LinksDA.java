@@ -3,7 +3,10 @@ package storage;
 import static com.mongodb.client.model.Filters.eq;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import org.bson.Document;
 import org.json.JSONObject;
 import com.mongodb.MongoClient;
@@ -45,13 +48,13 @@ public class LinksDA {
 		Document doc = collection.find(eq(SOURCE_KEY, source)).first();
 		Links links = null;
 		if (doc != null) {
-			List<JSONObject> relations = new ArrayList<JSONObject>();
+			Set<JSONObject> relations = new HashSet<JSONObject>();
 			for (Document o : (ArrayList<Document>) doc.get(RELATIONS_KEY)) {
 				JSONObject json = new JSONObject();
-				json.append("dest", o.getString("dest"));
-				json.append("source", o.getString("source"));
-				json.append("weight", o.getString("weight"));
-				json.append("type", o.getString("type"));
+				json.put("dest", o.getString("dest"));
+				json.put("source", o.getString("source"));
+				json.put("weight", o.getInteger("weight"));
+				json.put("type", o.getString("type"));
 				relations.add(json);
 			}
 			links = new Links(source, relations);
@@ -82,7 +85,7 @@ public class LinksDA {
 	}
 
 	public static void main(String[] args) {
-		ArrayList<JSONObject> relations = new ArrayList<JSONObject>();
+		Set<JSONObject> relations = new HashSet<JSONObject>();
 		JSONObject jsonObj = new JSONObject("{\"phonetype\":\"N95\",\"cat\":\"WP\"}");
 		relations.add(jsonObj);
 		relations.add(jsonObj);
@@ -97,7 +100,6 @@ public class LinksDA {
 			System.out.println("Update successful");
 			Links test = lDa.fetch("source");
 			System.out.println(test.getRelations());
-			System.out.println(test.getRelations().get(0).getClass());
 			System.out.println("Fetched:" + test);
 		} catch (Exception e) {
 			e.printStackTrace();

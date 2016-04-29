@@ -1,14 +1,14 @@
 package bean;
 
-import java.util.List;
+import java.util.Set;
 
 import org.json.JSONObject;
 
 public class Links {
 	private String source;
-	private List<JSONObject> relations;
+	private Set<JSONObject> relations;
 	
-	public Links(String source, List<JSONObject> relations){
+	public Links(String source, Set<JSONObject> relations){
 		this.source = source;
 		this.relations = relations;
 	}
@@ -21,11 +21,11 @@ public class Links {
 		this.source = source;
 	}
 
-	public List<JSONObject> getRelations() {
+	public Set<JSONObject> getRelations() {
 		return relations;
 	}
 
-	public void setRelations(List<JSONObject> relations) {
+	public void setRelations(Set<JSONObject> relations) {
 		this.relations = relations;
 	}
 

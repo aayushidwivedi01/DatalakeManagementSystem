@@ -48,6 +48,11 @@ app.get('/logout', function(req,res){
 		res.redirect('/');
 	});
 });
+app.get('/test', function(req, res, next) {
+	res.render('test', {
+		num: 4
+	});
+});
 app.use('/homepage', homepage);
 app.use('/uploadfile',uploadfile.do_work);
 app.use('/permissions', permissions.do_work);
@@ -58,6 +63,9 @@ app.post('/changepermission', function(req,res){
 	});
 });
 app.use('/updatepermission', updatePermission.do_work);
+function userResponse(err, data){
+	console.log(data);
+}
 
 function callback(err, data) {
 	console.log(data);
@@ -67,7 +75,6 @@ var server = app.listen(8081, function() {
 
 	var host = server.address().address;
 	var port = server.address().port;
-
 	console.log("App listening at http://%s:%s", host, port);
 	 var user = java.newInstanceSync("bean.User", "ankit", "pass");
 	 user.toString(function (error,data)

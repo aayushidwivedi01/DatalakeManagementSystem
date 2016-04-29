@@ -12,7 +12,7 @@ import bean.User;
 public class UserDA {
 
 	private static MongoClientURI URI = new MongoClientURI(
-			"mongodb://dlms_webapp:webapp@ds013971.mlab.com:13971/webappdb");
+			"mongodb://ec2-54-174-67-253.compute-1.amazonaws.com:27017/dlms_db");
 	public static String COLLECTION_NAME = "users";
 	public static String USERNAME_KEY = "username";
 	public static String PASSWORD_KEY = "password";
@@ -72,7 +72,7 @@ public class UserDA {
 		System.out.println(userDA.fetch("aayushi"));
 		userDA.update(new User("aayushi", "new password"));
 		System.out.println(userDA.fetch("aayushi"));
-		userDA.delete("aayushi");
+		//userDA.delete("aayushi");
 		System.out.println(userDA.fetch("aayushi"));
 		userDA.close();
 	}

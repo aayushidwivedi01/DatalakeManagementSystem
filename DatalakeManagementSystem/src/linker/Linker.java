@@ -92,7 +92,6 @@ public class Linker {
 		long endTime = System.nanoTime();
 
 		System.out.println("Time to store - " + (endTime - startTime)/1000000 + " mSec");  //divide by 1000000 to get milliseconds.
-		
 	}
 
 	public static void main(String[] args) {

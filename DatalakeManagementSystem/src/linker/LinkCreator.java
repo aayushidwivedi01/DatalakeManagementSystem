@@ -97,29 +97,20 @@ public class LinkCreator {
 		return stemmedWord;
 	}
 
-	private void addLink(Link link, Map<String, Links> mapOfLinks, Map<String, Set<String>> mapOfSetOfLinks) {
+	private void addLink(Link link, Map<String, Links> mapOfLinks) {
 		if (mapOfLinks.containsKey(link.getSource())) {
-			if (link.getSource().equals("sample3.json/root3/content/text")) {
-				//System.out.println("source - sample3.json/root3/content/text");
-				//System.out.println(mapOfSetOfLinks);
-			}
-			if (!mapOfSetOfLinks.get(link.getSource()).contains(link))
-			{
-				mapOfLinks.get(link.getSource()).getRelations().add(new JSONObject(link));
-				mapOfSetOfLinks.get(link.getSource()).add(link.toString());
-			}
-				
+			mapOfLinks.get(link.getSource()).getRelations().add(new JSONObject(link));
+
 		} else {
-			Links links = new Links(link.getSource(), new ArrayList<JSONObject>());
+			Links links = new Links(link.getSource(), new HashSet<JSONObject>());
 			links.getRelations().add(new JSONObject(link));
 			mapOfLinks.put(link.getSource(), links);
-			mapOfSetOfLinks.put(link.getSource(), new HashSet<String>());
 		}
 	}
 
-	private void addAllLink(List<Link> links, Map<String, Links> mapOfLinks, Map<String, Set<String>> mapOfSetOfLinks) {
+	private void addAllLink(List<Link> links, Map<String, Links> mapOfLinks) {
 		for (Link link : links) {
-			addLink(link, mapOfLinks, mapOfSetOfLinks);
+			addLink(link, mapOfLinks);
 		}
 	}
 
@@ -295,10 +286,9 @@ public class LinkCreator {
 
 	public Map<String, Links> mergeLinks(Set<Link> links) {
 		ArrayList<Link> mergedLinks = new ArrayList<Link>(links);
-		
+
 		Map<String, Links> mapOfLinks = new HashMap<String, Links>();
-		Map<String, Set<String>> mapOfSetOfLinks = new HashMap<String, Set<String>>();
-		addAllLink(mergedLinks, mapOfLinks, mapOfSetOfLinks);
+		addAllLink(mergedLinks, mapOfLinks);
 		return mapOfLinks;
 	}
 

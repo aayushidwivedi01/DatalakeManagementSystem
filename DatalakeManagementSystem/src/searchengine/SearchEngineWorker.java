@@ -39,7 +39,7 @@ public class SearchEngineWorker implements Runnable
 		frontier.add(currentNode);
 		LinksDA lDa = new LinksDA();
 		
-		int tester = 0;
+		//int tester = 0;
 		//while(tester < 4)
 		while(SearchEngine.flag)
 		{
@@ -97,7 +97,7 @@ public class SearchEngineWorker implements Runnable
 				System.out.println("No path found");
 			}
 			
-			tester++;
+			//tester++;
 		}
 		
 	}

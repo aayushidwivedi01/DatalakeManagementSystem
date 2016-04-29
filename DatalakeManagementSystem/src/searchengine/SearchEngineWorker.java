@@ -3,8 +3,11 @@ package searchengine;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONObject;
 
@@ -14,11 +17,13 @@ import storage.LinksDA;
 public class SearchEngineWorker implements Runnable
 {
 	Queue<WeightedPath> frontier = new PriorityQueue<WeightedPath>();
-	HashSet<ArrayList<String>> mySeenNodes = new HashSet<ArrayList<String>>();
-	HashSet<ArrayList<String>> seenNodesOther = new HashSet<ArrayList<String>>();
+	Map<String, WeightedPath> mySeenNodes = new HashMap<String, WeightedPath>();
+	Map<String, WeightedPath> seenNodesOther = new HashMap<String, WeightedPath>();
+	HashSet<ArrayList<String>> seenPaths = new HashSet<ArrayList<String>>();
+
 	String word;
 	
-	public SearchEngineWorker(HashSet<ArrayList<String>> mySeenNodes, HashSet<ArrayList<String>> seenNodesOther, String word)
+	public SearchEngineWorker(Map<String, WeightedPath> mySeenNodes, Map<String, WeightedPath> seenNodesOther, String word)
 	{
 		this.mySeenNodes = mySeenNodes;
 		this.seenNodesOther = seenNodesOther;
@@ -34,17 +39,21 @@ public class SearchEngineWorker implements Runnable
 		frontier.add(currentNode);
 		LinksDA lDa = new LinksDA();
 		
+		int tester = 0;
+		//while(tester < 4)
 		while(SearchEngine.flag)
 		{
 			WeightedPath weightedPath = frontier.remove();
 			String node = weightedPath.getNode();
-			System.out.println("found node: " + node);
-			ArrayList<String> path = weightedPath.getPath();
+			//System.out.println("found node: " + node);
 			synchronized(seenNodesOther)
 			{
-				if (seenNodesOther.contains(path))
+				if (seenNodesOther.containsKey(node))
 				{
-					System.out.println("Found a path!!");
+					ArrayList<String> path2 = new ArrayList<>(seenNodesOther.get(node).getPath());
+					Collections.reverse(path2);
+					System.out.println("Found a path!! Path:" + weightedPath.getPath() + " + " + path2);
+					
 					SearchEngine.flag = false;
 				}
 			}
@@ -54,20 +63,31 @@ public class SearchEngineWorker implements Runnable
 			Links links = lDa.fetch(node);
 //			System.out.println("found links: " + links);
 			relations = links.getRelations();
-			System.out.println("relations: " + relations);
+			//System.out.println("relations: " + relations);
 			
-			
-			//for (JSONObject relation : relations)
-			for (int i = 0; i < relations.size(); i++)
+			ArrayList<String> path = weightedPath.getPath();
+			for (JSONObject relation : relations)
 			{
-				JSONObject relation = relations.get(i);
 				String dest = relation.getString("dest");
-				ArrayList<String> newPath = new ArrayList<String>(currentNode.getPath());
+				ArrayList<String> newPath = new ArrayList<String>(path);
+				if (path.contains(dest))
+					continue;
 				newPath.add(dest);
 				synchronized(mySeenNodes)
 				{
-					frontier.add(new WeightedPath(newPath, 1));
-					mySeenNodes.add(newPath);
+					if (!mySeenNodes.containsKey(dest))
+					{
+						//System.out.println("Adding to frontier: " + newPath);
+						WeightedPath newWeightedPath = new WeightedPath(newPath, 1);
+						frontier.add(newWeightedPath);
+						mySeenNodes.put(node, weightedPath);
+						seenPaths.add(newPath);
+					}
+					
+					else
+					{
+						
+					}
 				}
 			}
 			
@@ -76,6 +96,8 @@ public class SearchEngineWorker implements Runnable
 				SearchEngine.flag = false;
 				System.out.println("No path found");
 			}
+			
+			tester++;
 		}
 		
 	}

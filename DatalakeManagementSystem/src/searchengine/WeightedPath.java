@@ -11,7 +11,7 @@ public class WeightedPath implements Comparable<WeightedPath>
 	public WeightedPath(ArrayList<String> path, double cost)
 	{
 		this.path = path;
-		this.node = path.get(path.size());
+		this.node = path.get(path.size() - 1);
 		this.cost = cost;
 	}
 	
@@ -57,4 +57,17 @@ public class WeightedPath implements Comparable<WeightedPath>
 	{
 		return (int) (this.getCost() - p.getCost());
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		// TODO Auto-generated method stub
+		return this.path.equals(((WeightedPath) obj).getPath());
+	}
+
+	@Override
+	public int hashCode() {
+		// TODO Auto-generated method stub
+		return super.hashCode();
+	}
+	
 }

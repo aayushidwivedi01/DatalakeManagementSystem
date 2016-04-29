@@ -27,6 +27,10 @@ public class SearchEngine
 			WeightedPath p2 = new WeightedPath(keyword2, 0);
 			seenWorker1.put(keyword1, p1);
 			seenWorker2.put(keyword2, p2);
+			SearchEngineWorker worker1 = new SearchEngineWorker(seenWorker1, seenWorker2, keyword1);
+			SearchEngineWorker worker2 = new SearchEngineWorker(seenWorker2, seenWorker1, keyword2);
+			workerThreads[0] = new Thread(worker1);
+			workerThreads[1] = new Thread(worker2);
 			workerThreads[0].start();
 			workerThreads[1].start();
 			//workerThreads[1].start();

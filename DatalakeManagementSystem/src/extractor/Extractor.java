@@ -54,6 +54,7 @@ public class Extractor {
 			Multimap<String,String> metadata = ArrayListMultimap.create();
 			
 			String mediaType = tika.detect(filename);
+			System.out.println(mediaType);
 			TikaExtractor tikaextract = new TikaExtractor();
 			
 			//PARSE JSON
@@ -61,7 +62,7 @@ public class Extractor {
 				
 				InputStream is = new FileInputStream(filename);
 		        String jsonTxt = IOUtils.toString(is);
-		        String out = JsonExtract.extractJson(jsonTxt,"generated.json");
+		        String out = JsonExtract.extractJson(jsonTxt,filename);
 		        ReadJsonOutput read_out = new ReadJsonOutput();
 				read_out.getExtractedPairs(out);
 				
@@ -109,6 +110,7 @@ public class Extractor {
 			//ALL CONTENT
 			Set<String> keys = extracted_pairs_all.keySet();
 			for(String key : keys){
+//				System.out.println(key);
 	        	for(String value : extracted_pairs_all.get(key)){
 	        		ForwardIndex fIndex = new ForwardIndex(key,value);
 	    			fIndexDA.store(fIndex);
@@ -120,6 +122,7 @@ public class Extractor {
 			//METADATA
 			Set<String> meta_keys = metadata.keySet();
 			for(String key : meta_keys){
+//				System.out.println(key);
 	        	for(String value : metadata.get(key)){
 	        		ForwardIndex fIndex = new ForwardIndex(key,value);
 	    			fIndexDA.store(fIndex);
@@ -132,7 +135,7 @@ public class Extractor {
 			 * Add flat document DA
 			 */
 			FlatDocumentDA fda = new FlatDocumentDA();
-			FlatDocument flatDocument = new FlatDocument(filename, all_doc_keys);
+			FlatDocument flatDocument = new FlatDocument(new File(filename).getName(), all_doc_keys);
 			
 			fda.store(flatDocument);
 			

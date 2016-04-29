@@ -1,7 +1,7 @@
 package extractor;
 
+import java.io.File;
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -90,14 +90,14 @@ public class JsonExtract {
         ArrayList<String> names = new ArrayList<String>();
         
         while(fieldNames.hasNext()){
-        	String name = file_name+"/"+fieldNames.next();
+        	String name = new File(file_name).getName()+"/"+fieldNames.next();
         	names.add(name);
         	System.out.println(name);
         }
         
         if(names.size() == 0){
         	for (int k = 0; k < node.size(); k++){
-        		names.add(file_name+"/DONOTLINK_"+k);
+        		names.add(new File(file_name).getName()+"/DONOTLINK_"+k);
         	}
         }
         

@@ -1,6 +1,8 @@
 package searchengine;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -10,12 +12,13 @@ import utils.Stemmer;
 public class SearchEngine
 {
 	public static boolean flag = true;
+	public static HashSet<ArrayList<String>> kShortestPaths = new HashSet<ArrayList<String>>();
 	int NUM_THREADS = 10;
 	Thread[] workerThreads = new Thread[2];
 	Map<String, WeightedPath> seenWorker1 = new HashMap<String, WeightedPath>();
 	Map<String, WeightedPath> seenWorker2 = new HashMap<String, WeightedPath>();
 	Queue<WeightedPath> frontier = new PriorityQueue<WeightedPath>();
-	
+
 	public void search(String[] query)
 	{
 		//String keyword1 = stem(query[0]);
@@ -42,6 +45,17 @@ public class SearchEngine
 //			frontier.add(node1);
 //			frontier.add(node2);
 //			System.out.println(frontier.remove().getNode());
+			try {
+				workerThreads[0].join();
+				workerThreads[1].join();
+				for (ArrayList<String> path : kShortestPaths)
+				{
+					System.out.println("path: " + path);
+				}
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 		}
 	}

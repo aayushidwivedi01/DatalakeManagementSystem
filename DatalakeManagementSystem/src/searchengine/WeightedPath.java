@@ -61,7 +61,7 @@ public class WeightedPath implements Comparable<WeightedPath>
 	@Override
 	public boolean equals(Object obj) {
 		// TODO Auto-generated method stub
-		return this.path.equals(((WeightedPath) obj).getPath());
+		return (this.path.equals(((WeightedPath) obj).getPath()));
 	}
 
 	@Override

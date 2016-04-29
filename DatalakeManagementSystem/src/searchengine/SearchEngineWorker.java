@@ -5,7 +5,6 @@ import java.util.Queue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -19,8 +18,7 @@ public class SearchEngineWorker implements Runnable
 	Queue<WeightedPath> frontier = new PriorityQueue<WeightedPath>();
 	Map<String, WeightedPath> mySeenNodes = new HashMap<String, WeightedPath>();
 	Map<String, WeightedPath> seenNodesOther = new HashMap<String, WeightedPath>();
-	HashSet<ArrayList<String>> seenPaths = new HashSet<ArrayList<String>>();
-
+	int k = 5;
 	String word;
 	
 	public SearchEngineWorker(Map<String, WeightedPath> mySeenNodes, Map<String, WeightedPath> seenNodesOther, String word)
@@ -50,11 +48,23 @@ public class SearchEngineWorker implements Runnable
 			{
 				if (seenNodesOther.containsKey(node))
 				{
+					ArrayList<String> path1 = new ArrayList<>(weightedPath.getPath());
 					ArrayList<String> path2 = new ArrayList<>(seenNodesOther.get(node).getPath());
 					Collections.reverse(path2);
-					System.out.println("Found a path!! Path:" + weightedPath.getPath() + " + " + path2);
-					
-					SearchEngine.flag = false;
+					System.out.println("Found a path!!"); //+ weightedPath.getPath() + " + " + path2);
+					path1.addAll(path2);
+					synchronized(SearchEngine.kShortestPaths)
+					{
+						if (!SearchEngine.kShortestPaths.contains(path1))
+						{
+							Collections.reverse(path1);
+							SearchEngine.kShortestPaths.add(path1);
+							if (SearchEngine.kShortestPaths.size() == k || frontier.isEmpty())
+							{
+								SearchEngine.flag = false;
+							}
+						}
+					}
 				}
 			}
 			
@@ -73,20 +83,29 @@ public class SearchEngineWorker implements Runnable
 				if (path.contains(dest))
 					continue;
 				newPath.add(dest);
+				double newCost = weightedPath.getCost() + relation.getDouble("weight");
+				WeightedPath newWeightedPath = new WeightedPath(newPath, newCost);
 				synchronized(mySeenNodes)
 				{
-					if (!mySeenNodes.containsKey(dest))
+					//Update path if this one is shorter
+					if (mySeenNodes.containsKey(dest))
 					{
+						WeightedPath oldPath = mySeenNodes.get(dest);
+						if (!oldPath.equals(weightedPath))
+						{
+							if (newCost < oldPath.getCost())
+							{
+								frontier.add(newWeightedPath);
+								mySeenNodes.put(dest, newWeightedPath);
+							}
+						}
 						//System.out.println("Adding to frontier: " + newPath);
-						WeightedPath newWeightedPath = new WeightedPath(newPath, 1);
-						frontier.add(newWeightedPath);
-						mySeenNodes.put(node, weightedPath);
-						seenPaths.add(newPath);
 					}
 					
 					else
 					{
-						
+						frontier.add(newWeightedPath);
+						mySeenNodes.put(dest, weightedPath);
 					}
 				}
 			}

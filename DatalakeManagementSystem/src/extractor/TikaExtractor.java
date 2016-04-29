@@ -59,7 +59,7 @@ public class TikaExtractor {
 				if(name.equals("X-Parsed-By")){
 					continue;
 				}
-	        	metadata.put(filename+"/"+name, meta.get(name));
+	        	metadata.put(new File(filename).getName()+"/"+name, meta.get(name));
 	        }
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -77,7 +77,7 @@ public class TikaExtractor {
 	public static String parseUsingAutoDetect(String filename, TikaConfig tikaConfig,
             Metadata metadata) throws Exception {
 		AutoDetectParser parser = new AutoDetectParser(tikaConfig);
-		ContentHandler handler = new BodyContentHandler();
+		ContentHandler handler = new BodyContentHandler(-1);
 		TikaInputStream stream = TikaInputStream.get(new File(filename), metadata);
 		parser.parse(stream, handler, metadata, new ParseContext());
 		return handler.toString();

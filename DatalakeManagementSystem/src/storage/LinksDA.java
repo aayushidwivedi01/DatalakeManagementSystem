@@ -12,13 +12,15 @@ import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.IndexOptions;
+
+import bean.Link;
 import bean.Links;
 
 public class LinksDA {
 
 	private static MongoClientURI URI = new MongoClientURI(
 			"mongodb://dlms_webapp:webapp@ds013971.mlab.com:13971/webappdb");
-	public static String COLLECTION_NAME = "links";
+	public static String COLLECTION_NAME = "links_test_2";
 	public static String SOURCE_KEY = "source";
 	public static String RELATIONS_KEY = "relations";
 	private MongoClient client;
@@ -46,14 +48,11 @@ public class LinksDA {
 		Document doc = collection.find(eq(SOURCE_KEY, source)).first();
 		Links links = null;
 		if (doc != null) {
-			Set<JSONObject> relations = new HashSet<JSONObject>();
+			Set<Link> relations = new HashSet<Link>();
 			for (Document o : (ArrayList<Document>) doc.get(RELATIONS_KEY)) {
-				JSONObject json = new JSONObject();
-				json.put("dest", o.getString("dest"));
-				json.put("source", o.getString("source"));
-				json.put("weight", o.getInteger("weight"));
-				json.put("type", o.getString("type"));
-				relations.add(json);
+				Link link = new Link(o.getString("source"), o.getString("type"), o.getString("dest"),
+						o.getInteger("weight"));
+				relations.add(link);
 			}
 			links = new Links(source, relations);
 		}
@@ -83,20 +82,21 @@ public class LinksDA {
 	}
 
 	public static void main(String[] args) {
-		Set<JSONObject> relations = new HashSet<JSONObject>();
-		JSONObject jsonObj = new JSONObject("{\"phonetype\":\"N95\",\"cat\":\"WP\"}");
-		relations.add(jsonObj);
-		relations.add(jsonObj);
+		Set<Link> relations = new HashSet<Link>();
+		relations.add(new Link("source", "TEST", "dest1", 1.0));
+		relations.add(new Link("source", "TEST", "dest2", 1.0));
 		Links links = new Links("source", relations);
 		LinksDA lDa = new LinksDA();
 		try {
 			lDa.store(links);
 			System.out.println("Store successful");
 			System.out.println("Fetched:" + lDa.fetch("source"));
-			relations.add(jsonObj);
+			relations.add(new Link("source", "STILL_TEST", "dest3", 1.0));
+			relations.add(new Link("source", "STILL_TEST", "dest2", 1.0));
+			relations.add(new Link("source", "TEST", "dest2", 1.0));
 			lDa.update(links);
 			System.out.println("Update successful");
-			Links test = lDa.fetch("tom");
+			Links test = lDa.fetch("source");
 			System.out.println(test.getRelations());
 			System.out.println("Fetched:" + test);
 		} catch (Exception e) {

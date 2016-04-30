@@ -1,10 +1,5 @@
 package linker;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import org.json.JSONObject;
-
 import bean.Links;
 import storage.LinksDA;
 
@@ -31,21 +26,9 @@ public class LinkStoreThread extends Thread {
 		if (storedLinks == null) {
 			linksDA.store(links);
 		} else {
-			Set<JSONObject> linkSet = new HashSet<JSONObject>();
-			if(storedLinks.getSource().equals("sample3.json/root3/content/text")) {
-				for(JSONObject json : storedLinks.getRelations()) {
-					System.out.println(json);
-				}
-			}
-			linkSet.addAll(storedLinks.getRelations());
-			storedLinks.getRelations().addAll(linkSet);
-			
-			if(storedLinks.getSource().equals("sample3.json/root3/content/text")) {
-				System.out.println();
-				for(JSONObject json : storedLinks.getRelations()) {
-					System.out.println(json);
-				}
-			}
+			//Set<JSONObject> linkSet = new HashSet<JSONObject>();
+			//linkSet.addAll(storedLinks.getRelations());
+			storedLinks.getRelations().addAll(links.getRelations());
 			linksDA.update(storedLinks);
 		}
 	}

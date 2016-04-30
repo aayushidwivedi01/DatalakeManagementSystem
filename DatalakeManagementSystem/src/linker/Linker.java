@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.json.JSONObject;
 import bean.FlatDocument;
 import bean.ForwardIndex;
 import bean.Link;
@@ -55,6 +54,9 @@ public class Linker {
 			if (!docForwardIndices.containsKey(newDoc.getDocument())) {
 				docForwardIndices.put(newDoc.getDocument(), getForwardIndicesForDoc(newDoc));
 			}
+			for (ForwardIndex f1 : docForwardIndices.get(newDoc.getDocument())) {
+				links.addAll(linkCreator.createSelfLinks(f1));
+			}
 			System.out.println("Got fIndices for New Doc - " + newDoc.getDocument() + ", "
 					+ docForwardIndices.get(newDoc.getDocument()).size());
 			for (FlatDocument oldDoc : fDAOld.fetchAll()) {
@@ -67,7 +69,7 @@ public class Linker {
 				System.out.println("Creating links ");
 				for (ForwardIndex f1 : docForwardIndices.get(newDoc.getDocument())) {
 					for (ForwardIndex f2 : docForwardIndices.get(oldDoc.getDocument())) {
-						links.addAll(linkCreator.createlinks(f1, f2));
+						links.addAll(linkCreator.createLinks(f1, f2));
 					}
 				}
 				System.out.println("Done with for Old Doc - " + oldDoc.getDocument());
@@ -79,19 +81,15 @@ public class Linker {
 		}
 		System.out.println("Done with all docs with links - " + links.size());
 
-		//linkCreator.printLinks((linkCreator.mergeLinks(links)));
+		// linkCreator.printLinks((linkCreator.mergeLinks(links)));
 		// merge links and store them
 		Map<String, Links> mapOfLinks = linkCreator.mergeLinks(links);
-		System.out.println("Unique sources - "+ mapOfLinks.size());
-		for (JSONObject json : mapOfLinks.get("sample3.json/root3/content/text").getRelations()) {
-			System.out.println(json);
-		}
-		//System.out.println(mapOfLinks);
+		System.out.println("Unique sources - " + mapOfLinks.size());
 		long startTime = System.nanoTime();
 		linkCreator.storeLinks(mapOfLinks);
 		long endTime = System.nanoTime();
 
-		System.out.println("Time to store - " + (endTime - startTime)/1000000 + " mSec");  //divide by 1000000 to get milliseconds.
+		System.out.println("Time to store - " + (endTime - startTime) / 1000000 + " mSec"); 
 	}
 
 	public static void main(String[] args) {

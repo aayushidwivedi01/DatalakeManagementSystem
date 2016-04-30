@@ -14,9 +14,9 @@ var homepage = require('./routes/homepage');
 var account = require('./routes/account');
 var uploadfile = require('./routes/uploadfile');
 var permissions = require('./routes/permissions');
-var updatePermission = require('./routes/update');
-var java = require("java");
-java.classpath.push("test.jar");//Needs to be on the same path as of .js file
+var updatePermission = require('./routes/updatepermission');
+//var java = require("java");
+//java.classpath.push("test.jar");
 var app = express();
 app.use(cookieParser());
 app.use(session({secret: 'shh1243',
@@ -39,6 +39,7 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+
 app.use('/', routes);
 app.use('/users', users);
 app.use('/verifynewaccount', account.do_work);
@@ -59,30 +60,23 @@ app.use('/permissions', permissions.do_work);
 app.post('/changepermission', function(req,res){
 	res.render('updatepermission',{
 		title: 'DLMS', 
-		file:req.body.filename
+		file:req.body.filename,
 	});
 });
 app.use('/updatepermission', updatePermission.do_work);
-function userResponse(err, data){
-	console.log(data);
-}
-
-function callback(err, data) {
-	console.log(data);
-}
 
 var server = app.listen(8081, function() {
 
 	var host = server.address().address;
 	var port = server.address().port;
 	console.log("App listening at http://%s:%s", host, port);
-	 var user = java.newInstanceSync("bean.User", "ankit", "pass");
-	 user.toString(function (error,data)
-	     { 
-	       console.log("Returned data"+data);
-
-	                                        });
-	 java.callMethod(user, "toString", callback);
+//	 var user = java.newInstanceSync("bean.User", "ankit", "pass");
+//	 user.toString(function (error,data)
+//	     { 
+//	       console.log("Returned data"+data);
+//
+//	                                        });
+//	 java.callMethod(user, "toString", callback);
 
 	 console.log("Afetr");
 });

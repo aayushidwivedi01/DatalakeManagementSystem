@@ -3,13 +3,15 @@ var fs = require("fs");
 var Models = require("../models/models");
 var User = Models.User;
 var Doc = Models.Doc;
-//var Owner = Models.Owner;
+var _dir = "/home/cis550/bobby_tables/uploads/";
+//var java = require('java');
+var doc_id = null;
+//java.classpath.push("extractor.jar");
 
 function savePermissions(req, res, status) {
 	var code = 0;
-	var file_path = "/home/cis550/bobby_tables/uploads/" +
-	"" + req.session.user + "_"+req.files.dataitem.name;
-	var doc_id = req.session.user + "_" + req.files.dataitem.name;
+	var file_path = _dir + req.session.user + "_"+req.files.dataitem.name;
+	doc_id = req.session.user + "_" + req.files.dataitem.name;
 	var doc = new Doc({id: doc_id, username: req.session.user, path: file_path, permission: req.body.scope});
 	doc.save(function(err){
 		if(err){
@@ -18,16 +20,20 @@ function savePermissions(req, res, status) {
 			}
 		else {
 			console.log("Document has been saved!");
-				status(0);
+				status(1);
 		}
 	});
 	
 	
 }
 
+function likerResponse(err, data){
+	console.log("Uploaded file has been linked");
+}
+
 
 function uploadFile(req, res, next) {
-	if (req.files) {
+	if (req.files && req.files.dataitem) {
 		console.log(util.inspect(req.files));
 		if (req.files.dataitem.size === 0) {
 		            return next(new Error("Please select a file!"));
@@ -36,20 +42,18 @@ function uploadFile(req, res, next) {
 			if(exists) {
 				console.log("New file uploaded at - %s", req.files.dataitem.path);
 				console.log("Saving file");
-				var newPath = "/home/cis550/bobby_tables/uploads/" +
-						"" + req.session.user + "_"+req.files.dataitem.name;
+				var localFilePath = _dir + req.session.user + "_"+req.files.dataitem.name;
 				
-				fs.writeFile(newPath, req.files.dataitem.path, function (err) {
+				fs.writeFile(localFilePath, req.files.dataitem.path, function (err) {
 					if (err){
 						console.log("Error saving the file");
 						console.log(err);
 					}
 					savePermissions(req, res, function(status){
-						if(status === -1){
-							res.send("File already exists in DLMS");
-						}else{
-						res.send("File saved successfully!");
-						}
+						res.render('upload', {
+							title : 'DLMS',
+							upload_error : status
+						});
 					});
 				  });
 				
@@ -62,5 +66,6 @@ function uploadFile(req, res, next) {
 
 exports.do_work = 
 	  function(req,res, next) {
+		
 		uploadFile(req, res);
 	};

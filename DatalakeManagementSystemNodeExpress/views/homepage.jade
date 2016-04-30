@@ -1,24 +1,23 @@
-extends layout
-
-block content
-  h1= title
-
-  p
-    | Welcome to your homepage!
-    br
-    form(method="get" action="/logout")
-        input(type = 'submit', value = 'logout')
-        br
-    form#search(method="post" action="/searchresults")
-        label(for="search") Enter your search query:
-        input#search(name="query")
+html
+  body
+    h1=title
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    p
+      | Welcome to your homepage!
+      br
+      form#search(method='post', action='/searchresults')
+        label(for='search') Enter your search query:
+        input#search(name='query')
         button#search Search
         br
-  p
-    | What would you like to do today?
-    br
-    form(method = "get", action ="/permissions")
-      button#update(type="submit", name="permissions") View My Files
-    br
-    form(method = 'post', action = '/upload')
-      button#upload(type = 'submit', name = 'upload') Upload File
+    p
+      | What would you like to do today?
+      br
+      form(method='get', action='/permissions')
+        button#update(type='submit', name='permissions') View My Files
+      br
+      form(method='get', action='/upload')
+        button#upload(type='submit', name='upload') Upload File
+      br
+      form(method='get', action='/logout')
+        input(type='submit', value='logout')

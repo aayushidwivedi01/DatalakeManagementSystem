@@ -1,6 +1,7 @@
 var util = require("util");
 var Models = require("../models/models");
 var Doc = Models.Doc;
+var status = 0;
 
 function updatePermission(req, res) {
 	if (req.session.user){
@@ -11,21 +12,18 @@ function updatePermission(req, res) {
 				throw err;
 			}
 			console.log("Document has been saved!");
-			res.send("Permission on file " + doc_id + " changed to " + req.body.scope);
+			//res.send("Permission on file " + doc_id + " changed to " + req.body.scope);
+			Doc.find({username: req.session.user}, function(err, results){
+				if (err){
+					throw err;
+				}else{
+					res.render('permissions',{
+						classes: results,
+						});
+				}
+			});
+			
 		});
-//		Doc.find({id:doc_id},function(err, doc){
-//			if(err){
-//				res.send("Error updating the permission");
-//				throw err;
-//				}
-//			else {
-//				doc.permission = req.body.scope;
-//				doc.save(function(err){
-//				console.log("Document has been saved!");
-//				res.redirect("/changepermission");
-//				});
-//			}
-//		});
 	}else{
 		res.redirect('/');
 	}

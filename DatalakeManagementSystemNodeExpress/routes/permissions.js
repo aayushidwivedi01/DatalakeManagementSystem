@@ -8,24 +8,16 @@ var docsPerPage = 10;
 var pageNumber = 1;
 
 function render_permissions(req,res, results){
-	res.render('permissions',
-			{classes: results});
+	res.render('permissions',{
+		classes: results,
+		});
 }
 
 function fetch_permissions(req, res){
-//	Doc.findPaginated({}, function (err, result) {
-//	    if (err) {throw err;}
-//	    console.log(JSON.parse(result.documents));
-//	}, docsPerPage, pageNumber);
 	Doc.find({username: req.session.user}, function(err, results){
 		if (err){
 			throw err;
 		}else{
-//			for(var i = 0; i <results.length; i++){
-//				console.log("Username:" + results[i]['username'] + "" +
-//						"\tFilename:" + results[i]['id'] + "" +
-//						"\tPermission:" + results[i]['permission']);
-//			}
 			render_permissions(req,res,results);
 		}
 	});

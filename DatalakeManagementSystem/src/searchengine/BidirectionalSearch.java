@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
+import storage.LinksDA;
+
 public class BidirectionalSearch implements Runnable
 {
 
@@ -26,10 +28,11 @@ public class BidirectionalSearch implements Runnable
 	@Override
 	public void run() {
 		
+		LinksDA lDa = new LinksDA();
 		//Start all the worker threads
 		for (int i = 0; i < NUM_THREADS; i++)
 		{
-			SearchEngineWorker worker_i = new SearchEngineWorker(frontier, mySeenNodes, seenNodesOther);
+			SearchEngineWorker worker_i = new SearchEngineWorker(frontier, mySeenNodes, seenNodesOther, lDa);
 			threadPool[i] = new Thread(worker_i);
 			threadPool[i].start();
 		}
@@ -37,7 +40,7 @@ public class BidirectionalSearch implements Runnable
 		//Initialize frontier with first word
 		synchronized(frontier)
 		{
-			System.out.println("initializing frontier with " + word);
+			//System.out.println("initializing frontier with " + word);
 			WeightedPath currentNode = new WeightedPath(word, 1);
 			frontier.add(currentNode);
 			frontier.notify();

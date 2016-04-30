@@ -20,18 +20,20 @@ public class SearchEngineWorker implements Runnable
 	Map<String, WeightedPath> mySeenNodes = new HashMap<String, WeightedPath>();
 	Map<String, WeightedPath> seenNodesOther = new HashMap<String, WeightedPath>();
 	int k = 5;
+	LinksDA lDa;
 	
-	public SearchEngineWorker(Queue<WeightedPath> frontier, Map<String, WeightedPath> mySeenNodes, Map<String, WeightedPath> seenNodesOther)
+	public SearchEngineWorker(Queue<WeightedPath> frontier, Map<String, WeightedPath> mySeenNodes, Map<String, WeightedPath> seenNodesOther, LinksDA lDa)
 	{
 		this.frontier = frontier;
 		this.mySeenNodes = mySeenNodes;
 		this.seenNodesOther = seenNodesOther;
+		this.lDa = lDa;
 	}
 	
 	@Override
 	public void run() {
 
-		LinksDA lDa = new LinksDA();
+		//LinksDA lDa = new LinksDA();
 		
 		try
 		{
@@ -90,8 +92,12 @@ public class SearchEngineWorker implements Runnable
 										path1.add(l - 1, pathToLastNode);
 									}
 									
-									SearchEngine.kShortestPaths.add(path1);
-									if (SearchEngine.kShortestPaths.size() == k || frontier.isEmpty())
+									//Add shortest path
+									if (SearchEngine.kShortestPaths.size() < k)
+									{
+										SearchEngine.kShortestPaths.add(path1);
+									}
+									if (SearchEngine.kShortestPaths.size() >= k || frontier.isEmpty())
 									{
 										SearchEngine.flag = false;
 									}

@@ -20,104 +20,130 @@ public class SearchEngineWorker implements Runnable
 	Map<String, WeightedPath> mySeenNodes = new HashMap<String, WeightedPath>();
 	Map<String, WeightedPath> seenNodesOther = new HashMap<String, WeightedPath>();
 	int k = 5;
-	String word;
 	
-	public SearchEngineWorker(Map<String, WeightedPath> mySeenNodes, Map<String, WeightedPath> seenNodesOther, String word)
+	public SearchEngineWorker(Queue<WeightedPath> frontier, Map<String, WeightedPath> mySeenNodes, Map<String, WeightedPath> seenNodesOther)
 	{
+		this.frontier = frontier;
 		this.mySeenNodes = mySeenNodes;
 		this.seenNodesOther = seenNodesOther;
-		this.word = word;
 	}
 	
 	@Override
 	public void run() {
-//		System.out.println("Hi in worker");
-//		System.out.println("my nodes are " + mySeenNodes.toString());
-//		System.out.println("other nodes are " + seenNodesOther.toString());
-		WeightedPath currentNode = new WeightedPath(word, 1);
-		frontier.add(currentNode);
+
 		LinksDA lDa = new LinksDA();
 		
-		//int tester = 0;
-		//while(tester < 4)
-		while(SearchEngine.flag)
+		try
 		{
-			WeightedPath weightedPath = frontier.remove();
-			String node = weightedPath.getNode();
-			//System.out.println("found node: " + node);
-			synchronized(seenNodesOther)
+			WeightedPath weightedPath = null;
+			while(SearchEngine.flag)
 			{
-				if (seenNodesOther.containsKey(node))
+				synchronized(frontier)
 				{
-					ArrayList<String> path1 = new ArrayList<>(weightedPath.getPath());
-					ArrayList<String> path2 = new ArrayList<>(seenNodesOther.get(node).getPath());
-					Collections.reverse(path2);
-					System.out.println("Found a path!!"); //+ weightedPath.getPath() + " + " + path2);
-					path1.addAll(path2);
-					synchronized(SearchEngine.kShortestPaths)
+					if (frontier.isEmpty())
 					{
-						if (!SearchEngine.kShortestPaths.contains(path1))
+						frontier.wait();
+					}
+					if (!frontier.isEmpty())
+					{
+						weightedPath = frontier.remove();
+					}
+					else
+						continue;
+				}
+				
+				String node = weightedPath.getNode();
+				//System.out.println("found node: " + node);
+				synchronized(seenNodesOther)
+				{
+					if (seenNodesOther.containsKey(node))
+					{
+						ArrayList<String> path1 = new ArrayList<>(weightedPath.getPath());
+						ArrayList<String> path2 = new ArrayList<>(seenNodesOther.get(node).getPath());
+						Collections.reverse(path2);
+						System.out.println("Found a path!!"); //+ weightedPath.getPath() + " + " + path2);
+						path1.addAll(path2);
+						synchronized(SearchEngine.kShortestPaths)
 						{
-							Collections.reverse(path1);
-							SearchEngine.kShortestPaths.add(path1);
-							if (SearchEngine.kShortestPaths.size() == k || frontier.isEmpty())
+							if (!SearchEngine.kShortestPaths.contains(path1))
 							{
-								SearchEngine.flag = false;
+								Collections.reverse(path1);
+								SearchEngine.kShortestPaths.add(path1);
+								if (SearchEngine.kShortestPaths.size() == k || frontier.isEmpty())
+								{
+									SearchEngine.flag = false;
+								}
 							}
 						}
 					}
 				}
-			}
-			
-			Set<JSONObject> relations = new HashSet<JSONObject>();
-			
-			Links links = lDa.fetch(node);
-//			System.out.println("found links: " + links);
-			relations = links.getRelations();
-			//System.out.println("relations: " + relations);
-			
-			ArrayList<String> path = weightedPath.getPath();
-			for (JSONObject relation : relations)
-			{
-				String dest = relation.getString("dest");
-				ArrayList<String> newPath = new ArrayList<String>(path);
-				if (path.contains(dest))
-					continue;
-				newPath.add(dest);
-				double newCost = weightedPath.getCost() + relation.getDouble("weight");
-				WeightedPath newWeightedPath = new WeightedPath(newPath, newCost);
-				synchronized(mySeenNodes)
+				
+				Set<JSONObject> relations = new HashSet<JSONObject>();
+				
+				Links links = lDa.fetch(node);
+	//			System.out.println("found links: " + links);
+				relations = links.getRelations();
+				//System.out.println("relations: " + relations);
+				
+				ArrayList<String> path = weightedPath.getPath();
+				for (JSONObject relation : relations)
 				{
-					//Update path if this one is shorter
-					if (mySeenNodes.containsKey(dest))
+					String dest = relation.getString("dest");
+					ArrayList<String> newPath = new ArrayList<String>(path);
+					
+					//Ignore node if it creates a loop in path
+					if (path.contains(dest))
+						continue;
+					
+					newPath.add(dest);
+					double newCost = weightedPath.getCost() + relation.getDouble("weight");
+					WeightedPath newWeightedPath = new WeightedPath(newPath, newCost);
+					
+					synchronized(mySeenNodes)
 					{
-						WeightedPath oldPath = mySeenNodes.get(dest);
-						if (!oldPath.equals(weightedPath))
+						//Update path if this one is shorter
+						if (mySeenNodes.containsKey(dest))
 						{
-							if (newCost < oldPath.getCost())
+							WeightedPath oldPath = mySeenNodes.get(dest);
+							if (!oldPath.equals(weightedPath))
+							{
+								if (newCost < oldPath.getCost())
+								{
+									synchronized(frontier)
+									{
+										frontier.add(newWeightedPath);
+										frontier.notify();
+									}
+									mySeenNodes.put(dest, newWeightedPath);
+								}
+							}
+							//System.out.println("Adding to frontier: " + newPath);
+						}
+						
+						else
+						{
+							synchronized(frontier)
 							{
 								frontier.add(newWeightedPath);
-								mySeenNodes.put(dest, newWeightedPath);
+								frontier.notify();
 							}
+							mySeenNodes.put(dest, weightedPath);
 						}
-						//System.out.println("Adding to frontier: " + newPath);
-					}
-					
-					else
-					{
-						frontier.add(newWeightedPath);
-						mySeenNodes.put(dest, weightedPath);
 					}
 				}
-			}
-			
-			if (frontier.isEmpty())
-			{
-				SearchEngine.flag = false;
-				System.out.println("No path found");
-			}
-			
-			//tester++;
+				
+//				if (frontier.isEmpty())
+//				{
+//					SearchEngine.flag = false;
+//					System.out.println("No path found");
+//				}
+				
+			}	//tester++;
+		}
+		
+		catch (InterruptedException e)
+		{
+			e.printStackTrace();
 		}
 		
 	}

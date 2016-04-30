@@ -13,7 +13,6 @@ public class SearchEngine
 {
 	public static boolean flag = true;
 	public static HashSet<ArrayList<String>> kShortestPaths = new HashSet<ArrayList<String>>();
-	int NUM_THREADS = 10;
 	Thread[] workerThreads = new Thread[2];
 	Map<String, WeightedPath> seenWorker1 = new HashMap<String, WeightedPath>();
 	Map<String, WeightedPath> seenWorker2 = new HashMap<String, WeightedPath>();
@@ -30,13 +29,12 @@ public class SearchEngine
 			WeightedPath p2 = new WeightedPath(keyword2, 0);
 			seenWorker1.put(keyword1, p1);
 			seenWorker2.put(keyword2, p2);
-			SearchEngineWorker worker1 = new SearchEngineWorker(seenWorker1, seenWorker2, keyword1);
-			SearchEngineWorker worker2 = new SearchEngineWorker(seenWorker2, seenWorker1, keyword2);
+			BidirectionalSearch worker1 = new BidirectionalSearch(seenWorker1, seenWorker2, keyword1);
+			BidirectionalSearch worker2 = new BidirectionalSearch(seenWorker2, seenWorker1, keyword2);
 			workerThreads[0] = new Thread(worker1);
 			workerThreads[1] = new Thread(worker2);
 			workerThreads[0].start();
 			workerThreads[1].start();
-			//workerThreads[1].start();
 			
 			//TESTING
 			
@@ -74,8 +72,11 @@ public class SearchEngine
 	
 	public static void main(String[] args)
 	{
-		String[] query = {"tom", "brady"};
+		String[] query = {"open", "delivery"};
 		SearchEngine engine = new SearchEngine();
+		long startTime = System.currentTimeMillis();
 		engine.search(query);
+		long endTime = System.currentTimeMillis();
+		System.out.println("Time: " + (endTime - startTime));
 	}
 }

@@ -1,16 +1,16 @@
-package utils;
+package searchengine;
 
 import java.util.ArrayList;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-public class ConvertOutputList {
+public class GenerateOutputJson {
 	
 	JSONArray nodes = null;
 	JSONArray links = null;
 	
-	public ConvertOutputList(){
+	public GenerateOutputJson(){
 		nodes = new JSONArray();
 		links = new JSONArray();
 	}
@@ -92,7 +92,7 @@ public class ConvertOutputList {
 		list.add("DOC3/tom");
 		list.add("DOC4/x/brady");
 		
-		ConvertOutputList col = new ConvertOutputList();
+		GenerateOutputJson col = new GenerateOutputJson();
 		col.createJson(list);
 		
 		

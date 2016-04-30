@@ -41,7 +41,11 @@ public class GenerateOutputJson {
 			
 			for(i = j; i-j+common_idx < components.length; i++){
 				JSONObject name = new JSONObject();
-				name.put("name", components[i-j+common_idx]);
+				String nodename = components[i-j+common_idx];
+				if(nodename.startsWith("DONOTLINK")){
+					nodename.replace("DONOTLINK", "LIST");
+				}
+				name.put("name", nodename);
 				nodes.add(name);
 				
 				if(i != j+components.length-1-common_idx){

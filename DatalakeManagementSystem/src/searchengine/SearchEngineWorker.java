@@ -85,7 +85,7 @@ public class SearchEngineWorker implements Runnable
 									String lastNode = path1.remove(l);
 									if (!path1.get(l - 1).contains(lastNode))
 									{
-										String pathToLastNode = path1.remove(l);
+										String pathToLastNode = path1.remove(l - 1);
 										pathToLastNode = pathToLastNode.concat("/").concat(lastNode);
 										path1.add(l - 1, pathToLastNode);
 									}

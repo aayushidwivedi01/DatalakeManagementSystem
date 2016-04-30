@@ -72,6 +72,20 @@ public class SearchEngineWorker implements Runnable
 								Collections.reverse(path1);
 								if (!SearchEngine.kShortestPaths.contains(path1))
 								{
+									//Appending keyword to get path to node
+									if (!path1.get(1).contains(path1.get(0)))
+									{
+										path1.add(1, path1.remove(1).concat("/").concat(path1.get(0)));
+									}
+									path1.remove(0);
+									
+									int l = path1.size() - 1;
+									if (!path1.get(l - 1).contains(path1.get(l)))
+									{
+										path1.add(l - 1, path1.remove(l - 1).concat("/").concat(path1.get(l)));
+									}
+									path1.remove(l);
+									
 									SearchEngine.kShortestPaths.add(path1);
 									if (SearchEngine.kShortestPaths.size() == k || frontier.isEmpty())
 									{

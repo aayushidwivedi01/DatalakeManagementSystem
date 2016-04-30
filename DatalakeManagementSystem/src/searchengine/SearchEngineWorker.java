@@ -69,37 +69,38 @@ public class SearchEngineWorker implements Runnable
 						path1.addAll(path2);
 						synchronized(SearchEngine.kShortestPaths)
 						{
-							if (!SearchEngine.kShortestPaths.contains(path1))
+							if (SearchEngine.kShortestPaths.size() < k)
 							{
-								Collections.reverse(path1);
 								if (!SearchEngine.kShortestPaths.contains(path1))
 								{
-									//Appending keyword to get path to node
-									String firstNode = path1.remove(0);
-									if (!path1.get(0).contains(firstNode))
+									Collections.reverse(path1);
+									if (!SearchEngine.kShortestPaths.contains(path1))
 									{
-										String pathToFirstNode = path1.remove(0);
-										pathToFirstNode = pathToFirstNode.concat("/").concat(firstNode);
-										path1.add(0, pathToFirstNode);
-									}
-									
-									int l = path1.size() - 1;
-									String lastNode = path1.remove(l);
-									if (!path1.get(l - 1).contains(lastNode))
-									{
-										String pathToLastNode = path1.remove(l - 1);
-										pathToLastNode = pathToLastNode.concat("/").concat(lastNode);
-										path1.add(l - 1, pathToLastNode);
-									}
-									
-									//Add shortest path
-									if (SearchEngine.kShortestPaths.size() < k)
-									{
+										//Appending keyword to get path to node
+										String firstNode = path1.remove(0);
+										if (!path1.get(0).contains(firstNode))
+										{
+											String pathToFirstNode = path1.remove(0);
+											pathToFirstNode = pathToFirstNode.concat("/").concat(firstNode);
+											path1.add(0, pathToFirstNode);
+										}
+										
+										int l = path1.size() - 1;
+										String lastNode = path1.remove(l);
+										if (!path1.get(l - 1).contains(lastNode))
+										{
+											String pathToLastNode = path1.remove(l - 1);
+											pathToLastNode = pathToLastNode.concat("/").concat(lastNode);
+											path1.add(l - 1, pathToLastNode);
+										}
+										
+										//Add shortest path
 										SearchEngine.kShortestPaths.add(path1);
-									}
-									if (SearchEngine.kShortestPaths.size() >= k || frontier.isEmpty())
-									{
-										SearchEngine.flag = false;
+										
+										if (SearchEngine.kShortestPaths.size() >= k || frontier.isEmpty())
+										{
+											SearchEngine.flag = false;
+										}
 									}
 								}
 							}

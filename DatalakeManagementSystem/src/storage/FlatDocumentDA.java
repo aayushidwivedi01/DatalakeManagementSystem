@@ -16,7 +16,7 @@ import bean.FlatDocument;
 public class FlatDocumentDA {
 	private static MongoClientURI URI = new MongoClientURI(
 			"mongodb://dlms_webapp:webapp@ds013971.mlab.com:13971/webappdb");
-	public String COLLECTION_NAME = "flat_documents_new";
+	public String COLLECTION_NAME = "fd_test";
 	public static String DOC_KEY = "document";
 	public static String INDEX_KEY = "forwardIndex";
 	private MongoClient client;

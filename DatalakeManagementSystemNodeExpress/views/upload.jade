@@ -2,7 +2,6 @@ html
   body(onload='errMessage()')
     script.
         function errMessage(){
-          //alert("Page loaded");
           error = #{upload_error}
           if(error){
             if(error === -1){

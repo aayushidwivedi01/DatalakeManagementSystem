@@ -15,7 +15,7 @@ public class ForwardIndexDA {
 
 	private static MongoClientURI URI = new MongoClientURI(
 			"mongodb://dlms_webapp:webapp@ds013971.mlab.com:13971/webappdb");
-	public static String COLLECTION_NAME = "forward_indices";
+	public static String COLLECTION_NAME = "fi_test";
 	public static String PATH_KEY = "path";
 	public static String VALUE_KEY = "value";
 	private MongoClient client;

@@ -20,7 +20,7 @@ public class InvertedIndexDA {
 
 	private static MongoClientURI URI = new MongoClientURI(
 			"mongodb://dlms_webapp:webapp@ds013971.mlab.com:13971/webappdb");
-	public static String COLLECTION_NAME = "inverted_indices";
+	public static String COLLECTION_NAME = "ii_test";
 	public static String WORD_KEY = "word";
 	public static String OCCURS_KEY = "occurs";
 	private MongoClient client;

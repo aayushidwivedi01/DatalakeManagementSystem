@@ -9,7 +9,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
+//import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.tika.Tika;
@@ -17,10 +17,10 @@ import org.apache.tika.Tika;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
-import storage.FlatDocumentDA;
-import storage.ForwardIndexDA;
-import bean.FlatDocument;
-import bean.ForwardIndex;
+//import storage.FlatDocumentDA;
+//import storage.ForwardIndexDA;
+//import bean.FlatDocument;
+//import bean.ForwardIndex;
 
 
 /**
@@ -31,9 +31,14 @@ import bean.ForwardIndex;
  */
 
 public class Extractor {
+	private String arg;
+	public Extractor(String filename){
+		this.arg = filename;
+	}
 
-	public static void main(String[] args) throws IOException {
-		String file_arg = args[0];
+	//public static void main(String[] args) throws IOException {
+	public void extract() throws IOException{
+		String file_arg = this.arg;
 		
 		//Check if directory or file
 		File file = new File(file_arg);
@@ -104,48 +109,53 @@ public class Extractor {
 			/**
 			 * Store in forward index
 			 */
-			ForwardIndexDA fIndexDA = new ForwardIndexDA();
-			ArrayList <String> all_doc_keys = new ArrayList<String>();
+//			ForwardIndexDA fIndexDA = new ForwardIndexDA();
+//			ArrayList <String> all_doc_keys = new ArrayList<String>();
 			
 			//ALL CONTENT
-			Set<String> keys = extracted_pairs_all.keySet();
-			for(String key : keys){
+//			Set<String> keys = extracted_pairs_all.keySet();
+//			for(String key : keys){
 //				System.out.println(key);
-	        	for(String value : extracted_pairs_all.get(key)){
-	        		ForwardIndex fIndex = new ForwardIndex(key,value);
-	    			fIndexDA.store(fIndex);
-	        	}
-	        }
-			
-			all_doc_keys.addAll(keys);
+//	        	for(String value : extracted_pairs_all.get(key)){
+//	        		ForwardIndex fIndex = new ForwardIndex(key,value);
+	    			//fIndexDA.store(fIndex);
+//	        	}
+//	        }
+//			
+//			all_doc_keys.addAll(keys);
 			
 			//METADATA
-			Set<String> meta_keys = metadata.keySet();
-			for(String key : meta_keys){
+//			Set<String> meta_keys = metadata.keySet();
+//			for(String key : meta_keys){
 //				System.out.println(key);
-	        	for(String value : metadata.get(key)){
-	        		ForwardIndex fIndex = new ForwardIndex(key,value);
-	    			fIndexDA.store(fIndex);
-	        	}
-	        }
-			
-			all_doc_keys.addAll(meta_keys);
+//	        	for(String value : metadata.get(key)){
+//	        		ForwardIndex fIndex = new ForwardIndex(key,value);
+//	    		//	fIndexDA.store(fIndex);
+//	        	}
+//	        }
+//			
+//			all_doc_keys.addAll(meta_keys);
 			
 			/**
 			 * Add flat document DA
 			 */
-			FlatDocumentDA fda = new FlatDocumentDA();
-			FlatDocument flatDocument = new FlatDocument(new File(filename).getName(), all_doc_keys);
-			
-			fda.store(flatDocument);
+//			FlatDocumentDA fda = new FlatDocumentDA();
+//			FlatDocument flatDocument = new FlatDocument(new File(filename).getName(), all_doc_keys);
+//			
+			//fda.store(flatDocument);
 			
 			/**
 			 * CALL INVERTED INDEX METHOD
 			 */
-			InvertedIndexDLMS.buildInvertedIndex(extracted_pairs_leaf);
-			InvertedIndexDLMS.buildInvertedIndex(metadata);
+//			InvertedIndexDLMS.buildInvertedIndex(extracted_pairs_leaf);
+//			InvertedIndexDLMS.buildInvertedIndex(metadata);
 		}
 		
+	}
+	
+	public static void main(String[] args) throws IOException{
+		Extractor extractor = new Extractor("temp.txt");
+		extractor.extract();
 	}
 
 }

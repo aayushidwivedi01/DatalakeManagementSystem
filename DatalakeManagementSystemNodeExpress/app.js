@@ -76,9 +76,9 @@ var server = app.listen(8081, function() {
 //	       console.log("Returned data"+data);
 //
 //	                                        });
-//	 java.callMethod(user, "toString", callback);
+	// java.callMethod(user, "toString", callback);
 
-	 console.log("Afetr");
+	 console.log("After");
 });
 
 

@@ -2,7 +2,7 @@ package searchengine;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -12,7 +12,7 @@ import utils.Stemmer;
 public class SearchEngine
 {
 	public static boolean flag = true;
-	public static HashSet<ArrayList<String>> kShortestPaths = new HashSet<ArrayList<String>>();
+	public static List<ArrayList<String>> kShortestPaths = new ArrayList<ArrayList<String>>();
 	Thread[] workerThreads = new Thread[2];
 	Map<String, WeightedPath> seenWorker1 = new HashMap<String, WeightedPath>();
 	Map<String, WeightedPath> seenWorker2 = new HashMap<String, WeightedPath>();
@@ -72,7 +72,7 @@ public class SearchEngine
 	
 	public static void main(String[] args)
 	{
-		String[] query = {"open", "delivery"};
+		String[] query = {"dravosburg", "latenight"};
 		SearchEngine engine = new SearchEngine();
 		long startTime = System.currentTimeMillis();
 		engine.search(query);

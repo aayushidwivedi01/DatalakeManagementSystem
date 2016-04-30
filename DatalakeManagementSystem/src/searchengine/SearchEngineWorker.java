@@ -70,10 +70,13 @@ public class SearchEngineWorker implements Runnable
 							if (!SearchEngine.kShortestPaths.contains(path1))
 							{
 								Collections.reverse(path1);
-								SearchEngine.kShortestPaths.add(path1);
-								if (SearchEngine.kShortestPaths.size() == k || frontier.isEmpty())
+								if (!SearchEngine.kShortestPaths.contains(path1))
 								{
-									SearchEngine.flag = false;
+									SearchEngine.kShortestPaths.add(path1);
+									if (SearchEngine.kShortestPaths.size() == k || frontier.isEmpty())
+									{
+										SearchEngine.flag = false;
+									}
 								}
 							}
 						}

@@ -1,5 +1,7 @@
 package searchengine;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.json.simple.JSONArray;
@@ -43,7 +45,7 @@ public class GenerateOutputJson {
 				JSONObject name = new JSONObject();
 				String nodename = components[i-j+common_idx];
 				if(nodename.startsWith("DONOTLINK")){
-					nodename.replace("DONOTLINK", "LIST");
+					nodename = nodename.replace("DONOTLINK", "LIST");
 				}
 				name.put("name", nodename);
 				nodes.add(name);
@@ -85,6 +87,16 @@ public class GenerateOutputJson {
 		
 		final_json.put("links", links);
 		
+//		try {
+//
+//			FileWriter file = new FileWriter("/usr/share/jetty/webapps/root/graph.json");
+//			file.write(final_json.toJSONString());
+//			file.flush();
+//			file.close();
+//
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 		System.out.println(final_json.toString());
 	}
 

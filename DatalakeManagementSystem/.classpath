@@ -14,5 +14,6 @@
 	<classpathentry kind="lib" path="lib/mongo-java-driver-3.2.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections4-4.1.jar"/>
 	<classpathentry kind="lib" path="lib/google-collections-1.0-rc2.jar"/>
+	<classpathentry kind="lib" path="lib/je-4.0.92.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

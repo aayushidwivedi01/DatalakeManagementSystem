@@ -1,5 +1,8 @@
 package bean;
 
+import com.sleepycat.persist.model.Persistent;
+
+@Persistent
 public class Link {
 
 	private String source;
@@ -7,6 +10,9 @@ public class Link {
 	private String dest;
 	private double weight;
 
+	public Link(){
+		
+	}
 	public Link(String source, String type, String dest, double weight) {
 		super();
 		this.source = source;

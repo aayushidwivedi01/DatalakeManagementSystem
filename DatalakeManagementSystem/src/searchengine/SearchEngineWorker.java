@@ -73,18 +73,22 @@ public class SearchEngineWorker implements Runnable
 								if (!SearchEngine.kShortestPaths.contains(path1))
 								{
 									//Appending keyword to get path to node
-									if (!path1.get(1).contains(path1.get(0)))
+									String firstNode = path1.remove(0);
+									if (!path1.get(0).contains(firstNode))
 									{
-										path1.add(1, path1.remove(1).concat("/").concat(path1.get(0)));
+										String pathToFirstNode = path1.remove(0);
+										pathToFirstNode = pathToFirstNode.concat("/").concat(firstNode);
+										path1.add(0, pathToFirstNode);
 									}
-									path1.remove(0);
 									
 									int l = path1.size() - 1;
-									if (!path1.get(l - 1).contains(path1.get(l)))
+									String lastNode = path1.remove(l);
+									if (!path1.get(l - 1).contains(lastNode))
 									{
-										path1.add(l - 1, path1.remove(l - 1).concat("/").concat(path1.get(l)));
+										String pathToLastNode = path1.remove(l);
+										pathToLastNode = pathToLastNode.concat("/").concat(lastNode);
+										path1.add(l - 1, pathToLastNode);
 									}
-									path1.remove(l);
 									
 									SearchEngine.kShortestPaths.add(path1);
 									if (SearchEngine.kShortestPaths.size() == k || frontier.isEmpty())

@@ -61,7 +61,9 @@ public class SearchEngineWorker implements Runnable
 						ArrayList<String> path1 = new ArrayList<>(weightedPath.getPath());
 						ArrayList<String> path2 = new ArrayList<>(seenNodesOther.get(node).getPath());
 						Collections.reverse(path2);
+						path2.remove(0);
 						System.out.println("Found a path!!"); //+ weightedPath.getPath() + " + " + path2);
+						System.out.println("Path 1: " + path1 + " Path 2: " + path2);
 						path1.addAll(path2);
 						synchronized(SearchEngine.kShortestPaths)
 						{

@@ -37,6 +37,7 @@ public class BidirectionalSearch implements Runnable
 		//Initialize frontier with first word
 		synchronized(frontier)
 		{
+			System.out.println("initializing frontier with " + word);
 			WeightedPath currentNode = new WeightedPath(word, 1);
 			frontier.add(currentNode);
 			frontier.notify();
@@ -47,7 +48,7 @@ public class BidirectionalSearch implements Runnable
 			for (int i = 0; i < NUM_THREADS; i++)
 			{
 					threadPool[i].join();
-					System.out.println("Thread " + i + " finished");
+					//System.out.println("Thread " + i + " finished");
 			}
 		}
 		catch (InterruptedException e) {

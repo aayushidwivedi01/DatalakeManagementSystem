@@ -8,9 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-
-import org.json.JSONObject;
-
+import bean.Link;
 import bean.Links;
 import storage.LinksDA;
 
@@ -69,7 +67,7 @@ public class SearchEngineWorker implements Runnable
 				}
 			}
 			
-			Set<JSONObject> relations = new HashSet<JSONObject>();
+			Set<Link> relations = new HashSet<Link>();
 			
 			Links links = lDa.fetch(node);
 //			System.out.println("found links: " + links);
@@ -77,14 +75,14 @@ public class SearchEngineWorker implements Runnable
 			//System.out.println("relations: " + relations);
 			
 			ArrayList<String> path = weightedPath.getPath();
-			for (JSONObject relation : relations)
+			for (Link relation : relations)
 			{
-				String dest = relation.getString("dest");
+				String dest = relation.getDest();
 				ArrayList<String> newPath = new ArrayList<String>(path);
 				if (path.contains(dest))
 					continue;
 				newPath.add(dest);
-				double newCost = weightedPath.getCost() + relation.getDouble("weight");
+				double newCost = weightedPath.getCost() + relation.getWeight();
 				WeightedPath newWeightedPath = new WeightedPath(newPath, newCost);
 				synchronized(mySeenNodes)
 				{

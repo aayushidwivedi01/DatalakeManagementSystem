@@ -1,112 +1,107 @@
 package storage;
 
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Updates.set;
-
 import java.util.ArrayList;
 import java.util.List;
-import org.bson.Document;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.IndexOptions;
+
+import com.sleepycat.persist.PrimaryIndex;
 import bean.InvertedIndex;
 import bean.Occurance;
 
 public class InvertedIndexDA {
 
-	private static MongoClientURI URI = new MongoClientURI(
-			"mongodb://dlms_webapp:webapp@ds013971.mlab.com:13971/webappdb");
-	public static String COLLECTION_NAME = "inverted_indices";
-	public static String WORD_KEY = "word";
-	public static String OCCURS_KEY = "occurs";
-	private MongoClient client;
-	private MongoDatabase db;
-	private MongoCollection<Document> collection;
-
-	public InvertedIndexDA() {
-		super();
-		this.client = new MongoClient(URI);
-		this.db = client.getDatabase(URI.getDatabase());
-		db.getCollection(COLLECTION_NAME).createIndex(new Document(WORD_KEY, 1), new IndexOptions().unique(true));
-		this.collection = db.getCollection(COLLECTION_NAME);
-	}
-
-	public MongoClient getClient() {
-		return client;
-	}
-
-	public MongoDatabase getDb() {
-		return db;
-	}
-
-	@SuppressWarnings("unchecked")
-	public InvertedIndex fetch(String username) {
-		Document doc = collection.find(eq(WORD_KEY, username)).first();
-		System.out.println("Fetched doc : " + doc);
-		InvertedIndex iIndex = null;
-		if (doc != null) {
-			List<Occurance> occurs = new ArrayList<Occurance>();
-			for (Document o : (ArrayList<Document>) doc.get(OCCURS_KEY)) {
-				occurs.add(new Occurance(o.getString("path"), o.getString("attribute")));
+	public InvertedIndex fetch(String InvertedIndexId) {
+		InvertedIndex InvertedIndex = null;
+		if (DBWrapper.getStore() != null) {
+			PrimaryIndex<String, InvertedIndex> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
+					InvertedIndex.class);
+			if (userPrimaryIndex != null) {
+				InvertedIndex = userPrimaryIndex.get(InvertedIndexId);
 			}
-			iIndex = new InvertedIndex(doc.getString(WORD_KEY), occurs);
 		}
-		return iIndex;
+		return InvertedIndex;
 	}
 
-	public void store(InvertedIndex iIndex) {
-		Document doc = Document.parse(new JSONObject(iIndex).toString());
-		collection.insertOne(doc);
+	public InvertedIndex store(InvertedIndex InvertedIndex) {
+		InvertedIndex insertedInvertedIndex = null;
+		if (DBWrapper.getStore() != null) {
+			PrimaryIndex<String, InvertedIndex> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
+					InvertedIndex.class);
+			if (userPrimaryIndex != null) {
+				insertedInvertedIndex = userPrimaryIndex.put(InvertedIndex);
+			}
+		}
+		return insertedInvertedIndex;
 	}
 
-	public void update(InvertedIndex iIndex) {
-		/*Document doc = Document.parse(new JSONObject(iIndex).toString());
-		System.out.println(new JSONArray(iIndex.getOccurs()));
-		collection.updateOne(eq(WORD_KEY, iIndex.getWord()),
-				set(OCCURS_KEY, doc.get(OCCURS_KEY)));*/
-		delete(iIndex);
-		store(iIndex);
+	public boolean delete(String InvertedIndexId) {
+		if (DBWrapper.getStore() != null) {
+			PrimaryIndex<String, InvertedIndex> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
+					InvertedIndex.class);
+			if (userPrimaryIndex != null) {
+				return userPrimaryIndex.delete(InvertedIndexId);
+			}
+		}
+		return false;
 	}
 
-	public void delete(InvertedIndex iIndex) {
-		collection.deleteOne(eq(WORD_KEY, iIndex.getWord()));
+	public boolean delete(InvertedIndex invertedIndex) {
+		if (DBWrapper.getStore() != null) {
+			PrimaryIndex<String, InvertedIndex> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
+					InvertedIndex.class);
+			if (userPrimaryIndex != null) {
+				return userPrimaryIndex.delete(invertedIndex.getWord());
+			}
+		}
+		return false;
 	}
 
-	public void delete(String username) {
-		collection.deleteOne(eq(WORD_KEY, username));
+	public boolean update(InvertedIndex InvertedIndex) {
+		InvertedIndex oldInvertedIndex = fetch(InvertedIndex.getWord());
+		if (oldInvertedIndex != null) {
+			oldInvertedIndex.setOccurs(InvertedIndex.getOccurs());
+			if (store(oldInvertedIndex) != null) {
+				return true;
+			} else
+				return false;
+
+		} else
+			return false;
 	}
 
-	public void close() {
-		client.close();
+	public long getSize() {
+		long result = -1;
+		if (DBWrapper.getStore() != null) {
+			PrimaryIndex<String, InvertedIndex> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
+					InvertedIndex.class);
+			if (userPrimaryIndex != null) {
+				result = userPrimaryIndex.count();
+			}
+		}
+		return result;
 	}
 
-	public static void main(String[] args) {
-		ArrayList<Occurance> occurs = new ArrayList<Occurance>();
-		occurs.add(new Occurance("user1_tst.xml/title", "title"));
-		occurs.add(new Occurance("user1_tst2.xml/title", "title"));
-		occurs.add(new Occurance("user1_tst.xml/content", "content"));
-		InvertedIndex iIndex = new InvertedIndex("test_word", occurs);
+	public static void main(String args[]) {
+		DBWrapper.setup("/home/cis550/db");
+
+		List<Occurance> occurances = new ArrayList<Occurance>();
+		occurances.add(new Occurance("test_file/test_path/test_att", "test_att"));
+		occurances.add(new Occurance("test_file/test_path/test_att2", "test_att2"));
+		InvertedIndex invertedIndex = new InvertedIndex("test_word", occurances);
+		
 		InvertedIndexDA iIndexDA = new InvertedIndexDA();
-		try {
-			
-			iIndexDA.store(iIndex);
-			System.out.println(iIndexDA.fetch("test_word"));
-			occurs.add(new Occurance("user1_tst2.xml/owner", "owner"));
-			iIndexDA.update(iIndex);
-			System.out.println(iIndexDA.fetch("test_word"));
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-		finally {
-			iIndexDA.delete("test_word");
-			System.out.println(iIndexDA.fetch("test_word"));
-			iIndexDA.close();
-		}
+		iIndexDA.store(invertedIndex);
+		System.out.println(iIndexDA.fetch("test_word"));
+		System.out.println(iIndexDA.getSize());
+		
+		invertedIndex.getOccurs().add(new Occurance("test_file/test_path/test_att3", "test_att3"));
+		
+		iIndexDA.update(invertedIndex);
+		System.out.println(iIndexDA.fetch("test_word"));
+		System.out.println(iIndexDA.getSize());
+		
+		iIndexDA.delete(invertedIndex);
+		System.out.println(iIndexDA.fetch("test_word"));
+		DBWrapper.close();
 	}
 
 }

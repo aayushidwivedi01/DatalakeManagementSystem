@@ -2,9 +2,7 @@ package storage;
 
 import java.util.HashSet;
 import java.util.Set;
-
 import com.sleepycat.persist.PrimaryIndex;
-
 import bean.Link;
 import bean.Links;
 
@@ -81,11 +79,11 @@ public class LinksDA {
 
 		LinksDA lDA = new LinksDA();
 
-		//lDA.store(links);
+		lDA.store(links);
 
 		System.out.println(lDA.fetch("work"));
 		System.out.println(lDA.getSize());
-		//lDA.delete(links.getSource());
+		lDA.delete(links.getSource());
 		DBWrapper.close();
 	}
 

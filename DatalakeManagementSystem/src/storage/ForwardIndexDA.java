@@ -1,83 +1,96 @@
 package storage;
 
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Updates.set;
-import org.bson.Document;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.IndexOptions;
+import com.sleepycat.persist.PrimaryIndex;
 
 import bean.ForwardIndex;
 
 public class ForwardIndexDA {
 
-	private static MongoClientURI URI = new MongoClientURI(
-			"mongodb://dlms_webapp:webapp@ds013971.mlab.com:13971/webappdb");
-	public static String COLLECTION_NAME = "forward_indices";
-	public static String PATH_KEY = "path";
-	public static String VALUE_KEY = "value";
-	private MongoClient client;
-	private MongoDatabase db;
-	private MongoCollection<Document> collection;
-
-	public ForwardIndexDA() {
-		super();
-		this.client = new MongoClient(URI);
-		this.db = client.getDatabase(URI.getDatabase());
-		db.getCollection(COLLECTION_NAME).createIndex(new Document(PATH_KEY, 1), new IndexOptions().unique(true));
-		this.collection = db.getCollection(COLLECTION_NAME);
-	}
-
-	public MongoClient getClient() {
-		return client;
-	}
-
-	public MongoDatabase getDb() {
-		return db;
-	}
-
-	public ForwardIndex fetch(String fIndexPath) {
-		Document doc = collection.find(eq(PATH_KEY, fIndexPath)).first();
-		ForwardIndex fIndex = null;
-		if (doc != null) {
-			fIndex = new ForwardIndex(doc.getString(PATH_KEY), doc.getString(VALUE_KEY));
+	public ForwardIndex fetch(String ForwardIndexId) {
+		ForwardIndex ForwardIndex = null;
+		if (DBWrapper.getStore() != null) {
+			PrimaryIndex<String, ForwardIndex> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
+					ForwardIndex.class);
+			if (userPrimaryIndex != null) {
+				ForwardIndex = userPrimaryIndex.get(ForwardIndexId);
+			}
 		}
-		return fIndex;
+		return ForwardIndex;
 	}
 
-	public void store(ForwardIndex fIndex) {
-		Document doc = new Document(PATH_KEY, fIndex.getPath()).append(VALUE_KEY, fIndex.getValue());
-		collection.insertOne(doc);
+	public ForwardIndex store(ForwardIndex ForwardIndex) {
+		ForwardIndex insertedForwardIndex = null;
+		if (DBWrapper.getStore() != null) {
+			PrimaryIndex<String, ForwardIndex> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
+					ForwardIndex.class);
+			if (userPrimaryIndex != null) {
+				insertedForwardIndex = userPrimaryIndex.put(ForwardIndex);
+			}
+		}
+		return insertedForwardIndex;
 	}
 
-	public void update(ForwardIndex fIndex) {
-		collection.updateOne(eq(PATH_KEY, fIndex.getPath()), set(VALUE_KEY, fIndex.getValue()));
+	public boolean delete(String ForwardIndexId) {
+		if (DBWrapper.getStore() != null) {
+			PrimaryIndex<String, ForwardIndex> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
+					ForwardIndex.class);
+			if (userPrimaryIndex != null) {
+				return userPrimaryIndex.delete(ForwardIndexId);
+			}
+		}
+		return false;
 	}
 
-	public void delete(ForwardIndex fIndex) {
-		collection.deleteOne(eq(PATH_KEY, fIndex.getPath()));
+	public boolean delete(ForwardIndex forwardIndex) {
+		if (DBWrapper.getStore() != null) {
+			PrimaryIndex<String, ForwardIndex> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
+					ForwardIndex.class);
+			if (userPrimaryIndex != null) {
+				return userPrimaryIndex.delete(forwardIndex.getPath());
+			}
+		}
+		return false;
 	}
 
-	public void delete(String username) {
-		collection.deleteOne(eq(PATH_KEY, username));
+	public boolean update(ForwardIndex ForwardIndex) {
+		ForwardIndex oldForwardIndex = fetch(ForwardIndex.getPath());
+		if (oldForwardIndex != null) {
+			oldForwardIndex.setValue(ForwardIndex.getValue());
+			if (store(oldForwardIndex) != null) {
+				return true;
+			} else
+				return false;
+
+		} else
+			return false;
 	}
 
-	public void close() {
-		client.close();
+	public long getSize() {
+		long result = -1;
+		if (DBWrapper.getStore() != null) {
+			PrimaryIndex<String, ForwardIndex> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
+					ForwardIndex.class);
+			if (userPrimaryIndex != null) {
+				result = userPrimaryIndex.count();
+			}
+		}
+		return result;
 	}
 
-	public static void main(String[] args) {
-		ForwardIndex fIndex = new ForwardIndex("user1_tst.xml/title", "my doc");
+	public static void main(String args[]) {
+		DBWrapper.setup("/home/cis550/db");
+
+		ForwardIndex forwardIndex = new ForwardIndex("test_path", "test_value");
+
 		ForwardIndexDA fIndexDA = new ForwardIndexDA();
-		fIndexDA.store(fIndex);
-		System.out.println(fIndexDA.fetch("user1_tst.xml/title"));
-		fIndexDA.update(new ForwardIndex("user1_tst.xml/title", "my doc 2"));
-		System.out.println(fIndexDA.fetch("user1_tst.xml/title"));
-		fIndexDA.delete("user1_tst.xml/title");
-		System.out.println(fIndexDA.fetch("user1_tst.xml/title"));
-		fIndexDA.close();
+
+		//fIndexDA.store(forwardIndex);
+
+		System.out.println(fIndexDA.fetch("test_path"));
+		System.out.println(fIndexDA.getSize());
+		fIndexDA.delete(forwardIndex);
+		System.out.println(fIndexDA.fetch("test_path"));
+		DBWrapper.close();
 	}
 
 }

@@ -2,20 +2,21 @@ package bean;
 
 import java.util.List;
 
+import com.sleepycat.persist.model.Entity;
+import com.sleepycat.persist.model.PrimaryKey;
+
+@Entity
 public class InvertedIndex {
 
-	private String _id;
+	@PrimaryKey
 	private String word;
 	private List<Occurance> occurs;
-	
+
+	public InvertedIndex() {
+	}
+
 	public InvertedIndex(String word, List<Occurance> occurs) {
 		super();
-		this.word = word;
-		this.occurs = occurs;
-	}
-	public InvertedIndex(String _id, String word, List<Occurance> occurs) {
-		super();
-		this._id = _id;
 		this.word = word;
 		this.occurs = occurs;
 	}
@@ -35,17 +36,10 @@ public class InvertedIndex {
 	public void setOccurs(List<Occurance> occurs) {
 		this.occurs = occurs;
 	}
-	public String get_id() {
-		return _id;
-	}
-	public void set_id(String _id) {
-		this._id = _id;
-	}
+
 	@Override
 	public String toString() {
-		return "InvertedIndex [_id=" + _id + ", word=" + word + ", occurs=" + occurs + "]";
+		return "InvertedIndex [word=" + word + ", occurs=" + occurs + "]";
 	}
-	
-	
-	
+
 }

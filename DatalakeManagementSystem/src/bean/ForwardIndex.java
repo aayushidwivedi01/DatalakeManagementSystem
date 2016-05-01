@@ -1,10 +1,18 @@
 package bean;
 
+import com.sleepycat.persist.model.Entity;
+import com.sleepycat.persist.model.PrimaryKey;
+
+@Entity
 public class ForwardIndex {
 
+	@PrimaryKey
 	private String path;
 	private String value;
-	
+
+	public ForwardIndex() {
+	}
+
 	public ForwardIndex(String path, String value) {
 		super();
 		this.path = path;
@@ -31,5 +39,5 @@ public class ForwardIndex {
 	public String toString() {
 		return "ForwardIndex [path=" + path + ", value=" + value + "]";
 	}
-	
+
 }

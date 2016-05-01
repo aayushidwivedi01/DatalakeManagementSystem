@@ -1,7 +1,7 @@
 package extractor;
 
 import indexer.InvertedIndexDLMS;
-
+import linker.Linker;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -10,13 +10,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.tika.Tika;
-
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-
+import storage.DBWrapper;
 import storage.FlatDocumentDA;
 import storage.ForwardIndexDA;
 import bean.FlatDocument;
@@ -33,7 +31,8 @@ import bean.ForwardIndex;
 public class Extractor {
 
 	public static void main(String[] args) throws IOException {
-		String file_arg = args[0];
+		DBWrapper.setup("/home/cis550/db");
+		String file_arg = "/home/cis550/yelp_academic_dataset_business_1.json";
 		
 		//Check if directory or file
 		File file = new File(file_arg);
@@ -142,8 +141,13 @@ public class Extractor {
 			/**
 			 * CALL INVERTED INDEX METHOD
 			 */
-			InvertedIndexDLMS.buildInvertedIndex(extracted_pairs_leaf);
-			InvertedIndexDLMS.buildInvertedIndex(metadata);
+			//InvertedIndexDLMS.buildInvertedIndex(extracted_pairs_leaf);
+			//InvertedIndexDLMS.buildInvertedIndex(metadata);
+			
+			System.out.println("Extractor done. Starting Linker");
+			Linker linker = new Linker();
+			linker.linkNewDocuments();
+			DBWrapper.close();
 		}
 		
 	}

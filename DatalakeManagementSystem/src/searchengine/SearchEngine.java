@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
-
+import storage.DBWrapper;
 import utils.Stemmer;
 
 public class SearchEngine
@@ -72,11 +72,13 @@ public class SearchEngine
 	
 	public static void main(String[] args)
 	{
+		DBWrapper.setup("/home/cis550/db");
 		String[] query = {"dravosburg", "latenight"};
 		SearchEngine engine = new SearchEngine();
 		long startTime = System.currentTimeMillis();
 		engine.search(query);
 		long endTime = System.currentTimeMillis();
 		System.out.println("Time: " + (endTime - startTime));
+		DBWrapper.close();
 	}
 }

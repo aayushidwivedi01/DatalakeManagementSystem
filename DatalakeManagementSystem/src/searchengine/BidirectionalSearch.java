@@ -10,7 +10,7 @@ import storage.LinksDA;
 public class BidirectionalSearch implements Runnable
 {
 
-	int NUM_THREADS = 20;
+	int NUM_THREADS = 1;
 	Queue<WeightedPath> frontier = new PriorityQueue<WeightedPath>();
 	Map<String, WeightedPath> mySeenNodes = new HashMap<String, WeightedPath>();
 	Map<String, WeightedPath> seenNodesOther = new HashMap<String, WeightedPath>();

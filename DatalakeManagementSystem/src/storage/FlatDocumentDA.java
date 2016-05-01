@@ -1,119 +1,118 @@
 package storage;
 
-import static com.mongodb.client.model.Filters.eq;
 import java.util.ArrayList;
 import java.util.List;
-import org.bson.Document;
-import org.json.JSONObject;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.IndexOptions;
 
+import com.sleepycat.persist.EntityCursor;
+import com.sleepycat.persist.PrimaryIndex;
 import bean.FlatDocument;
 
 public class FlatDocumentDA {
-	private static MongoClientURI URI = new MongoClientURI(
-			"mongodb://dlms_webapp:webapp@ds013971.mlab.com:13971/webappdb");
-	public String COLLECTION_NAME = "flat_documents_new";
-	public static String DOC_KEY = "document";
-	public static String INDEX_KEY = "forwardIndex";
-	private MongoClient client;
-	private MongoDatabase db;
-	private MongoCollection<Document> collection;
 
-	public FlatDocumentDA() {
-		super();
-		this.client = new MongoClient(URI);
-		this.db = client.getDatabase(URI.getDatabase());
-		db.getCollection(COLLECTION_NAME).createIndex(new Document(DOC_KEY, 1), new IndexOptions().unique(true));
-		this.collection = db.getCollection(COLLECTION_NAME);
-	}
+	public FlatDocumentDA(){}
 
-	public FlatDocumentDA(String collection) {
-		super();
-		this.COLLECTION_NAME = collection;
-		this.client = new MongoClient(URI);
-		this.db = client.getDatabase(URI.getDatabase());
-		db.getCollection(COLLECTION_NAME).createIndex(new Document(DOC_KEY, 1), new IndexOptions().unique(true));
-		this.collection = db.getCollection(COLLECTION_NAME);
-	}
-
-	public MongoClient getClient() {
-		return client;
-	}
-
-	public MongoDatabase getDb() {
-		return db;
-	}
-
-	@SuppressWarnings("unchecked")
-	public FlatDocument docToFlatDocument(Document doc) {
-		FlatDocument flatDocument = null;
-		if (doc != null) {
-			List<String> fIndex = (List<String>) doc.get(INDEX_KEY);
-			flatDocument = new FlatDocument(doc.getString(DOC_KEY), fIndex);
+	public FlatDocument fetch(String FlatDocumentId) {
+		FlatDocument FlatDocument = null;
+		if (DBWrapper.getStore() != null) {
+			PrimaryIndex<String, FlatDocument> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
+					FlatDocument.class);
+			if (userPrimaryIndex != null) {
+				FlatDocument = userPrimaryIndex.get(FlatDocumentId);
+			}
 		}
-		return flatDocument;
+		return FlatDocument;
 	}
-
-	public FlatDocument fetch(String document) {
-		Document doc = collection.find(eq(DOC_KEY, document)).first();
-		return docToFlatDocument(doc);
-	}
-
+	
 	public List<FlatDocument> fetchAll() {
+		PrimaryIndex<String, FlatDocument> docPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
+				FlatDocument.class);
 		List<FlatDocument> flatDocuments = new ArrayList<FlatDocument>();
-		for (Document doc : collection.find()) {
-			flatDocuments.add(docToFlatDocument(doc));
+		EntityCursor<FlatDocument> flatDocCursor = docPrimaryIndex.entities();
+		try{
+			for(FlatDocument flatDocument : flatDocCursor){
+				flatDocuments.add(flatDocument);
+			}
+		} finally{
+			flatDocCursor.close();
 		}
 		return flatDocuments;
 	}
 
-	public void store(FlatDocument flatDocument) {
-		Document doc = Document.parse(new JSONObject(flatDocument).toString());
-		collection.insertOne(doc);
-	}
-
-	public void update(FlatDocument flatDocument) {
-		delete(flatDocument);
-		store(flatDocument);
-	}
-
-	public void delete(FlatDocument flatDocument) {
-		collection.deleteOne(eq(DOC_KEY, flatDocument.getDocument()));
-	}
-
-	public void delete(String document) {
-		collection.deleteOne(eq(DOC_KEY, document));
-	}
-
-	public void close() {
-		client.close();
-	}
-
-	public static void main(String[] args) {
-		ArrayList<String> fIndex = new ArrayList<String>();
-		fIndex.add("f1");
-		fIndex.add("f2");
-		FlatDocument flatDocument = new FlatDocument("mankit", fIndex);
-		FlatDocumentDA fDa = new FlatDocumentDA();
-		try {
-			fDa.store(flatDocument);
-			System.out.println("Store successful");
-			System.out.println("Fetched:" + fDa.fetch("mankit"));
-			fIndex.add("f3");
-			fDa.update(flatDocument);
-			System.out.println("Update successful");
-			System.out.println("Fetched:" + fDa.fetch("mankit"));
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			fDa.delete("mankit");
-			System.out.println(fDa.fetch("mankit"));
-			fDa.close();
+	public FlatDocument store(FlatDocument FlatDocument) {
+		FlatDocument insertedFlatDocument = null;
+		if (DBWrapper.getStore() != null) {
+			PrimaryIndex<String, FlatDocument> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
+					FlatDocument.class);
+			if (userPrimaryIndex != null) {
+				insertedFlatDocument = userPrimaryIndex.put(FlatDocument);
+			}
 		}
+		return insertedFlatDocument;
 	}
+
+	public boolean delete(String flatDocumentId) {
+		if (DBWrapper.getStore() != null) {
+			PrimaryIndex<String, FlatDocument> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
+					FlatDocument.class);
+			if (userPrimaryIndex != null) {
+				return userPrimaryIndex.delete(flatDocumentId);
+			}
+		}
+		return false;
+	}
+	
+	public boolean delete(FlatDocument flatDocument) {
+		if (DBWrapper.getStore() != null) {
+			PrimaryIndex<String, FlatDocument> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
+					FlatDocument.class);
+			if (userPrimaryIndex != null) {
+				return userPrimaryIndex.delete(flatDocument.getDocument());
+			}
+		}
+		return false;
+	}
+
+	public boolean update(FlatDocument flatDocument) {
+		FlatDocument oldFlatDocument = fetch(flatDocument.getDocument());
+		if (oldFlatDocument != null) {
+			oldFlatDocument.setDocument(flatDocument.getDocument());
+			if (store(oldFlatDocument) != null) {
+				return true;
+			} else
+				return false;
+
+		} else
+			return false;
+	}
+
+	public long getSize() {
+		long result = -1;
+		if (DBWrapper.getStore() != null) {
+			PrimaryIndex<String, FlatDocument> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
+					FlatDocument.class);
+			if (userPrimaryIndex != null) {
+				result = userPrimaryIndex.count();
+			}
+		}
+		return result;
+	}
+
+	public static void main(String args[]) {
+		DBWrapper.setup("/home/cis550/db");
+
+		List<String> fIdx = new ArrayList<String>();
+		fIdx.add("id2");
+		FlatDocument flatDocument = new FlatDocument("flatdoc2", fIdx);
+
+		FlatDocumentDA fDA = new FlatDocumentDA();
+
+		fDA.store(flatDocument);
+
+		System.out.println(fDA.fetchAll());
+		System.out.println(fDA.getSize());
+		DBWrapper.close();
+	}
+
+
 
 }

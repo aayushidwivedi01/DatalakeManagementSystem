@@ -2,7 +2,14 @@ package bean;
 
 import java.util.List;
 
+import com.sleepycat.persist.model.Entity;
+import com.sleepycat.persist.model.PrimaryKey;
+
+@Entity
 public class FlatDocument {
+	public FlatDocument(){}
+
+	@PrimaryKey
 	private String document;
 	private List<String> forwardIndex;
 	

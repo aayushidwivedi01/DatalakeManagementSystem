@@ -120,14 +120,15 @@ public class GenerateOutputJson {
 	}
 
 	public static void main(String[] args) {
-		String [] links = {"yelp_academic_dataset_business_1.json/DONOTLINK_0/city/dravosburg", "yelp_academic_dataset_business_1.json/DONOTLINK_0", "yelp_academic_dataset_business_1.json/DONOTLINK_635/attributes", "yelp_academic_dataset_business_1.json/DONOTLINK_635/attributes/Good For", "yelp_academic_dataset_business_1.json/DONOTLINK_635/attributes/Good For/latenight"};
+//		String [] links = {"yelp_academic_dataset_business_1.json/DONOTLINK_0/city/dravosburg", "yelp_academic_dataset_business_1.json/DONOTLINK_0", "yelp_academic_dataset_business_1.json/DONOTLINK_635/attributes", "yelp_academic_dataset_business_1.json/DONOTLINK_635/attributes/Good For", "yelp_academic_dataset_business_1.json/DONOTLINK_635/attributes/Good For/latenight"};
 
-		List<String> list = Arrays.asList(links);
-//		list.add("DOC1/b/tom");
-//		list.add("DOC1/b/e/tom");
-//		list.add("DOC2/d/tom");
-//		list.add("DOC3/tom");
-//		list.add("DOC4/x/brady");
+//		List<String> list = Arrays.asList(links);
+		List<String> list = new ArrayList<String>();
+		list.add("DOC1/b/tom");
+		list.add("DOC1/b/e/tom");
+		list.add("DOC2/d/tom");
+		list.add("DOC3/tom");
+		list.add("DOC4/x/brady");
 		
 		GenerateOutputJson col = new GenerateOutputJson();
 		col.createJson(list);

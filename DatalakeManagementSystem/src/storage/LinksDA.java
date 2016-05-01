@@ -1,7 +1,10 @@
 package storage;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import com.sleepycat.persist.EntityCursor;
 import com.sleepycat.persist.PrimaryIndex;
 import bean.Link;
 import bean.Links;
@@ -18,6 +21,23 @@ public class LinksDA {
 			}
 		}
 		return Links;
+	}
+
+	public List<Links> fetchAll() {
+		PrimaryIndex<String, Links> userPrimaryIndex;
+		List<Links> links = new ArrayList<Links>();
+		if (DBWrapper.getStore() != null) {
+			userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class, Links.class);
+			EntityCursor<Links> linksCursor = userPrimaryIndex.entities();
+			try {
+				for (Links link : linksCursor) {
+					links.add(link);
+				}
+			} finally {
+				linksCursor.close();
+			}
+		}
+		return links;
 	}
 
 	public Links store(Links Links) {
@@ -79,11 +99,19 @@ public class LinksDA {
 
 		LinksDA lDA = new LinksDA();
 
-		lDA.store(links);
+		//lDA.store(links);
 
-		System.out.println(lDA.fetch("work"));
+		//System.out.println(lDA.fetch("work"));
 		System.out.println(lDA.getSize());
-		lDA.delete(links.getSource());
+		//lDA.delete(links.getSource());
+		for(Links storedLink : lDA.fetchAll()) {
+			if(storedLink.getSource().equals("generated3.json/new_data/from")) {
+				System.out.println(storedLink);
+				for(Link relation : storedLink.getRelations()) {
+					System.out.println(relation);
+				}
+			}
+		}
 		DBWrapper.close();
 	}
 

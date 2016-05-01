@@ -150,7 +150,6 @@ public class Extractor {
 			DBWrapper.close();
 		}
 		
-		DBWrapper.setup("/home/cis455/db");
 	}
 
 }

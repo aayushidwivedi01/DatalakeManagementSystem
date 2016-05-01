@@ -1,6 +1,8 @@
 package searchengine;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,15 +72,61 @@ public class SearchEngine
 		return stemmedWord;
 	}
 	
+	public ArrayList<String> mergePaths(ArrayList<String> path1, ArrayList<String> path2) {
+		ArrayList<String> mergedPath = new ArrayList<String>();
+		mergedPath.addAll(path1);
+		Collections.reverse(path2);
+		path2.remove(0);
+		mergedPath.addAll(path2);
+		//System.out.println("in function merge: " + mergedPath);
+		if (mergedPath.size() > 0)
+		{
+			String firstNode = mergedPath.remove(0);
+			String pathToFirstNode = mergedPath.get(0);
+			pathToFirstNode = pathToFirstNode.concat("/").concat(firstNode);
+			mergedPath.add(0, pathToFirstNode);
+		}
+		//System.out.println("after first check: " + mergedPath);
+		if (mergedPath.size() > 2)
+		{
+			int l = mergedPath.size() - 1;
+			String lastNode = mergedPath.remove(l);
+			String pathToLastNode = mergedPath.get(l - 1);
+			pathToLastNode = pathToLastNode.concat("/").concat(lastNode);
+			mergedPath.add(l, pathToLastNode);
+		}
+		System.out.println("merged path: " + mergedPath);
+		return mergedPath;
+	}
 	public static void main(String[] args)
 	{
-		DBWrapper.setup("/home/cis550/db");
-		String[] query = {"dravosburg", "latenight"};
+		DBWrapper.setup("/Users/Deepti/MyClasses/DB/Project/db");
+		String[] query = {"tom", "hardy"};
 		SearchEngine engine = new SearchEngine();
 		long startTime = System.currentTimeMillis();
 		engine.search(query);
 		long endTime = System.currentTimeMillis();
 		System.out.println("Time: " + (endTime - startTime));
+//		ArrayList<String> path1 = new ArrayList<String>(Arrays.asList("tom", "x/y/name", "hardy"));
+//		ArrayList<String> path2 = new ArrayList<String>(Arrays.asList("hardy"));
+//		System.out.println("path1: " + path1 + " path2: " + path2);
+//		engine.mergePaths(path1, path2);
+//		
+//		path1 = new ArrayList<String>(Arrays.asList("tom", "x/y/name"));
+//		path2 = new ArrayList<String>(Arrays.asList("hardy", "x/y/name"));
+//		System.out.println("path1: " + path1 + " path2: " + path2);
+//		engine.mergePaths(path1, path2);
+//		
+//		path1 = new ArrayList<String>(Arrays.asList("name", "x/y/name"));
+//		path2 = new ArrayList<String>(Arrays.asList("x/y/name"));
+//		System.out.println("path1: " + path1 + " path2: " + path2);
+//		engine.mergePaths(path1, path2);
+//		
+//		path1 = new ArrayList<String>(Arrays.asList("name", "x/y/z/from/name", "x/y/z/from", "x/y/z", "x/y"));
+//		path2 = new ArrayList<String>(Arrays.asList("tom", "x/y/a/from", "x/y/a", "x/y"));
+//		System.out.println("path1: " + path1 + " path2: " + path2);
+//		engine.mergePaths(path1, path2);
+		
 		DBWrapper.close();
 	}
 }

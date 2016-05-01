@@ -35,6 +35,7 @@ public class GenerateOutputJson {
 			common_idx = 0;
 			JSONObject common = new JSONObject();
 			common.put("name", components[common_idx]);
+			common.put("group", 1);
 			
 			while(nodes.contains(common)){
 				last_common = nodes.indexOf(common);
@@ -60,6 +61,9 @@ public class GenerateOutputJson {
 				}
 				
 				name.put("name", nodename);
+				if(i==j && common_idx == 0){
+					name.put("group", 1);
+				}
 				nodes.add(name);
 				
 				if(i != j+components.length-1-common_idx){
@@ -91,6 +95,7 @@ public class GenerateOutputJson {
 				JSONObject link = new JSONObject();
 				link.put("source", end_points.get(i));
 				link.put("target", end_points.get(i+1));
+				link.put("width", 10);
 				links.add(link);
 			}
 		}

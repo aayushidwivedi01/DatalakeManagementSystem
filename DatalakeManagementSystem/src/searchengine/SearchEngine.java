@@ -1,7 +1,6 @@
 package searchengine;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -107,26 +106,6 @@ public class SearchEngine
 		engine.search(query);
 		long endTime = System.currentTimeMillis();
 		System.out.println("Time: " + (endTime - startTime));
-//		ArrayList<String> path1 = new ArrayList<String>(Arrays.asList("tom", "x/y/name", "hardy"));
-//		ArrayList<String> path2 = new ArrayList<String>(Arrays.asList("hardy"));
-//		System.out.println("path1: " + path1 + " path2: " + path2);
-//		engine.mergePaths(path1, path2);
-//		
-//		path1 = new ArrayList<String>(Arrays.asList("tom", "x/y/name"));
-//		path2 = new ArrayList<String>(Arrays.asList("hardy", "x/y/name"));
-//		System.out.println("path1: " + path1 + " path2: " + path2);
-//		engine.mergePaths(path1, path2);
-//		
-//		path1 = new ArrayList<String>(Arrays.asList("name", "x/y/name"));
-//		path2 = new ArrayList<String>(Arrays.asList("x/y/name"));
-//		System.out.println("path1: " + path1 + " path2: " + path2);
-//		engine.mergePaths(path1, path2);
-//		
-//		path1 = new ArrayList<String>(Arrays.asList("name", "x/y/z/from/name", "x/y/z/from", "x/y/z", "x/y"));
-//		path2 = new ArrayList<String>(Arrays.asList("tom", "x/y/a/from", "x/y/a", "x/y"));
-//		System.out.println("path1: " + path1 + " path2: " + path2);
-//		engine.mergePaths(path1, path2);
-		
 		DBWrapper.close();
 	}
 }

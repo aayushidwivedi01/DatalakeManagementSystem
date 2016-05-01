@@ -43,14 +43,14 @@ public class SearchEngineWorker implements Runnable
 				{
 					if (frontier.isEmpty())
 					{
-						frontier.wait();
+						frontier.wait(10000);
 					}
 					if (!frontier.isEmpty())
 					{
 						weightedPath = frontier.remove();
 					}
 					else
-						continue;
+						SearchEngine.flag = false;
 				}
 				
 				String node = weightedPath.getNode();
@@ -81,9 +81,9 @@ public class SearchEngineWorker implements Runnable
 									{	
 										//Add shortest path
 										//System.out.println("Adding path: " + path1);
-										SearchEngine.kShortestPaths.add(path1);
+										SearchEngine.kShortestPaths.add(mergedPath);
 										
-										if (SearchEngine.kShortestPaths.size() >= k || frontier.isEmpty())
+										if (SearchEngine.kShortestPaths.size() >= k)
 										{
 											SearchEngine.flag = false;
 										}
@@ -91,13 +91,14 @@ public class SearchEngineWorker implements Runnable
 								}
 							}
 						}
+						continue;
 					}
 				}
 				
 				Set<Link> relations = new HashSet<Link>();
-				
+				//System.out.println("node: " + node);
 				Links links = lDa.fetch(node);
-	//			System.out.println("found links: " + links);
+				//System.out.println("found links: " + links);
 				relations = links.getRelations();
 				//System.out.println("relations: " + relations);
 				
@@ -105,7 +106,7 @@ public class SearchEngineWorker implements Runnable
 				for (Link relation : relations)
 				{
 					String dest = relation.getDest();
-					System.out.println(node + " linked to: " + dest);
+					//System.out.println(node + " linked to: " + dest);
 					ArrayList<String> newPath = new ArrayList<String>(path);
 					
 					//Ignore node if it creates a loop in path

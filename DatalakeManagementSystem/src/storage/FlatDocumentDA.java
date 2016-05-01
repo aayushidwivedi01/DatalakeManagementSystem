@@ -9,40 +9,63 @@ import bean.FlatDocument;
 
 public class FlatDocumentDA {
 
-	public FlatDocumentDA(){}
+	private boolean forNewDocs;
+
+	public FlatDocumentDA() {
+		this.forNewDocs = true;
+	}
+
+	public FlatDocumentDA(boolean forNewDocs) {
+		this.forNewDocs = forNewDocs;
+	}
 
 	public FlatDocument fetch(String FlatDocumentId) {
 		FlatDocument FlatDocument = null;
-		if (DBWrapper.getStore() != null) {
-			PrimaryIndex<String, FlatDocument> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
-					FlatDocument.class);
+		if (DBWrapper.getStore() != null && DBWrapper.getNewDocStore() != null) {
+			PrimaryIndex<String, FlatDocument> userPrimaryIndex;
+			if (forNewDocs) {
+				userPrimaryIndex = DBWrapper.getNewDocStore().getPrimaryIndex(String.class, FlatDocument.class);
+			} else {
+				userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class, FlatDocument.class);
+			}
 			if (userPrimaryIndex != null) {
 				FlatDocument = userPrimaryIndex.get(FlatDocumentId);
 			}
 		}
 		return FlatDocument;
 	}
-	
+
 	public List<FlatDocument> fetchAll() {
-		PrimaryIndex<String, FlatDocument> docPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
-				FlatDocument.class);
+		PrimaryIndex<String, FlatDocument> userPrimaryIndex;
 		List<FlatDocument> flatDocuments = new ArrayList<FlatDocument>();
-		EntityCursor<FlatDocument> flatDocCursor = docPrimaryIndex.entities();
-		try{
-			for(FlatDocument flatDocument : flatDocCursor){
-				flatDocuments.add(flatDocument);
+		if (DBWrapper.getStore() != null && DBWrapper.getNewDocStore() != null) {
+			if (forNewDocs) {
+				userPrimaryIndex = DBWrapper.getNewDocStore().getPrimaryIndex(String.class, FlatDocument.class);
+			} else {
+				userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class, FlatDocument.class);
 			}
-		} finally{
-			flatDocCursor.close();
+
+			EntityCursor<FlatDocument> flatDocCursor = userPrimaryIndex.entities();
+			try {
+				for (FlatDocument flatDocument : flatDocCursor) {
+					flatDocuments.add(flatDocument);
+				}
+			} finally {
+				flatDocCursor.close();
+			}
 		}
 		return flatDocuments;
 	}
 
 	public FlatDocument store(FlatDocument FlatDocument) {
 		FlatDocument insertedFlatDocument = null;
-		if (DBWrapper.getStore() != null) {
-			PrimaryIndex<String, FlatDocument> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
-					FlatDocument.class);
+		if (DBWrapper.getStore() != null && DBWrapper.getNewDocStore() != null) {
+			PrimaryIndex<String, FlatDocument> userPrimaryIndex;
+			if (forNewDocs) {
+				userPrimaryIndex = DBWrapper.getNewDocStore().getPrimaryIndex(String.class, FlatDocument.class);
+			} else {
+				userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class, FlatDocument.class);
+			}
 			if (userPrimaryIndex != null) {
 				insertedFlatDocument = userPrimaryIndex.put(FlatDocument);
 			}
@@ -51,20 +74,28 @@ public class FlatDocumentDA {
 	}
 
 	public boolean delete(String flatDocumentId) {
-		if (DBWrapper.getStore() != null) {
-			PrimaryIndex<String, FlatDocument> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
-					FlatDocument.class);
+		if (DBWrapper.getStore() != null && DBWrapper.getNewDocStore() != null) {
+			PrimaryIndex<String, FlatDocument> userPrimaryIndex;
+			if (forNewDocs) {
+				userPrimaryIndex = DBWrapper.getNewDocStore().getPrimaryIndex(String.class, FlatDocument.class);
+			} else {
+				userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class, FlatDocument.class);
+			}
 			if (userPrimaryIndex != null) {
 				return userPrimaryIndex.delete(flatDocumentId);
 			}
 		}
 		return false;
 	}
-	
+
 	public boolean delete(FlatDocument flatDocument) {
-		if (DBWrapper.getStore() != null) {
-			PrimaryIndex<String, FlatDocument> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
-					FlatDocument.class);
+		if (DBWrapper.getStore() != null && DBWrapper.getNewDocStore() != null) {
+			PrimaryIndex<String, FlatDocument> userPrimaryIndex;
+			if (forNewDocs) {
+				userPrimaryIndex = DBWrapper.getNewDocStore().getPrimaryIndex(String.class, FlatDocument.class);
+			} else {
+				userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class, FlatDocument.class);
+			}
 			if (userPrimaryIndex != null) {
 				return userPrimaryIndex.delete(flatDocument.getDocument());
 			}
@@ -80,16 +111,21 @@ public class FlatDocumentDA {
 				return true;
 			} else
 				return false;
-
 		} else
 			return false;
 	}
 
 	public long getSize() {
 		long result = -1;
-		if (DBWrapper.getStore() != null) {
-			PrimaryIndex<String, FlatDocument> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
-					FlatDocument.class);
+		if (DBWrapper.getStore() != null && DBWrapper.getNewDocStore() != null) {
+			PrimaryIndex<String, FlatDocument> userPrimaryIndex;
+			if (forNewDocs) {
+				System.out.println(DBWrapper.getNewDocStore().getStoreName());
+				userPrimaryIndex = DBWrapper.getNewDocStore().getPrimaryIndex(String.class, FlatDocument.class);
+			} else {
+				System.out.println(DBWrapper.getStore().getStoreName());
+				userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class, FlatDocument.class);
+			}
 			if (userPrimaryIndex != null) {
 				result = userPrimaryIndex.count();
 			}
@@ -104,15 +140,17 @@ public class FlatDocumentDA {
 		fIdx.add("id2");
 		FlatDocument flatDocument = new FlatDocument("flatdoc2", fIdx);
 
-		FlatDocumentDA fDA = new FlatDocumentDA();
-
+		FlatDocumentDA fDA = new FlatDocumentDA(true);
+		FlatDocumentDA fDA2 = new FlatDocumentDA(false);
 		fDA.store(flatDocument);
+		
 
+		System.out.println(fDA2.fetch("flatdoc2"));
+		System.out.println(fDA2.fetchAll());
 		System.out.println(fDA.fetchAll());
 		System.out.println(fDA.getSize());
+		System.out.println(fDA2.getSize());
 		DBWrapper.close();
 	}
-
-
 
 }

@@ -13,7 +13,7 @@ public class UserDA {
 
 	private static MongoClientURI URI = new MongoClientURI(
 			"mongodb://dlms_webapp:webapp@ds013971.mlab.com:13971/webappdb");
-	public static String COLLECTION_NAME = "users";
+	public static String COLLECTION_NAME = "u_test";
 	public static String USERNAME_KEY = "username";
 	public static String PASSWORD_KEY = "password";
 	private MongoClient client;

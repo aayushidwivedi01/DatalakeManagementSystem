@@ -1,12 +1,15 @@
 var util = require("util");
 var fs = require("fs");
+var java = require("java");
 var Models = require("../models/models");
 var User = Models.User;
 var Doc = Models.Doc;
 var _dir = "/home/cis550/bobby_tables/uploads/";
-//var java = require('java');
 var doc_id = null;
-//java.classpath.push("extractor.jar");
+var status = 'idle';
+java.classpath.push("google-collections-1.0-rc2.jar");
+java.classpath.push("extractor2.jar");
+
 
 function savePermissions(req, res, status) {
 	var code = 0;
@@ -27,8 +30,10 @@ function savePermissions(req, res, status) {
 	
 }
 
-function likerResponse(err, data){
+function linkerResponse(err, data){
 	console.log("Uploaded file has been linked");
+	status = 'idle';
+
 }
 
 
@@ -50,6 +55,13 @@ function uploadFile(req, res, next) {
 						console.log(err);
 					}
 					savePermissions(req, res, function(status){
+						if(status===1){
+							status = 'extracting';
+							var extractor = java.newInstanceSync(
+									"extractor.Extractor",
+									localFilePath);
+							java.callMethod(extractor, "extract", linkerResponse);
+						}
 						res.render('upload', {
 							title : 'DLMS',
 							upload_error : status
@@ -64,8 +76,10 @@ function uploadFile(req, res, next) {
 	}
 }
 
-exports.do_work = 
-	  function(req,res, next) {
-		
-		uploadFile(req, res);
-	};
+module.exports = {
+		do_work:function(req,res, next) {
+			
+			uploadFile(req, res);
+		},
+		status:status};
+	  

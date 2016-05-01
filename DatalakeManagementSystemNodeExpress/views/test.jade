@@ -12,19 +12,10 @@ html
     script(src='https://code.jquery.com/jquery-1.10.2.js')
     script(language='JavaScript', type='text/javascript', src='bing.js')
     script(type='text/javascript').
-      // search("abc","WebResult");
-      // window.onload = getSearchParameters();
-      // $("#searchresults").onload = getSearchParameters();
       $(document).ready(getSearchParameters);
       function getSearchParameters(){
       var prmstr = decodeURIComponent(window.location.search.substr(1).split("=")[1].split('+').join(' '));
-      // Send query to servlet
-      // var arrayLength;
-      // var number_of_pages;
-      // var show_per_page;
       var posting = $.post("searchengine/search", {query : prmstr } ,function(data,status){
-      // alert(data);
-      // var cars = "one two three four";
       var array = data.split(" ");
       var arrayLength = array.length;
       if (array[0]===""){
@@ -40,8 +31,6 @@ html
       var number_of_items = arrayLength*3;
       //calculate the number of pages we are going to have
       var number_of_pages = Math.ceil(number_of_items/show_per_page);
-      // alert(number_of_pages);
-      //set the value of our hidden input fields
       $('#current_page').val(0);
       $('#show_per_page').val(show_per_page);
       for (var i = 0; i < arrayLength; i++) {
@@ -54,8 +43,6 @@ html
       // $('#preview').html('<object data="' +array[i] +'" />');
       $('#box').attr('src', $(this).attr("href"));
       });
-      // $(p).append("Result "+i);
-      // Append the anchor tag and paragraph with the description to the results div.
       $('#searchresults').append(a,"<br><br>");
       }
       var navigation_html = '<a class="previous_link" href="javascript:previous();">Prev</a>';

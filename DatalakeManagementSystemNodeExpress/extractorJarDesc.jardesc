@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<jardesc>
+    <jar path="DatalakeManagementSystemNodeExpress/extractor.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/DatalakeManagementSystemNodeExpress/extractorJarDesc.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+    <selectedProjects/>
+    <manifest generateManifest="true" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
+        <sealing sealJar="false">
+            <packagesToSeal/>
+            <packagesToUnSeal/>
+        </sealing>
+    </manifest>
+    <selectedElements exportClassFiles="true" exportJavaFiles="true" exportOutputFolder="false">
+        <javaElement handleIdentifier="=DatalakeManagementSystem/src&lt;extractor{XMLExtract.java"/>
+        <javaElement handleIdentifier="=DatalakeManagementSystem/src&lt;extractor{Extractor.java"/>
+        <javaElement handleIdentifier="=DatalakeManagementSystem/src&lt;extractor{CSVExtract.java"/>
+        <javaElement handleIdentifier="=DatalakeManagementSystem/src&lt;extractor{ReadJsonOutput.java"/>
+        <javaElement handleIdentifier="=DatalakeManagementSystem/src&lt;extractor{TikaExtractor.java"/>
+        <javaElement handleIdentifier="=DatalakeManagementSystem/src&lt;extractor{JsonExtract.java"/>
+    </selectedElements>
+</jardesc>

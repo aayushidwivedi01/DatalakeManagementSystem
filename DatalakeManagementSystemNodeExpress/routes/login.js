@@ -7,6 +7,8 @@ function login_sucess(req,res, user){
 	session = req.session;
 	session.user = user.username;
 	session.user_id = user._id;
+	session.status = "idle";
+
 	res.render('homepage',
 			{'title':"Welcome, "+ session.user + "!"})
 }

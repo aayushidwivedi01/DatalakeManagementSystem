@@ -36,6 +36,7 @@ public class GenerateOutputJson {
 			JSONObject common = new JSONObject();
 			common.put("name", components[common_idx]);
 			common.put("group", 1);
+			common.put("url", "http://example.com/"+components[common_idx]);
 			
 			while(nodes.contains(common)){
 				last_common = nodes.indexOf(common);
@@ -53,6 +54,7 @@ public class GenerateOutputJson {
 					break;
 			}
 			
+//			System.out.println("Common index: "+common_idx);
 			for(i = j; i-j+common_idx < components.length; i++){
 				JSONObject name = new JSONObject();
 				String nodename = components[i-j+common_idx];
@@ -63,7 +65,9 @@ public class GenerateOutputJson {
 				name.put("name", nodename);
 				if(i==j && common_idx == 0){
 					name.put("group", 1);
+					name.put("url","http://example.com/"+nodename);
 				}
+//				System.out.println("ADDING : "+name.toJSONString());
 				nodes.add(name);
 				
 				if(i != j+components.length-1-common_idx){
@@ -116,7 +120,7 @@ public class GenerateOutputJson {
 //		} catch (IOException e) {
 //			e.printStackTrace();
 //		}
-		System.out.println(final_json.toString());
+		System.out.println(final_json.toString().replace("\\", ""));
 	}
 
 	public static void main(String[] args) {

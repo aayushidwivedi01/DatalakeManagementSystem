@@ -6,6 +6,7 @@ var User = Models.User;
 var Doc = Models.Doc;
 var _dir = "/home/cis550/bobby_tables/uploads/";
 var doc_id = null;
+var status = 'idle';
 java.classpath.push("google-collections-1.0-rc2.jar");
 java.classpath.push("extractor2.jar");
 
@@ -31,6 +32,8 @@ function savePermissions(req, res, status) {
 
 function linkerResponse(err, data){
 	console.log("Uploaded file has been linked");
+	status = 'idle';
+
 }
 
 
@@ -53,6 +56,7 @@ function uploadFile(req, res, next) {
 					}
 					savePermissions(req, res, function(status){
 						if(status===1){
+							status = 'extracting';
 							var extractor = java.newInstanceSync(
 									"extractor.Extractor",
 									localFilePath);
@@ -72,8 +76,10 @@ function uploadFile(req, res, next) {
 	}
 }
 
-exports.do_work = 
-	  function(req,res, next) {
-		
-		uploadFile(req, res);
-	};
+module.exports = {
+		do_work:function(req,res, next) {
+			
+			uploadFile(req, res);
+		},
+		status:status};
+	  

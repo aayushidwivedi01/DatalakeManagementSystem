@@ -12,6 +12,7 @@ var Models = require("../models/models");
 var User = Models.User;
 var Doc = Models.Doc;
 var Owner = Models.Owner;
+var uploadfile = require('./uploadfile');
 
 
 /* GET home page. */
@@ -50,6 +51,13 @@ router.post('/searchresults', function(req, res, next) {
 	res.render('searchresults', {
 		title : 'DLMS'
 	});
+});
+
+router.get('/status', function(req, res, next) {
+	res.render('status', {
+		title : 'DLMS',
+		status: uploadfile.status
+			});
 });
 
 

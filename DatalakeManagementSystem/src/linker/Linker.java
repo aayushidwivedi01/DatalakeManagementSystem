@@ -17,8 +17,8 @@ import storage.LinksDA;
 
 public class Linker {
 
-	private static String NEW_COLLECTION_NAME = "flat_documents_new";
-	private static String OLD_COLLECTION_NAME = "flat_documents";
+	private static boolean NEW_COLLECTION = true;
+	private static boolean OLD_COLLECTION = false;
 	private LinkCreator linkCreator;
 	private ForwardIndexDA fIndexDA;
 
@@ -48,8 +48,8 @@ public class Linker {
 	public void linkNewDocuments() {
 		Map<String, List<ForwardIndex>> docForwardIndices = new HashMap<String, List<ForwardIndex>>();
 		Set<Link> links = new HashSet<Link>();
-		FlatDocumentDA fDAOld = new FlatDocumentDA(OLD_COLLECTION_NAME);
-		FlatDocumentDA fDANew = new FlatDocumentDA(NEW_COLLECTION_NAME);
+		FlatDocumentDA fDAOld = new FlatDocumentDA(OLD_COLLECTION);
+		FlatDocumentDA fDANew = new FlatDocumentDA(NEW_COLLECTION);
 
 		for (FlatDocument newDoc : fDANew.fetchAll()) {
 
@@ -102,8 +102,8 @@ public class Linker {
 	public static void main(String[] args) {
 
 		Linker linker = new Linker();
-		FlatDocumentDA fDAOld = new FlatDocumentDA(OLD_COLLECTION_NAME);
-		FlatDocumentDA fDANew = new FlatDocumentDA(NEW_COLLECTION_NAME);
+		FlatDocumentDA fDAOld = new FlatDocumentDA(OLD_COLLECTION);
+		FlatDocumentDA fDANew = new FlatDocumentDA(NEW_COLLECTION);
 		linker.moveDocs(fDAOld, fDANew);
 		DBWrapper.setup("/home/cis550/db");
 		linker.linkNewDocuments();

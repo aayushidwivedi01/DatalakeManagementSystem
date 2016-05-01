@@ -3,6 +3,8 @@ package searchengine;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -17,12 +19,14 @@ public class GenerateOutputJson {
 		links = new JSONArray();
 	}
 	
-	public void createJson(ArrayList<String> list){
+	public void createJson(List<String> list){
 		
 		ArrayList<Integer> end_points = new ArrayList<Integer>();
 		
 		int j = 0;
 		int common_idx = 0;
+		int last_common = 0;
+		
 		for(String entry : list){
 			String [] components = entry.split("/");
 			int i;
@@ -33,10 +37,17 @@ public class GenerateOutputJson {
 			common.put("name", components[common_idx]);
 			
 			while(nodes.contains(common)){
+				last_common = nodes.indexOf(common);
 				common.clear();
 				
-				if(++common_idx < components.length)
-					common.put("name", components[common_idx]);
+				if(++common_idx < components.length){
+					String nodename = components[common_idx];
+					if(nodename.startsWith("DONOTLINK")){
+						nodename = nodename.replace("DONOTLINK", "LIST");
+					}
+					
+					common.put("name", nodename);
+				}
 				else
 					break;
 			}
@@ -47,6 +58,7 @@ public class GenerateOutputJson {
 				if(nodename.startsWith("DONOTLINK")){
 					nodename = nodename.replace("DONOTLINK", "LIST");
 				}
+				
 				name.put("name", nodename);
 				nodes.add(name);
 				
@@ -55,7 +67,7 @@ public class GenerateOutputJson {
 					
 					if(i == j && common_idx > 0){
 						JSONObject common_link = new JSONObject();
-						common_link.put("source", i-common_idx);
+						common_link.put("source", last_common);
 						common_link.put("target", i);
 						links.add(common_link);
 						link.put("source", i);
@@ -68,7 +80,9 @@ public class GenerateOutputJson {
 					links.add(link);
 				}
 			}
-			end_points.add(j+components.length-1-common_idx);
+			
+			if(common_idx != components.length)
+				end_points.add(j+components.length-1-common_idx);
 			j = i;
 		}
 		
@@ -80,11 +94,11 @@ public class GenerateOutputJson {
 				links.add(link);
 			}
 		}
-		System.out.println(links.toJSONString());
+		
+//		System.out.println(links.toJSONString());
 		JSONObject final_json = new JSONObject();
 		
 		final_json.put("nodes", nodes);
-		
 		final_json.put("links", links);
 		
 //		try {
@@ -101,12 +115,14 @@ public class GenerateOutputJson {
 	}
 
 	public static void main(String[] args) {
-		ArrayList<String> list = new ArrayList<String>();
-		list.add("DOC1/b/tom");
-		list.add("DOC1/b/e/tom");
-		list.add("DOC2/d/tom");
-		list.add("DOC3/tom");
-		list.add("DOC4/x/brady");
+		String [] links = {"yelp_academic_dataset_business_1.json/DONOTLINK_0/city/dravosburg", "yelp_academic_dataset_business_1.json/DONOTLINK_0", "yelp_academic_dataset_business_1.json/DONOTLINK_635/attributes", "yelp_academic_dataset_business_1.json/DONOTLINK_635/attributes/Good For", "yelp_academic_dataset_business_1.json/DONOTLINK_635/attributes/Good For/latenight"};
+
+		List<String> list = Arrays.asList(links);
+//		list.add("DOC1/b/tom");
+//		list.add("DOC1/b/e/tom");
+//		list.add("DOC2/d/tom");
+//		list.add("DOC3/tom");
+//		list.add("DOC4/x/brady");
 		
 		GenerateOutputJson col = new GenerateOutputJson();
 		col.createJson(list);

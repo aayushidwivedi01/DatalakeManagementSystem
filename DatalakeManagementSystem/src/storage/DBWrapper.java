@@ -1,22 +1,14 @@
 package storage;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
-
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.EnvironmentConfig;
 import com.sleepycat.persist.EntityStore;
-import com.sleepycat.persist.PrimaryIndex;
 import com.sleepycat.persist.StoreConfig;
-
-import bean.Link;
-import bean.LinksBDB;
 
 public class DBWrapper {
 
-	private static String envDirectory = null;
 
 	private static Environment myEnv = null;
 	private static EntityStore store;
@@ -39,9 +31,11 @@ public class DBWrapper {
 
 		envConfig.setAllowCreate(true);
 		storeConfig.setAllowCreate(true);
-		envConfig.setTransactional(true);
-		storeConfig.setTransactional(true);
-
+		//envConfig.setTransactional(true);
+		//storeConfig.setTransactional(true);
+		envConfig.setConfigParam(EnvironmentConfig.ENV_RUN_CLEANER,  "false");
+		envConfig.setConfigParam(EnvironmentConfig.ENV_RUN_CHECKPOINTER, "false");
+		envConfig.setConfigParam(EnvironmentConfig.ENV_RUN_IN_COMPRESSOR, "false");
 		myEnv = new Environment(dbDir, envConfig);
 		store = new EntityStore(myEnv, "Links Store", storeConfig);
 
@@ -51,13 +45,17 @@ public class DBWrapper {
 		return store;
 	}
 
-	public static void shutdown() throws DatabaseException {
-		if (store != null)
+	public static void close() throws DatabaseException {
+		if (store != null){
+			System.out.println("Closing BDB Store");
 			store.close();
+		}
 		
-		if (myEnv != null)
+		if (myEnv != null){
+			System.out.println("Closing BDB Environment");
 			myEnv.close();
-
+		}
+			
 		
 	}
 

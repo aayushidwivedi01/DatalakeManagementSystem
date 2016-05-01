@@ -7,12 +7,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.json.JSONObject;
 import bean.ForwardIndex;
 import bean.Link;
 import bean.Links;
 import bean.PathAttribute;
+import storage.LinksDA;
 import utils.Stemmer;
 
 /*
@@ -55,7 +54,7 @@ public class LinkCreator {
 	private static Map<LinkType, String> linkType = new EnumMap<LinkType, String>(LinkType.class);
 	private static Map<LinkType, Double> linkWeight = new EnumMap<LinkType, Double>(LinkType.class);
 	private static final double DEFAULT_WEIGHT = 1.0;
-	private static final int STORE_THREAD_COUNT = 5;
+	private static final int STORE_THREAD_COUNT = 10;
 	private static final String DNL = "donotlink";
 	private Stemmer stemmer;
 	private ArrayList<LinkStoreThread> linkStoreThreads;
@@ -99,11 +98,11 @@ public class LinkCreator {
 
 	private void addLink(Link link, Map<String, Links> mapOfLinks) {
 		if (mapOfLinks.containsKey(link.getSource())) {
-			mapOfLinks.get(link.getSource()).getRelations().add(new JSONObject(link));
+			mapOfLinks.get(link.getSource()).getRelations().add(link);
 
 		} else {
-			Links links = new Links(link.getSource(), new HashSet<JSONObject>());
-			links.getRelations().add(new JSONObject(link));
+			Links links = new Links(link.getSource(), new HashSet<Link>());
+			links.getRelations().add(link);
 			mapOfLinks.put(link.getSource(), links);
 		}
 	}
@@ -114,8 +113,8 @@ public class LinkCreator {
 		}
 	}
 
-	private List<Link> getParentChildLinks(ForwardIndex f, PathAttribute pathAttribute) {
-		List<Link> links = new ArrayList<Link>();
+	private Set<Link> getParentChildLinks(ForwardIndex f, PathAttribute pathAttribute) {
+		Set<Link> links = new HashSet<Link>();
 		LinkType type;
 		String source;
 		String dest;
@@ -132,8 +131,8 @@ public class LinkCreator {
 		return links;
 	}
 
-	private List<Link> getAttributePathLinks(ForwardIndex f, PathAttribute pathAttribute) {
-		List<Link> links = new ArrayList<Link>();
+	private Set<Link> getAttributePathLinks(ForwardIndex f, PathAttribute pathAttribute) {
+		Set<Link> links = new HashSet<Link>();
 		LinkType type;
 		String source;
 		String dest;
@@ -150,9 +149,9 @@ public class LinkCreator {
 		return links;
 	}
 
-	private List<Link> getValueAttributeLink(ForwardIndex f1, ForwardIndex f2, PathAttribute pathAttributeF1,
+	private Set<Link> getValueAttributeLink(ForwardIndex f1, ForwardIndex f2, PathAttribute pathAttributeF1,
 			PathAttribute pathAttributeF2) {
-		List<Link> links = new ArrayList<Link>();
+		Set<Link> links = new HashSet<Link>();
 		LinkType type;
 		String source;
 		String dest;
@@ -177,9 +176,9 @@ public class LinkCreator {
 		return links;
 	}
 
-	private List<Link> getValuePathLink(ForwardIndex f1, ForwardIndex f2, PathAttribute pathAttributeF1,
+	private Set<Link> getValuePathLink(ForwardIndex f1, ForwardIndex f2, PathAttribute pathAttributeF1,
 			PathAttribute pathAttributeF2) {
-		List<Link> links = new ArrayList<Link>();
+		Set<Link> links = new HashSet<Link>();
 		LinkType type;
 		String source;
 		String dest;
@@ -204,9 +203,9 @@ public class LinkCreator {
 		return links;
 	}
 
-	private List<Link> getValueFileLink(ForwardIndex f1, ForwardIndex f2, PathAttribute pathAttributeF1,
+	private Set<Link> getValueFileLink(ForwardIndex f1, ForwardIndex f2, PathAttribute pathAttributeF1,
 			PathAttribute pathAttributeF2) {
-		List<Link> links = new ArrayList<Link>();
+		Set<Link> links = new HashSet<Link>();
 		LinkType type;
 		String source;
 		String dest;
@@ -232,8 +231,8 @@ public class LinkCreator {
 		return links;
 	}
 
-	private List<Link> getValueContainslinks(ForwardIndex f1) {
-		List<Link> links = new ArrayList<Link>();
+	private Set<Link> getValueContainslinks(ForwardIndex f1) {
+		Set<Link> links = new HashSet<Link>();
 		LinkType type;
 		String source;
 		String dest;
@@ -253,28 +252,35 @@ public class LinkCreator {
 		return links;
 	}
 
-	public List<Link> createlinks(ForwardIndex f1, ForwardIndex f2) {
-		List<Link> links = new ArrayList<Link>();
+	public Set<Link> createSelfLinks(ForwardIndex f) {
+
+		Set<Link> links = new HashSet<Link>();
+		// split index paths into filename, path and attribute
+		PathAttribute pathAttributeF1 = new PathAttribute(f.getPath());
+		// generate parent child links for f1 and f2
+		links.addAll(getParentChildLinks(f, pathAttributeF1));
+		// generate attribute path links for f1 and f2
+		links.addAll(getAttributePathLinks(f, pathAttributeF1));
+		if (!f.getValue().equalsIgnoreCase(DNL)) {
+			// generate all contains links
+			links.addAll(getValueContainslinks(f));
+		}
+
+		return links;
+	}
+
+	public Set<Link> createLinks(ForwardIndex f1, ForwardIndex f2) {
+		Set<Link> links = new HashSet<Link>();
 		// split index paths into filename, path and attribute
 		PathAttribute pathAttributeF1 = new PathAttribute(f1.getPath());
 		PathAttribute pathAttributeF2 = new PathAttribute(f2.getPath());
-		// generate parent child links for f1 and f2
-		links.addAll(getParentChildLinks(f1, pathAttributeF1));
-		links.addAll(getParentChildLinks(f2, pathAttributeF2));
-		// generate attribute path links for f1 and f2
-		links.addAll(getAttributePathLinks(f1, pathAttributeF1));
-		links.addAll(getAttributePathLinks(f2, pathAttributeF2));
 		if (!f1.getValue().equalsIgnoreCase(DNL)) {
-			// generate all contains links
-			links.addAll(getValueContainslinks(f1));
 			// generate links from f1 to f2
 			links.addAll(getValueAttributeLink(f1, f2, pathAttributeF1, pathAttributeF2));
 			links.addAll(getValuePathLink(f1, f2, pathAttributeF1, pathAttributeF2));
 			links.addAll(getValueFileLink(f1, f2, pathAttributeF1, pathAttributeF2));
 		}
 		if (!f2.getValue().equalsIgnoreCase(DNL)) {
-			// generate all contains links
-			links.addAll(getValueContainslinks(f2));
 			// generate links from f2 to f1
 			links.addAll(getValueAttributeLink(f2, f1, pathAttributeF2, pathAttributeF1));
 			links.addAll(getValuePathLink(f2, f1, pathAttributeF2, pathAttributeF1));
@@ -328,6 +334,22 @@ public class LinkCreator {
 		System.out.println("done writing");
 	}
 
+	public void storeLinksSingle(Map<String, Links> mapOfLinks) {
+		LinksDA linksDA = new LinksDA();
+		for (Map.Entry<String, Links> links : mapOfLinks.entrySet()) {
+
+			Links storedLinks = linksDA.fetch(links.getValue().getSource());
+			if (storedLinks == null) {
+				linksDA.store(links.getValue());
+			} else {
+				storedLinks.getRelations().addAll(links.getValue().getRelations());
+				linksDA.update(storedLinks);
+			}
+		
+		}
+		System.out.println("done writing");
+	}
+
 	public void printLinks(Map<String, Links> mapOfLinks) {
 
 		for (Map.Entry<String, Links> link : mapOfLinks.entrySet()) {
@@ -336,7 +358,7 @@ public class LinkCreator {
 		System.out.println();
 	}
 
-	public void printLinks(List<Link> links) {
+	public void printLinks(Set<Link> links) {
 
 		for (Link link : links) {
 			System.out.println(link);
@@ -446,11 +468,20 @@ public class LinkCreator {
 		System.out.println("Indices - ");
 		System.out.println(f1);
 		System.out.println(f2);
-		linkCreator.printLinks(linkCreator.createlinks(f1, f2));
-
+		linkCreator.printLinks(linkCreator.createLinks(f1, f2));
+		
+		Set<Link> links = new HashSet<Link>();
+		links.addAll(linkCreator.createSelfLinks(f1));
+		links.addAll(linkCreator.createSelfLinks(f2));
+		links.addAll(linkCreator.createLinks(f1, f2));
 		// store links in the Mongo Collection
-		// linkCreator.storeLinks(linkCreator.mergeLinks(linkCreator.createlinks(f1,
-		// f2)));
+		Map<String, Links> mapOfLinks = linkCreator.mergeLinks(links);
+		System.out.println("Unique sources - " + mapOfLinks.size());
+		long startTime = System.nanoTime();
+		linkCreator.storeLinks(mapOfLinks);
+		long endTime = System.nanoTime();
+
+		System.out.println("Time to store - " + (endTime - startTime) / 1000000 + " mSec");
 	}
 
 }

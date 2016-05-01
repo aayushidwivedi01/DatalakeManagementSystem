@@ -6,13 +6,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.json.JSONObject;
 import bean.FlatDocument;
 import bean.ForwardIndex;
 import bean.Link;
 import bean.Links;
+import storage.DBWrapper;
 import storage.FlatDocumentDA;
 import storage.ForwardIndexDA;
+import storage.LinksDA;
 
 public class Linker {
 
@@ -51,9 +52,13 @@ public class Linker {
 		FlatDocumentDA fDANew = new FlatDocumentDA(NEW_COLLECTION_NAME);
 
 		for (FlatDocument newDoc : fDANew.fetchAll()) {
+
 			System.out.println("New Doc - " + newDoc.getDocument());
 			if (!docForwardIndices.containsKey(newDoc.getDocument())) {
 				docForwardIndices.put(newDoc.getDocument(), getForwardIndicesForDoc(newDoc));
+			}
+			for (ForwardIndex f1 : docForwardIndices.get(newDoc.getDocument())) {
+				links.addAll(linkCreator.createSelfLinks(f1));
 			}
 			System.out.println("Got fIndices for New Doc - " + newDoc.getDocument() + ", "
 					+ docForwardIndices.get(newDoc.getDocument()).size());
@@ -67,7 +72,7 @@ public class Linker {
 				System.out.println("Creating links ");
 				for (ForwardIndex f1 : docForwardIndices.get(newDoc.getDocument())) {
 					for (ForwardIndex f2 : docForwardIndices.get(oldDoc.getDocument())) {
-						links.addAll(linkCreator.createlinks(f1, f2));
+						links.addAll(linkCreator.createLinks(f1, f2));
 					}
 				}
 				System.out.println("Done with for Old Doc - " + oldDoc.getDocument());
@@ -76,22 +81,22 @@ public class Linker {
 			fDANew.delete(newDoc);
 			fDAOld.store(newDoc);
 			System.out.println("Done with for New Doc - " + newDoc.getDocument());
+
 		}
+
 		System.out.println("Done with all docs with links - " + links.size());
 
-		//linkCreator.printLinks((linkCreator.mergeLinks(links)));
+		// linkCreator.printLinks((linkCreator.mergeLinks(links)));
 		// merge links and store them
 		Map<String, Links> mapOfLinks = linkCreator.mergeLinks(links);
-		System.out.println("Unique sources - "+ mapOfLinks.size());
-		for (JSONObject json : mapOfLinks.get("sample3.json/root3/content/text").getRelations()) {
-			System.out.println(json);
-		}
-		//System.out.println(mapOfLinks);
+		System.out.println("Unique sources - " + mapOfLinks.size());
 		long startTime = System.nanoTime();
-		linkCreator.storeLinks(mapOfLinks);
+		linkCreator.storeLinksSingle(mapOfLinks);
 		long endTime = System.nanoTime();
-
-		System.out.println("Time to store - " + (endTime - startTime)/1000000 + " mSec");  //divide by 1000000 to get milliseconds.
+		LinksDA lDA = new LinksDA();
+		System.out.println("Time to store - " + (endTime - startTime) / 1000000 + " mSec");
+		System.out.println("Stored Entries - " + lDA.getSize());
+		System.out.println(lDA.fetch("will"));
 	}
 
 	public static void main(String[] args) {
@@ -100,6 +105,8 @@ public class Linker {
 		FlatDocumentDA fDAOld = new FlatDocumentDA(OLD_COLLECTION_NAME);
 		FlatDocumentDA fDANew = new FlatDocumentDA(NEW_COLLECTION_NAME);
 		linker.moveDocs(fDAOld, fDANew);
+		DBWrapper.setup("/home/cis550/db");
 		linker.linkNewDocuments();
+		DBWrapper.close();
 	}
 }

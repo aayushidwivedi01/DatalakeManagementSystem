@@ -57,10 +57,12 @@ function uploadFile(req, res, next) {
 					savePermissions(req, res, function(status){
 						if(status===1){
 							status = 'extracting';
-							var extractor = java.newInstanceSync(
-									"extractor.Extractor"
+							console.log("Path:" + localFilePath);
+							var e = java.newInstanceSync(
+									"extractor.Extractor", 
+									localFilePath
 									);
-							java.callMethod(extractor, "extract", localFilePath, linkerResponse);
+							java.callMethod(e, "extract", linkerResponse);
 						}
 						res.render('upload', {
 							title : 'DLMS',

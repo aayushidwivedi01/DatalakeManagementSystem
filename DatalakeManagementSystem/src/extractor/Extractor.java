@@ -1,6 +1,5 @@
 package extractor;
 
-import indexer.InvertedIndexDLMS;
 import linker.Linker;
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,19 +28,21 @@ import bean.ForwardIndex;
  */
 
 public class Extractor {
-
-	public static void main(String[] args) throws IOException {
+	String path;
+	public Extractor(String path){
+		this.path = path;
+	}
+	public void extract() throws IOException {
 		DBWrapper.setup("/home/cis550/db");
-		String file_arg = "/home/cis550/yelp_academic_dataset_business_1.json";
-
 		// Check if directory or file
-		File file = new File(file_arg);
+		System.out.println("Print Extract");
+		File file = new File(path);
 		List<String> files = new ArrayList<String>();
 
 		if (file.isDirectory()) {
 			files = Arrays.asList(file.list());
 		} else {
-			files.add(file_arg);
+			files.add(path);
 		}
 
 		Tika tika = new Tika();
@@ -147,8 +148,14 @@ public class Extractor {
 			Linker linker = new Linker();
 			linker.linkNewDocuments();
 			DBWrapper.close();
+			System.out.println("Done");
 		}
 
+	}
+	
+	public static void main(String[] args) throws IOException{
+		Extractor extractor = new Extractor("/home/cis550/Desktop/test.txt");
+		extractor.extract();
 	}
 
 }

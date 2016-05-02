@@ -9,10 +9,10 @@ public class ForwardIndexDA {
 	public ForwardIndex fetch(String ForwardIndexId) {
 		ForwardIndex ForwardIndex = null;
 		if (DBWrapper.getStore() != null) {
-			PrimaryIndex<String, ForwardIndex> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
+			PrimaryIndex<String, ForwardIndex> fIndexPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
 					ForwardIndex.class);
-			if (userPrimaryIndex != null) {
-				ForwardIndex = userPrimaryIndex.get(ForwardIndexId);
+			if (fIndexPrimaryIndex != null) {
+				ForwardIndex = fIndexPrimaryIndex.get(ForwardIndexId);
 			}
 		}
 		return ForwardIndex;
@@ -21,10 +21,10 @@ public class ForwardIndexDA {
 	public ForwardIndex store(ForwardIndex ForwardIndex) {
 		ForwardIndex insertedForwardIndex = null;
 		if (DBWrapper.getStore() != null) {
-			PrimaryIndex<String, ForwardIndex> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
+			PrimaryIndex<String, ForwardIndex> fIndexPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
 					ForwardIndex.class);
-			if (userPrimaryIndex != null) {
-				insertedForwardIndex = userPrimaryIndex.put(ForwardIndex);
+			if (fIndexPrimaryIndex != null) {
+				insertedForwardIndex = fIndexPrimaryIndex.put(ForwardIndex);
 			}
 		}
 		return insertedForwardIndex;
@@ -32,10 +32,10 @@ public class ForwardIndexDA {
 
 	public boolean delete(String ForwardIndexId) {
 		if (DBWrapper.getStore() != null) {
-			PrimaryIndex<String, ForwardIndex> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
+			PrimaryIndex<String, ForwardIndex> fIndexPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
 					ForwardIndex.class);
-			if (userPrimaryIndex != null) {
-				return userPrimaryIndex.delete(ForwardIndexId);
+			if (fIndexPrimaryIndex != null) {
+				return fIndexPrimaryIndex.delete(ForwardIndexId);
 			}
 		}
 		return false;
@@ -43,10 +43,10 @@ public class ForwardIndexDA {
 
 	public boolean delete(ForwardIndex forwardIndex) {
 		if (DBWrapper.getStore() != null) {
-			PrimaryIndex<String, ForwardIndex> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
+			PrimaryIndex<String, ForwardIndex> fIndexPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
 					ForwardIndex.class);
-			if (userPrimaryIndex != null) {
-				return userPrimaryIndex.delete(forwardIndex.getPath());
+			if (fIndexPrimaryIndex != null) {
+				return fIndexPrimaryIndex.delete(forwardIndex.getPath());
 			}
 		}
 		return false;
@@ -68,10 +68,10 @@ public class ForwardIndexDA {
 	public long getSize() {
 		long result = -1;
 		if (DBWrapper.getStore() != null) {
-			PrimaryIndex<String, ForwardIndex> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
+			PrimaryIndex<String, ForwardIndex> fIndexPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
 					ForwardIndex.class);
-			if (userPrimaryIndex != null) {
-				result = userPrimaryIndex.count();
+			if (fIndexPrimaryIndex != null) {
+				result = fIndexPrimaryIndex.count();
 			}
 		}
 		return result;
@@ -84,7 +84,7 @@ public class ForwardIndexDA {
 
 		ForwardIndexDA fIndexDA = new ForwardIndexDA();
 
-		//fIndexDA.store(forwardIndex);
+		// fIndexDA.store(forwardIndex);
 
 		System.out.println(fIndexDA.fetch("test_path"));
 		System.out.println(fIndexDA.getSize());

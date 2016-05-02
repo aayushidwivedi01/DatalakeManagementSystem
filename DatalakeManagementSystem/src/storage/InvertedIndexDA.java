@@ -12,10 +12,10 @@ public class InvertedIndexDA {
 	public InvertedIndex fetch(String InvertedIndexId) {
 		InvertedIndex InvertedIndex = null;
 		if (DBWrapper.getStore() != null) {
-			PrimaryIndex<String, InvertedIndex> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
+			PrimaryIndex<String, InvertedIndex> iIndexPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
 					InvertedIndex.class);
-			if (userPrimaryIndex != null) {
-				InvertedIndex = userPrimaryIndex.get(InvertedIndexId);
+			if (iIndexPrimaryIndex != null) {
+				InvertedIndex = iIndexPrimaryIndex.get(InvertedIndexId);
 			}
 		}
 		return InvertedIndex;
@@ -24,10 +24,10 @@ public class InvertedIndexDA {
 	public InvertedIndex store(InvertedIndex InvertedIndex) {
 		InvertedIndex insertedInvertedIndex = null;
 		if (DBWrapper.getStore() != null) {
-			PrimaryIndex<String, InvertedIndex> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
+			PrimaryIndex<String, InvertedIndex> iIndexPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
 					InvertedIndex.class);
-			if (userPrimaryIndex != null) {
-				insertedInvertedIndex = userPrimaryIndex.put(InvertedIndex);
+			if (iIndexPrimaryIndex != null) {
+				insertedInvertedIndex = iIndexPrimaryIndex.put(InvertedIndex);
 			}
 		}
 		return insertedInvertedIndex;
@@ -35,10 +35,10 @@ public class InvertedIndexDA {
 
 	public boolean delete(String InvertedIndexId) {
 		if (DBWrapper.getStore() != null) {
-			PrimaryIndex<String, InvertedIndex> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
+			PrimaryIndex<String, InvertedIndex> iIndexPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
 					InvertedIndex.class);
-			if (userPrimaryIndex != null) {
-				return userPrimaryIndex.delete(InvertedIndexId);
+			if (iIndexPrimaryIndex != null) {
+				return iIndexPrimaryIndex.delete(InvertedIndexId);
 			}
 		}
 		return false;
@@ -46,10 +46,10 @@ public class InvertedIndexDA {
 
 	public boolean delete(InvertedIndex invertedIndex) {
 		if (DBWrapper.getStore() != null) {
-			PrimaryIndex<String, InvertedIndex> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
+			PrimaryIndex<String, InvertedIndex> iIndexPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
 					InvertedIndex.class);
-			if (userPrimaryIndex != null) {
-				return userPrimaryIndex.delete(invertedIndex.getWord());
+			if (iIndexPrimaryIndex != null) {
+				return iIndexPrimaryIndex.delete(invertedIndex.getWord());
 			}
 		}
 		return false;
@@ -71,10 +71,10 @@ public class InvertedIndexDA {
 	public long getSize() {
 		long result = -1;
 		if (DBWrapper.getStore() != null) {
-			PrimaryIndex<String, InvertedIndex> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
+			PrimaryIndex<String, InvertedIndex> iIndexPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
 					InvertedIndex.class);
-			if (userPrimaryIndex != null) {
-				result = userPrimaryIndex.count();
+			if (iIndexPrimaryIndex != null) {
+				result = iIndexPrimaryIndex.count();
 			}
 		}
 		return result;
@@ -87,18 +87,18 @@ public class InvertedIndexDA {
 		occurances.add(new Occurance("test_file/test_path/test_att", "test_att"));
 		occurances.add(new Occurance("test_file/test_path/test_att2", "test_att2"));
 		InvertedIndex invertedIndex = new InvertedIndex("test_word", occurances);
-		
+
 		InvertedIndexDA iIndexDA = new InvertedIndexDA();
 		iIndexDA.store(invertedIndex);
 		System.out.println(iIndexDA.fetch("test_word"));
 		System.out.println(iIndexDA.getSize());
-		
+
 		invertedIndex.getOccurs().add(new Occurance("test_file/test_path/test_att3", "test_att3"));
-		
+
 		iIndexDA.update(invertedIndex);
 		System.out.println(iIndexDA.fetch("test_word"));
 		System.out.println(iIndexDA.getSize());
-		
+
 		iIndexDA.delete(invertedIndex);
 		System.out.println(iIndexDA.fetch("test_word"));
 		DBWrapper.close();

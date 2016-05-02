@@ -22,30 +22,30 @@ public class FlatDocumentDA {
 	public FlatDocument fetch(String FlatDocumentId) {
 		FlatDocument FlatDocument = null;
 		if (DBWrapper.getStore() != null && DBWrapper.getNewDocStore() != null) {
-			PrimaryIndex<String, FlatDocument> userPrimaryIndex;
+			PrimaryIndex<String, FlatDocument> flatDocPrimaryIndex;
 			if (forNewDocs) {
-				userPrimaryIndex = DBWrapper.getNewDocStore().getPrimaryIndex(String.class, FlatDocument.class);
+				flatDocPrimaryIndex = DBWrapper.getNewDocStore().getPrimaryIndex(String.class, FlatDocument.class);
 			} else {
-				userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class, FlatDocument.class);
+				flatDocPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class, FlatDocument.class);
 			}
-			if (userPrimaryIndex != null) {
-				FlatDocument = userPrimaryIndex.get(FlatDocumentId);
+			if (flatDocPrimaryIndex != null) {
+				FlatDocument = flatDocPrimaryIndex.get(FlatDocumentId);
 			}
 		}
 		return FlatDocument;
 	}
 
 	public List<FlatDocument> fetchAll() {
-		PrimaryIndex<String, FlatDocument> userPrimaryIndex;
+		PrimaryIndex<String, FlatDocument> flatDocPrimaryIndex;
 		List<FlatDocument> flatDocuments = new ArrayList<FlatDocument>();
 		if (DBWrapper.getStore() != null && DBWrapper.getNewDocStore() != null) {
 			if (forNewDocs) {
-				userPrimaryIndex = DBWrapper.getNewDocStore().getPrimaryIndex(String.class, FlatDocument.class);
+				flatDocPrimaryIndex = DBWrapper.getNewDocStore().getPrimaryIndex(String.class, FlatDocument.class);
 			} else {
-				userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class, FlatDocument.class);
+				flatDocPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class, FlatDocument.class);
 			}
 
-			EntityCursor<FlatDocument> flatDocCursor = userPrimaryIndex.entities();
+			EntityCursor<FlatDocument> flatDocCursor = flatDocPrimaryIndex.entities();
 			try {
 				for (FlatDocument flatDocument : flatDocCursor) {
 					flatDocuments.add(flatDocument);
@@ -60,14 +60,14 @@ public class FlatDocumentDA {
 	public FlatDocument store(FlatDocument FlatDocument) {
 		FlatDocument insertedFlatDocument = null;
 		if (DBWrapper.getStore() != null && DBWrapper.getNewDocStore() != null) {
-			PrimaryIndex<String, FlatDocument> userPrimaryIndex;
+			PrimaryIndex<String, FlatDocument> flatDocPrimaryIndex;
 			if (forNewDocs) {
-				userPrimaryIndex = DBWrapper.getNewDocStore().getPrimaryIndex(String.class, FlatDocument.class);
+				flatDocPrimaryIndex = DBWrapper.getNewDocStore().getPrimaryIndex(String.class, FlatDocument.class);
 			} else {
-				userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class, FlatDocument.class);
+				flatDocPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class, FlatDocument.class);
 			}
-			if (userPrimaryIndex != null) {
-				insertedFlatDocument = userPrimaryIndex.put(FlatDocument);
+			if (flatDocPrimaryIndex != null) {
+				insertedFlatDocument = flatDocPrimaryIndex.put(FlatDocument);
 			}
 		}
 		return insertedFlatDocument;
@@ -75,14 +75,14 @@ public class FlatDocumentDA {
 
 	public boolean delete(String flatDocumentId) {
 		if (DBWrapper.getStore() != null && DBWrapper.getNewDocStore() != null) {
-			PrimaryIndex<String, FlatDocument> userPrimaryIndex;
+			PrimaryIndex<String, FlatDocument> flatDocPrimaryIndex;
 			if (forNewDocs) {
-				userPrimaryIndex = DBWrapper.getNewDocStore().getPrimaryIndex(String.class, FlatDocument.class);
+				flatDocPrimaryIndex = DBWrapper.getNewDocStore().getPrimaryIndex(String.class, FlatDocument.class);
 			} else {
-				userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class, FlatDocument.class);
+				flatDocPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class, FlatDocument.class);
 			}
-			if (userPrimaryIndex != null) {
-				return userPrimaryIndex.delete(flatDocumentId);
+			if (flatDocPrimaryIndex != null) {
+				return flatDocPrimaryIndex.delete(flatDocumentId);
 			}
 		}
 		return false;
@@ -90,14 +90,14 @@ public class FlatDocumentDA {
 
 	public boolean delete(FlatDocument flatDocument) {
 		if (DBWrapper.getStore() != null && DBWrapper.getNewDocStore() != null) {
-			PrimaryIndex<String, FlatDocument> userPrimaryIndex;
+			PrimaryIndex<String, FlatDocument> flatDocPrimaryIndex;
 			if (forNewDocs) {
-				userPrimaryIndex = DBWrapper.getNewDocStore().getPrimaryIndex(String.class, FlatDocument.class);
+				flatDocPrimaryIndex = DBWrapper.getNewDocStore().getPrimaryIndex(String.class, FlatDocument.class);
 			} else {
-				userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class, FlatDocument.class);
+				flatDocPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class, FlatDocument.class);
 			}
-			if (userPrimaryIndex != null) {
-				return userPrimaryIndex.delete(flatDocument.getDocument());
+			if (flatDocPrimaryIndex != null) {
+				return flatDocPrimaryIndex.delete(flatDocument.getDocument());
 			}
 		}
 		return false;
@@ -118,16 +118,16 @@ public class FlatDocumentDA {
 	public long getSize() {
 		long result = -1;
 		if (DBWrapper.getStore() != null && DBWrapper.getNewDocStore() != null) {
-			PrimaryIndex<String, FlatDocument> userPrimaryIndex;
+			PrimaryIndex<String, FlatDocument> flatDocPrimaryIndex;
 			if (forNewDocs) {
 				System.out.println(DBWrapper.getNewDocStore().getStoreName());
-				userPrimaryIndex = DBWrapper.getNewDocStore().getPrimaryIndex(String.class, FlatDocument.class);
+				flatDocPrimaryIndex = DBWrapper.getNewDocStore().getPrimaryIndex(String.class, FlatDocument.class);
 			} else {
 				System.out.println(DBWrapper.getStore().getStoreName());
-				userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class, FlatDocument.class);
+				flatDocPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class, FlatDocument.class);
 			}
-			if (userPrimaryIndex != null) {
-				result = userPrimaryIndex.count();
+			if (flatDocPrimaryIndex != null) {
+				result = flatDocPrimaryIndex.count();
 			}
 		}
 		return result;
@@ -143,7 +143,6 @@ public class FlatDocumentDA {
 		FlatDocumentDA fDA = new FlatDocumentDA(true);
 		FlatDocumentDA fDA2 = new FlatDocumentDA(false);
 		fDA.store(flatDocument);
-		
 
 		System.out.println(fDA2.fetch("flatdoc2"));
 		System.out.println(fDA2.fetchAll());

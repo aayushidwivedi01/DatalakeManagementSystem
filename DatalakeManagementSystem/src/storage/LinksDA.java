@@ -14,21 +14,21 @@ public class LinksDA {
 	public Links fetch(String LinksId) {
 		Links Links = null;
 		if (DBWrapper.getStore() != null) {
-			PrimaryIndex<String, Links> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
+			PrimaryIndex<String, Links> linksPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
 					Links.class);
-			if (userPrimaryIndex != null) {
-				Links = userPrimaryIndex.get(LinksId);
+			if (linksPrimaryIndex != null) {
+				Links = linksPrimaryIndex.get(LinksId);
 			}
 		}
 		return Links;
 	}
 
 	public List<Links> fetchAll() {
-		PrimaryIndex<String, Links> userPrimaryIndex;
+		PrimaryIndex<String, Links> linksPrimaryIndex;
 		List<Links> links = new ArrayList<Links>();
 		if (DBWrapper.getStore() != null) {
-			userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class, Links.class);
-			EntityCursor<Links> linksCursor = userPrimaryIndex.entities();
+			linksPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class, Links.class);
+			EntityCursor<Links> linksCursor = linksPrimaryIndex.entities();
 			try {
 				for (Links link : linksCursor) {
 					links.add(link);
@@ -43,10 +43,10 @@ public class LinksDA {
 	public Links store(Links Links) {
 		Links insertedLinks = null;
 		if (DBWrapper.getStore() != null) {
-			PrimaryIndex<String, Links> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
+			PrimaryIndex<String, Links> linksPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
 					Links.class);
-			if (userPrimaryIndex != null) {
-				insertedLinks = userPrimaryIndex.put(Links);
+			if (linksPrimaryIndex != null) {
+				insertedLinks = linksPrimaryIndex.put(Links);
 			}
 		}
 		return insertedLinks;
@@ -54,10 +54,10 @@ public class LinksDA {
 
 	public boolean delete(String LinksId) {
 		if (DBWrapper.getStore() != null) {
-			PrimaryIndex<String, Links> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
+			PrimaryIndex<String, Links> linksPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
 					Links.class);
-			if (userPrimaryIndex != null) {
-				return userPrimaryIndex.delete(LinksId);
+			if (linksPrimaryIndex != null) {
+				return linksPrimaryIndex.delete(LinksId);
 			}
 		}
 		return false;
@@ -79,10 +79,10 @@ public class LinksDA {
 	public long getSize() {
 		long result = -1;
 		if (DBWrapper.getStore() != null) {
-			PrimaryIndex<String, Links> userPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
+			PrimaryIndex<String, Links> linksPrimaryIndex = DBWrapper.getStore().getPrimaryIndex(String.class,
 					Links.class);
-			if (userPrimaryIndex != null) {
-				result = userPrimaryIndex.count();
+			if (linksPrimaryIndex != null) {
+				result = linksPrimaryIndex.count();
 			}
 		}
 		return result;
@@ -99,15 +99,15 @@ public class LinksDA {
 
 		LinksDA lDA = new LinksDA();
 
-		//lDA.store(links);
+		lDA.store(links);
 
-		//System.out.println(lDA.fetch("work"));
+		// System.out.println(lDA.fetch("work"));
 		System.out.println(lDA.getSize());
-		//lDA.delete(links.getSource());
-		for(Links storedLink : lDA.fetchAll()) {
-			if(storedLink.getSource().equals("generated3.json/new_data/from")) {
+		// lDA.delete(links.getSource());
+		for (Links storedLink : lDA.fetchAll()) {
+			if (storedLink.getSource().equals("generated3.json/new_data/from")) {
 				System.out.println(storedLink);
-				for(Link relation : storedLink.getRelations()) {
+				for (Link relation : storedLink.getRelations()) {
 					System.out.println(relation);
 				}
 			}

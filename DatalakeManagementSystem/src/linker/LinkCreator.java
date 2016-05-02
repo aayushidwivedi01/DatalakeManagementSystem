@@ -121,12 +121,12 @@ public class LinkCreator {
 		if (pathAttribute.getHasAttribute()) {
 			source = pathAttribute.getPath();
 			type = LinkType.IS_PARTENT;
-			dest = pathAttribute.getAttribute();
-			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type)));
-			source = pathAttribute.getPath();
-			type = LinkType.IS_CHILD;
 			dest = f.getPath();
-			links.add(new Link(dest, linkType.get(type), source, linkWeight.get(type)));
+			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type)));
+			source = f.getPath();
+			type = LinkType.IS_CHILD;
+			dest = pathAttribute.getPath();
+			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type)));
 		}
 		return links;
 	}
@@ -164,15 +164,17 @@ public class LinkCreator {
 			type = LinkType.MATCHES_CONTENT;
 			dest = f1.getPath();
 			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type)));
-		} /*
-			 * else if (f1.getValue().contains(pathAttributeF2.getAttribute()))
-			 * { source = f1.getValue(); type = LinkType.MATCHES_ATTRIBUTE; dest
-			 * = f2.getPath(); links.add(new Link(source, linkType.get(type),
-			 * dest, linkWeight.get(type) + DEFAULT_WEIGHT)); source =
-			 * f2.getPath(); type = LinkType.MATCHES_CONTENT; dest =
-			 * f1.getPath(); links.add(new Link(source, linkType.get(type),
-			 * dest, linkWeight.get(type) + DEFAULT_WEIGHT)); }
-			 */
+		} else if (f1.getValue().contains(pathAttributeF2.getAttribute())) {
+			source = f1.getValue();
+			type = LinkType.MATCHES_ATTRIBUTE;
+			dest = f2.getPath();
+			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type) + DEFAULT_WEIGHT));
+			source = f2.getPath();
+			type = LinkType.MATCHES_CONTENT;
+			dest = f1.getPath();
+			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type) + DEFAULT_WEIGHT));
+		}
+
 		return links;
 	}
 
@@ -191,15 +193,16 @@ public class LinkCreator {
 			type = LinkType.MATCHES_CONTENT;
 			dest = f1.getPath();
 			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type)));
-		} /*
-			 * else if (f1.getValue().contains(f2.getPath())) { source =
-			 * f1.getValue(); type = LinkType.MATCHES_PATH; dest = f2.getPath();
-			 * links.add(new Link(source, linkType.get(type), dest,
-			 * linkWeight.get(type) + DEFAULT_WEIGHT)); source = f2.getPath();
-			 * type = LinkType.MATCHES_CONTENT; dest = f1.getPath();
-			 * links.add(new Link(source, linkType.get(type), dest,
-			 * linkWeight.get(type) + DEFAULT_WEIGHT)); }
-			 */
+		} else if (f1.getValue().contains(f2.getPath())) {
+			source = f1.getValue();
+			type = LinkType.MATCHES_PATH;
+			dest = f2.getPath();
+			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type) + DEFAULT_WEIGHT));
+			source = f2.getPath();
+			type = LinkType.MATCHES_CONTENT;
+			dest = f1.getPath();
+			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type) + DEFAULT_WEIGHT));
+		}
 		return links;
 	}
 
@@ -218,16 +221,17 @@ public class LinkCreator {
 			type = LinkType.MATCHES_CONTENT;
 			dest = f1.getPath();
 			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type)));
-		} /*
-			 * else if (f1.getValue().contains(pathAttributeF2.getFile())) {
-			 * source = f1.getValue(); type = LinkType.MATCHES_FILENAME; dest =
-			 * pathAttributeF2.getFile(); links.add(new Link(source,
-			 * linkType.get(type), dest, linkWeight.get(type) +
-			 * DEFAULT_WEIGHT)); source = pathAttributeF2.getFile(); type =
-			 * LinkType.MATCHES_CONTENT; dest = f1.getPath(); links.add(new
-			 * Link(source, linkType.get(type), dest, linkWeight.get(type) +
-			 * DEFAULT_WEIGHT)); }
-			 */
+		} else if (f1.getValue().contains(pathAttributeF2.getFile())) {
+			source = f1.getValue();
+			type = LinkType.MATCHES_FILENAME;
+			dest = pathAttributeF2.getFile();
+			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type) + DEFAULT_WEIGHT));
+			source = pathAttributeF2.getFile();
+			type = LinkType.MATCHES_CONTENT;
+			dest = f1.getPath();
+			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type) + DEFAULT_WEIGHT));
+		}
+
 		return links;
 	}
 
@@ -345,7 +349,7 @@ public class LinkCreator {
 				storedLinks.getRelations().addAll(links.getValue().getRelations());
 				linksDA.update(storedLinks);
 			}
-		
+
 		}
 		System.out.println("done writing");
 	}
@@ -403,7 +407,7 @@ public class LinkCreator {
 		f2 = new ForwardIndex("user2_expenses.csv/root/table/row1/column1", "miami");
 		pathAttributeF1 = new PathAttribute(f1.getPath());
 		pathAttributeF2 = new PathAttribute(f2.getPath());
-		System.out.println("Parent to Child links Test - ");
+		System.out.println("Attribute to Path links Test - ");
 		System.out.println("Indices - ");
 		System.out.println(f1);
 		System.out.println(f2);
@@ -469,7 +473,7 @@ public class LinkCreator {
 		System.out.println(f1);
 		System.out.println(f2);
 		linkCreator.printLinks(linkCreator.createLinks(f1, f2));
-		
+
 		Set<Link> links = new HashSet<Link>();
 		links.addAll(linkCreator.createSelfLinks(f1));
 		links.addAll(linkCreator.createSelfLinks(f2));
@@ -478,7 +482,7 @@ public class LinkCreator {
 		Map<String, Links> mapOfLinks = linkCreator.mergeLinks(links);
 		System.out.println("Unique sources - " + mapOfLinks.size());
 		long startTime = System.nanoTime();
-		linkCreator.storeLinks(mapOfLinks);
+		//linkCreator.storeLinks(mapOfLinks);
 		long endTime = System.nanoTime();
 
 		System.out.println("Time to store - " + (endTime - startTime) / 1000000 + " mSec");

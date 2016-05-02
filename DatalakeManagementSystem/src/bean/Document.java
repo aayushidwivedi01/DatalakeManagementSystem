@@ -8,7 +8,7 @@ public class Document {
 
 	@PrimaryKey
 	private String documentId;
-	private String username;
+	private String owner;
 	private String path;
 	private String permission;
 
@@ -16,10 +16,10 @@ public class Document {
 
 	}
 
-	public Document(String documentId, String username, String path, String permission) {
+	public Document(String documentId, String owner, String path, String permission) {
 		super();
 		this.documentId = documentId;
-		this.username = username;
+		this.owner = owner;
 		this.path = path;
 		this.permission = permission;
 	}
@@ -32,12 +32,12 @@ public class Document {
 		this.documentId = documentId;
 	}
 
-	public String getUsername() {
-		return username;
+	public String getOwner() {
+		return owner;
 	}
 
-	public void setUsername(String username) {
-		this.username = username;
+	public void setOwner(String owner) {
+		this.owner = owner;
 	}
 
 	public String getPath() {
@@ -58,7 +58,7 @@ public class Document {
 
 	@Override
 	public String toString() {
-		return "Document [documentId=" + documentId + ", username=" + username + ", path=" + path + ", permission="
+		return "Document [documentId=" + documentId + ", owner=" + owner + ", path=" + path + ", permission="
 				+ permission + "]";
 	}
 

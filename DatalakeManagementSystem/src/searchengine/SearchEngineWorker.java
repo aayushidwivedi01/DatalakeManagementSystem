@@ -9,9 +9,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import bean.Document;
 import bean.Link;
 import bean.Links;
 import storage.LinksDA;
+import storage.DocumentDA;
 
 public class SearchEngineWorker implements Runnable
 {
@@ -22,14 +24,16 @@ public class SearchEngineWorker implements Runnable
 	int k = 5;
 	LinksDA lDa;
 	String username;
+	DocumentDA docDa;
 	
-	public SearchEngineWorker(Queue<WeightedPath> frontier, Map<String, WeightedPath> mySeenNodes, Map<String, WeightedPath> seenNodesOther, LinksDA lDa, String username)
+	public SearchEngineWorker(Queue<WeightedPath> frontier, Map<String, WeightedPath> mySeenNodes, Map<String, WeightedPath> seenNodesOther, String username, LinksDA lDa, DocumentDA docDa)
 	{
 		this.frontier = frontier;
 		this.mySeenNodes = mySeenNodes;
 		this.seenNodesOther = seenNodesOther;
-		this.lDa = lDa;
 		this.username = username;
+		this.lDa = lDa;
+		this.docDa = docDa;
 	}
 	
 	@Override
@@ -125,7 +129,11 @@ public class SearchEngineWorker implements Runnable
 				{
 					String dest = relation.getDest();
 					//System.out.println(Thread.currentThread().getName() + node + " linked to: " + dest);
-
+					
+					if(!isAccessible(dest))
+					{
+						continue;
+					}
 					ArrayList<String> newPath = new ArrayList<String>(path);
 					
 					//Ignore node if it creates a loop in path
@@ -157,6 +165,17 @@ public class SearchEngineWorker implements Runnable
 			e.printStackTrace();
 		}
 		
+	}
+
+	public boolean isAccessible(String docPath) 
+	{
+		String doc = docPath.substring(0, docPath.indexOf("/"));
+		Document docInfo = docDa.fetch(doc);
+		if (docInfo.getPermission().equals("Public"))
+			return true;
+		if (docInfo.getOwner().equals(username))
+			return true;
+		return false;
 	}
 
 	public ArrayList<String> mergePaths(ArrayList<String> path1, ArrayList<String> path2) {

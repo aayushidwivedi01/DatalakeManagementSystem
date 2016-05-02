@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
+import storage.DocumentDA;
 import storage.LinksDA;
 
 public class BidirectionalSearch implements Runnable
@@ -30,10 +31,11 @@ public class BidirectionalSearch implements Runnable
 	public void run() {
 		
 		LinksDA lDa = new LinksDA();
+		DocumentDA docDa = new DocumentDA();
 		//Start all the worker threads
 		for (int i = 0; i < NUM_THREADS; i++)
 		{
-			SearchEngineWorker worker_i = new SearchEngineWorker(frontier, mySeenNodes, seenNodesOther, lDa, username);
+			SearchEngineWorker worker_i = new SearchEngineWorker(frontier, mySeenNodes, seenNodesOther, username, lDa, docDa);
 			threadPool[i] = new Thread(worker_i);
 			threadPool[i].start();
 		}

@@ -57,7 +57,7 @@ public class DocumentDA {
 		if (oldDocument != null) {
 			oldDocument.setPath(document.getPath());
 			oldDocument.setPermission(document.getPermission());
-			oldDocument.setUsername(document.getPermission());
+			oldDocument.setOwner(document.getPermission());
 			if (store(oldDocument) != null) {
 				return true;
 			} else

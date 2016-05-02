@@ -65,4 +65,13 @@ public class WeightedPath implements Comparable<WeightedPath> {
 		return super.hashCode();
 	}
 
+<<<<<<< HEAD
+=======
+	@Override
+	public String toString() {
+		return "WeightedPath [path=" + path + ", cost=" + cost + ", node=" + node + "]";
+	}
+	
+	
+>>>>>>> search_fix
 }

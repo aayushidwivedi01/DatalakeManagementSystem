@@ -1,9 +1,6 @@
 package searchengine;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.json.simple.JSONArray;
@@ -19,8 +16,10 @@ public class GenerateOutputJson {
 		links = new JSONArray();
 	}
 
-	public void createJson(List<String> list) {
-
+	
+	@SuppressWarnings("unchecked")
+	public void createJson(List<String> list){
+		
 		ArrayList<Integer> end_points = new ArrayList<Integer>();
 
 		int j = 0;
@@ -35,8 +34,10 @@ public class GenerateOutputJson {
 			common_idx = 0;
 			JSONObject common = new JSONObject();
 			common.put("name", components[common_idx]);
-
-			while (nodes.contains(common)) {
+			common.put("group", 1);
+			common.put("url", "http://example.com/"+components[common_idx]);
+			
+			while(nodes.contains(common)){
 				last_common = nodes.indexOf(common);
 				common.clear();
 
@@ -51,7 +52,9 @@ public class GenerateOutputJson {
 					break;
 			}
 
-			for (i = j; i - j + common_idx < components.length; i++) {
+			
+//			System.out.println("Common index: "+common_idx);
+			for(i = j; i-j+common_idx < components.length; i++){
 				JSONObject name = new JSONObject();
 				String nodename = components[i - j + common_idx];
 				if (nodename.startsWith("DONOTLINK")) {
@@ -59,6 +62,11 @@ public class GenerateOutputJson {
 				}
 
 				name.put("name", nodename);
+				if(i==j && common_idx == 0){
+					name.put("group", 1);
+					name.put("url","http://example.com/"+nodename);
+				}
+//				System.out.println("ADDING : "+name.toJSONString());
 				nodes.add(name);
 
 				if (i != j + components.length - 1 - common_idx) {
@@ -89,45 +97,34 @@ public class GenerateOutputJson {
 			if (i + 1 != end_points.size()) {
 				JSONObject link = new JSONObject();
 				link.put("source", end_points.get(i));
-				link.put("target", end_points.get(i + 1));
+				link.put("target", end_points.get(i+1));
+				link.put("width", 10);
 				links.add(link);
 			}
 		}
-
+			
 		// System.out.println(links.toJSONString());
 		JSONObject final_json = new JSONObject();
 
 		final_json.put("nodes", nodes);
 		final_json.put("links", links);
-
-		// try {
-		//
-		// FileWriter file = new
-		// FileWriter("/usr/share/jetty/webapps/root/graph.json");
-		// file.write(final_json.toJSONString());
-		// file.flush();
-		// file.close();
-		//
-		// } catch (IOException e) {
-		// e.printStackTrace();
-		// }
-		System.out.println(final_json.toString());
+		
+		System.out.println(final_json.toString().replace("\\", ""));
 	}
 
 	public static void main(String[] args) {
-		String[] links = { "yelp_academic_dataset_business_1.json/DONOTLINK_0/city/dravosburg",
-				"yelp_academic_dataset_business_1.json/DONOTLINK_0",
-				"yelp_academic_dataset_business_1.json/DONOTLINK_635/attributes",
-				"yelp_academic_dataset_business_1.json/DONOTLINK_635/attributes/Good For",
-				"yelp_academic_dataset_business_1.json/DONOTLINK_635/attributes/Good For/latenight" };
+//		String [] links = {"yelp_academic_dataset_business_1.json/DONOTLINK_0/city/dravosburg", "yelp_academic_dataset_business_1.json/DONOTLINK_0", "yelp_academic_dataset_business_1.json/DONOTLINK_635/attributes", "yelp_academic_dataset_business_1.json/DONOTLINK_635/attributes/Good For", "yelp_academic_dataset_business_1.json/DONOTLINK_635/attributes/Good For/latenight"};
 
-		List<String> list = Arrays.asList(links);
-		// list.add("DOC1/b/tom");
-		// list.add("DOC1/b/e/tom");
-		// list.add("DOC2/d/tom");
-		// list.add("DOC3/tom");
-		// list.add("DOC4/x/brady");
-
+//		List<String> list = Arrays.asList(links);
+		List<String> list = new ArrayList<String>();
+		list.add("DOC1/b/tom");
+		list.add("DOC1/b/e/tom");
+		list.add("DOC2/d/tom");
+		list.add("DOC3/tom");
+		list.add("DOC4/x/brady");
+		
+//		List<List<String>> f_list = new ArrayList<List<String>>();
+//		f_list.add(list);
 		GenerateOutputJson col = new GenerateOutputJson();
 		col.createJson(list);
 

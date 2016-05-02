@@ -18,15 +18,18 @@ public class SearchEngineWorker implements Runnable
 	Queue<WeightedPath> frontier = new PriorityQueue<WeightedPath>();
 	Map<String, WeightedPath> mySeenNodes = new HashMap<String, WeightedPath>();
 	Map<String, WeightedPath> seenNodesOther = new HashMap<String, WeightedPath>();
+	Map<String, String> userPermissions = new HashMap<String, String>();
 	int k = 5;
 	LinksDA lDa;
+	String username;
 	
-	public SearchEngineWorker(Queue<WeightedPath> frontier, Map<String, WeightedPath> mySeenNodes, Map<String, WeightedPath> seenNodesOther, LinksDA lDa)
+	public SearchEngineWorker(Queue<WeightedPath> frontier, Map<String, WeightedPath> mySeenNodes, Map<String, WeightedPath> seenNodesOther, LinksDA lDa, String username)
 	{
 		this.frontier = frontier;
 		this.mySeenNodes = mySeenNodes;
 		this.seenNodesOther = seenNodesOther;
 		this.lDa = lDa;
+		this.username = username;
 	}
 	
 	@Override

@@ -16,13 +16,14 @@ public class BidirectionalSearch implements Runnable
 	Map<String, WeightedPath> seenNodesOther = new HashMap<String, WeightedPath>();
 	Thread[] threadPool = new Thread[NUM_THREADS];
 	int k = 5;
-	String word;
+	String word, username;
 	
-	public BidirectionalSearch(Map<String, WeightedPath> mySeenNodes, Map<String, WeightedPath> seenNodesOther, String word)
+	public BidirectionalSearch(Map<String, WeightedPath> mySeenNodes, Map<String, WeightedPath> seenNodesOther, String word, String username)
 	{
 		this.mySeenNodes = mySeenNodes;
 		this.seenNodesOther = seenNodesOther;
 		this.word = word;
+		this.username = username;
 	}
 	
 	@Override
@@ -32,7 +33,7 @@ public class BidirectionalSearch implements Runnable
 		//Start all the worker threads
 		for (int i = 0; i < NUM_THREADS; i++)
 		{
-			SearchEngineWorker worker_i = new SearchEngineWorker(frontier, mySeenNodes, seenNodesOther, lDa);
+			SearchEngineWorker worker_i = new SearchEngineWorker(frontier, mySeenNodes, seenNodesOther, lDa, username);
 			threadPool[i] = new Thread(worker_i);
 			threadPool[i].start();
 		}

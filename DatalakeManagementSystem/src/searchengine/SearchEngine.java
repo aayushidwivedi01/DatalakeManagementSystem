@@ -18,8 +18,14 @@ public class SearchEngine
 	Map<String, WeightedPath> seenWorker1 = new HashMap<String, WeightedPath>();
 	Map<String, WeightedPath> seenWorker2 = new HashMap<String, WeightedPath>();
 	Queue<WeightedPath> frontier = new PriorityQueue<WeightedPath>();
+	String query, username;
+	public SearchEngine(String query, String username)
+	{
+		this.query = query;
+		this.username = username;
+	}
 
-	public void search(String query)
+	public void search()
 	{
 		if (query.split(" ").length > 1)
 		{
@@ -31,8 +37,8 @@ public class SearchEngine
 			WeightedPath p2 = new WeightedPath(keyword2, 0);
 			seenWorker1.put(keyword1, p1);
 			seenWorker2.put(keyword2, p2);
-			BidirectionalSearch worker1 = new BidirectionalSearch(seenWorker1, seenWorker2, keyword1);
-			BidirectionalSearch worker2 = new BidirectionalSearch(seenWorker2, seenWorker1, keyword2);
+			BidirectionalSearch worker1 = new BidirectionalSearch(seenWorker1, seenWorker2, keyword1, username);
+			BidirectionalSearch worker2 = new BidirectionalSearch(seenWorker2, seenWorker1, keyword2, username);
 			workerThreads[0] = new Thread(worker1);
 			workerThreads[1] = new Thread(worker2);
 			workerThreads[0].start();
@@ -143,9 +149,11 @@ public class SearchEngine
 	public static void main(String[] args)
 	{
 		DBWrapper.setup("/Users/Deepti/MyClasses/DB/Project/db");
-		SearchEngine engine = new SearchEngine();
+		String query = "tom hardy";
+		String username = "deepti";
+		SearchEngine engine = new SearchEngine(query, username);
 		long startTime = System.currentTimeMillis();
-		engine.search("tom hardy");
+		engine.search();
 		long endTime = System.currentTimeMillis();
 		System.out.println("Time: " + (endTime - startTime));
 		DBWrapper.close();

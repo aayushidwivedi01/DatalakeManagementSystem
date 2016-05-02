@@ -1,9 +1,6 @@
 package searchengine;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.json.simple.JSONArray;
@@ -19,104 +16,99 @@ public class GenerateOutputJson {
 		links = new JSONArray();
 	}
 	
-	public void createJson(List<List<String>> result_list){
+	@SuppressWarnings("unchecked")
+	public void createJson(List<String> list){
 		
-		JSONArray results = new JSONArray();
+		ArrayList<Integer> end_points = new ArrayList<Integer>();
 		
-		for(List<String> list : result_list){
-			ArrayList<Integer> end_points = new ArrayList<Integer>();
+		int j = 0;
+		int common_idx = 0;
+		int last_common = 0;
+		
+		for(String entry : list){
+			String [] components = entry.split("/");
+			int i;
 			
-			int j = 0;
-			int common_idx = 0;
-			int last_common = 0;
+			//Check if leaf node of this path already has been seen
+			common_idx = 0;
+			JSONObject common = new JSONObject();
+			common.put("name", components[common_idx]);
+			common.put("group", 1);
+			common.put("url", "http://example.com/"+components[common_idx]);
 			
-			for(String entry : list){
-				String [] components = entry.split("/");
-				int i;
+			while(nodes.contains(common)){
+				last_common = nodes.indexOf(common);
+				common.clear();
 				
-				//Check if leaf node of this path already has been seen
-				common_idx = 0;
-				JSONObject common = new JSONObject();
-				common.put("name", components[common_idx]);
-				common.put("group", 1);
-				common.put("url", "http://example.com/"+components[common_idx]);
-				
-				while(nodes.contains(common)){
-					last_common = nodes.indexOf(common);
-					common.clear();
-					
-					if(++common_idx < components.length){
-						String nodename = components[common_idx];
-						if(nodename.startsWith("DONOTLINK")){
-							nodename = nodename.replace("DONOTLINK", "LIST");
-						}
-						
-						common.put("name", nodename);
-					}
-					else
-						break;
-				}
-				
-	//			System.out.println("Common index: "+common_idx);
-				for(i = j; i-j+common_idx < components.length; i++){
-					JSONObject name = new JSONObject();
-					String nodename = components[i-j+common_idx];
+				if(++common_idx < components.length){
+					String nodename = components[common_idx];
 					if(nodename.startsWith("DONOTLINK")){
 						nodename = nodename.replace("DONOTLINK", "LIST");
 					}
 					
-					name.put("name", nodename);
-					if(i==j && common_idx == 0){
-						name.put("group", 1);
-						name.put("url","http://example.com/"+nodename);
-					}
-	//				System.out.println("ADDING : "+name.toJSONString());
-					nodes.add(name);
-					
-					if(i != j+components.length-1-common_idx){
-						JSONObject link = new JSONObject();
-						
-						if(i == j && common_idx > 0){
-							JSONObject common_link = new JSONObject();
-							common_link.put("source", last_common);
-							common_link.put("target", i);
-							links.add(common_link);
-							link.put("source", i);
-							link.put("target", i+1);
-							
-						}else{
-							link.put("source", i);
-							link.put("target", i+1);
-						}
-						links.add(link);
-					}
+					common.put("name", nodename);
 				}
-				
-				if(common_idx != components.length)
-					end_points.add(j+components.length-1-common_idx);
-				j = i;
+				else
+					break;
 			}
 			
-			for(int i = 0; i < end_points.size(); i++){
-				if(i+1 != end_points.size()){
+//			System.out.println("Common index: "+common_idx);
+			for(i = j; i-j+common_idx < components.length; i++){
+				JSONObject name = new JSONObject();
+				String nodename = components[i-j+common_idx];
+				if(nodename.startsWith("DONOTLINK")){
+					nodename = nodename.replace("DONOTLINK", "LIST");
+				}
+				
+				name.put("name", nodename);
+				if(i==j && common_idx == 0){
+					name.put("group", 1);
+					name.put("url","http://example.com/"+nodename);
+				}
+//				System.out.println("ADDING : "+name.toJSONString());
+				nodes.add(name);
+				
+				if(i != j+components.length-1-common_idx){
 					JSONObject link = new JSONObject();
-					link.put("source", end_points.get(i));
-					link.put("target", end_points.get(i+1));
-					link.put("width", 10);
+					
+					if(i == j && common_idx > 0){
+						JSONObject common_link = new JSONObject();
+						common_link.put("source", last_common);
+						common_link.put("target", i);
+						links.add(common_link);
+						link.put("source", i);
+						link.put("target", i+1);
+						
+					}else{
+						link.put("source", i);
+						link.put("target", i+1);
+					}
 					links.add(link);
 				}
 			}
 			
-	//		System.out.println(links.toJSONString());
-			JSONObject final_json = new JSONObject();
-			
-			final_json.put("nodes", nodes);
-			final_json.put("links", links);
-			
-			results.add(final_json);
-			
+			if(common_idx != components.length)
+				end_points.add(j+components.length-1-common_idx);
+			j = i;
 		}
-		System.out.println(results.toString().replace("\\", ""));
+		
+		for(int i = 0; i < end_points.size(); i++){
+			if(i+1 != end_points.size()){
+				JSONObject link = new JSONObject();
+				link.put("source", end_points.get(i));
+				link.put("target", end_points.get(i+1));
+				link.put("width", 10);
+				links.add(link);
+			}
+		}
+		
+//		System.out.println(links.toJSONString());
+		JSONObject final_json = new JSONObject();
+		
+		final_json.put("nodes", nodes);
+		final_json.put("links", links);
+			
+		System.out.println(final_json.toString().replace("\\", ""));
 	}
 
 	public static void main(String[] args) {
@@ -130,10 +122,10 @@ public class GenerateOutputJson {
 		list.add("DOC3/tom");
 		list.add("DOC4/x/brady");
 		
-		List<List<String>> f_list = new ArrayList<List<String>>();
-		f_list.add(list);
+//		List<List<String>> f_list = new ArrayList<List<String>>();
+//		f_list.add(list);
 		GenerateOutputJson col = new GenerateOutputJson();
-		col.createJson(f_list);
+		col.createJson(list);
 		
 		
 	}

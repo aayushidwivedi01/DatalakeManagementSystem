@@ -47,11 +47,11 @@ router.get('/upload', function(req, res, next) {
 	});
 });
 
-router.post('/searchresults', function(req, res, next) {
-	res.render('searchresults', {
-		title : 'DLMS'
-	});
-});
+//router.post('/searchresults', function(req, res, next) {
+//	res.render('results', {
+//		title : 'DLMS'
+//	});
+//});
 
 router.get('/status', function(req, res, next) {
 	res.render('status', {
@@ -60,6 +60,11 @@ router.get('/status', function(req, res, next) {
 			});
 });
 
+//router.post('/search', function(req, res, next) {
+//	res.render('results', {
+//		title : 'DLMS'
+//			});
+//});
 
 
 function getContentTypeByFile(fileName) {

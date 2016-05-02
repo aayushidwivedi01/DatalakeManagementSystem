@@ -8,7 +8,7 @@ var _dir = "/home/cis550/bobby_tables/uploads/";
 var doc_id = null;
 var status = 'idle';
 java.classpath.push("google-collections-1.0-rc2.jar");
-java.classpath.push("extractor2.jar");
+java.classpath.push("extractor.jar");
 
 
 function savePermissions(req, res, status) {
@@ -58,9 +58,9 @@ function uploadFile(req, res, next) {
 						if(status===1){
 							status = 'extracting';
 							var extractor = java.newInstanceSync(
-									"extractor.Extractor",
-									localFilePath);
-							java.callMethod(extractor, "extract", linkerResponse);
+									"extractor.Extractor"
+									);
+							java.callMethod(extractor, "extract", localFilePath, linkerResponse);
 						}
 						res.render('upload', {
 							title : 'DLMS',

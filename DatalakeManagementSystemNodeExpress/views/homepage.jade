@@ -5,7 +5,7 @@ html
     p
       | Welcome to your homepage!
       br
-      form#search(method='post', action='/searchresults')
+      form#search(method='get', action='/search')
         label(for='search') Enter your search query:
         input#search(name='query')
         button#search Search

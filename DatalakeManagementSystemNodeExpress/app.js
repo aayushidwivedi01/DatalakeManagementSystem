@@ -15,6 +15,7 @@ var account = require('./routes/account');
 var uploadfile = require('./routes/uploadfile');
 var permissions = require('./routes/permissions');
 var updatePermission = require('./routes/updatepermission');
+var search = require('./routes/search');
 //var java = require("java");
 //java.classpath.push("test.jar");
 var app = express();
@@ -49,11 +50,11 @@ app.get('/logout', function(req,res){
 		res.redirect('/');
 	});
 });
-app.get('/test', function(req, res, next) {
-	res.render('test', {
-		num: 4
-	});
-});
+//app.get('/results', function(req, res, next) {
+//	res.render('results', {
+//		reslt: 'HI Jon'
+//	});
+//});
 app.use('/homepage', homepage);
 app.use('/uploadfile',uploadfile.do_work);
 app.use('/permissions', permissions.do_work);
@@ -64,6 +65,7 @@ app.post('/changepermission', function(req,res){
 	});
 });
 app.use('/updatepermission', updatePermission.do_work);
+app.use('/search', search.do_work);
 
 var server = app.listen(8081, function() {
 

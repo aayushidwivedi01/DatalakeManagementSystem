@@ -169,6 +169,8 @@ public class SearchEngineWorker implements Runnable
 
 	public boolean isAccessible(String docPath) 
 	{
+		if (!docPath.contains("/"))
+			return true;
 		String doc = docPath.substring(0, docPath.indexOf("/"));
 		Document docInfo = docDa.fetch(doc);
 		if (docInfo.getPermission().equals("Public"))

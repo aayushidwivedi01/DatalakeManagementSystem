@@ -7,7 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
+
+import bean.Document;
 import storage.DBWrapper;
+import storage.DocumentDA;
 import utils.Stemmer;
 
 public class SearchEngine
@@ -149,7 +152,12 @@ public class SearchEngine
 	public static void main(String[] args)
 	{
 		DBWrapper.setup("/Users/Deepti/MyClasses/DB/Project/db");
-		String query = "tom hardy";
+		Document document1 = new Document("generated2.json", "deepti", "test_path", "Public");
+		Document document2 = new Document("generated3.json", "aayushi", "test_path", "Private");
+		DocumentDA docDA = new DocumentDA();
+		docDA.store(document1);
+		docDA.store(document2);
+		String query = "id hardy";
 		String username = "deepti";
 		SearchEngine engine = new SearchEngine(query, username);
 		long startTime = System.currentTimeMillis();

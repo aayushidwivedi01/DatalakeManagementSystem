@@ -9,11 +9,10 @@ import com.sleepycat.persist.StoreConfig;
 
 public class DBWrapper {
 
-
 	private static Environment myEnv = null;
 	private static EntityStore store = null;
 	private static EntityStore newDocStore = null;
-	
+
 	public static void setup(String dirName) throws DatabaseException {
 		if (dirName == null)
 			return;
@@ -45,22 +44,21 @@ public class DBWrapper {
 	public static EntityStore getNewDocStore() {
 		return newDocStore;
 	}
-	
+
 	public static void close() throws DatabaseException {
-		if (store != null){
+		if (store != null) {
 			System.out.println("Closing BDB Store");
 			store.close();
 		}
-		if (newDocStore != null){
+		if (newDocStore != null) {
 			System.out.println("Closing flatDocumentStore BDB Store");
 			newDocStore.close();
 		}
-		if (myEnv != null){
+		if (myEnv != null) {
 			System.out.println("Closing BDB Environment");
 			myEnv.close();
 		}
-			
-		
+
 	}
 
 }

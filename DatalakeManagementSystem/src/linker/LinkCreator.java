@@ -482,7 +482,7 @@ public class LinkCreator {
 		Map<String, Links> mapOfLinks = linkCreator.mergeLinks(links);
 		System.out.println("Unique sources - " + mapOfLinks.size());
 		long startTime = System.nanoTime();
-		//linkCreator.storeLinks(mapOfLinks);
+		// linkCreator.storeLinks(mapOfLinks);
 		long endTime = System.nanoTime();
 
 		System.out.println("Time to store - " + (endTime - startTime) / 1000000 + " mSec");

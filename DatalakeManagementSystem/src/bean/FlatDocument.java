@@ -7,13 +7,14 @@ import com.sleepycat.persist.model.PrimaryKey;
 
 @Entity
 public class FlatDocument {
-	public FlatDocument(){}
+	public FlatDocument() {
+	}
 
 	@PrimaryKey
 	private String document;
 	private List<String> forwardIndex;
-	
-	public FlatDocument(String document, List<String> forwardIndex){
+
+	public FlatDocument(String document, List<String> forwardIndex) {
 		this.document = document;
 		this.forwardIndex = forwardIndex;
 	}

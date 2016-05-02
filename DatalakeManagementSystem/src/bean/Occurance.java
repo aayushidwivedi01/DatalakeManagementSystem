@@ -4,13 +4,13 @@ import com.sleepycat.persist.model.Persistent;
 
 @Persistent
 public class Occurance {
-	
+
 	private String path;
 	private String attribute;
-	
+
 	public Occurance() {
 	}
-	
+
 	public Occurance(String path, String attribute) {
 		super();
 		this.path = path;
@@ -37,5 +37,5 @@ public class Occurance {
 	public String toString() {
 		return "Occurance [path=" + path + ", attribute=" + attribute + "]";
 	}
-	
+
 }

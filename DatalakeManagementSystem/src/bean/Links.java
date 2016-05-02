@@ -7,15 +7,16 @@ import com.sleepycat.persist.model.PrimaryKey;
 
 @Entity
 public class Links {
-	
+
 	@PrimaryKey
 	private String source;
 	private Set<Link> relations;
-	
-	public Links(){
-		
+
+	public Links() {
+
 	}
-	public Links(String source, Set<Link>relations){
+
+	public Links(String source, Set<Link> relations) {
 		this.source = source;
 		this.relations = relations;
 	}
@@ -40,7 +41,5 @@ public class Links {
 	public String toString() {
 		return "LinksBDB [source=" + source + ", relations=" + relations + "]";
 	}
-	
-	
 
 }

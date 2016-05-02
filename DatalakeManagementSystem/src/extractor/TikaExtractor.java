@@ -30,76 +30,75 @@ import org.xml.sax.ContentHandler;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
-
 /**
  * Uses the auto detect parser and gets the metadata and content of a file
  */
 public class TikaExtractor {
-	
+
 	static TikaConfig tikaConfig = null;
 	static Metadata meta = null;
 	String text = null;
-	
-	Multimap<String,String> metadata = null;
-	Multimap<String,String> content = null;
-	
-	//Contructor
-	public TikaExtractor(){
+
+	Multimap<String, String> metadata = null;
+	Multimap<String, String> content = null;
+
+	// Contructor
+	public TikaExtractor() {
 		tikaConfig = TikaConfig.getDefaultConfig();
 		meta = new Metadata();
 		metadata = ArrayListMultimap.create();
 		content = ArrayListMultimap.create();
 	}
-	
-	//Extracts all the metadata
-	public Multimap<String,String> getMetadata(String filename){
+
+	// Extracts all the metadata
+	public Multimap<String, String> getMetadata(String filename) {
 		try {
 			text = parseUsingAutoDetect(filename, tikaConfig, meta);
-			for (String name: meta.names()){
-				if(name.equals("X-Parsed-By")){
+			for (String name : meta.names()) {
+				if (name.equals("X-Parsed-By")) {
 					continue;
 				}
-	        	metadata.put(new File(filename).getName()+"/"+name, meta.get(name));
-	        }
+				metadata.put(new File(filename).getName() + "/" + name, meta.get(name));
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return metadata;
 	}
-	
-	
-	public Multimap<String,String> extract(String filename){
+
+	public Multimap<String, String> extract(String filename) {
 		content.put("contents_of_file", text);
 		return content;
-		
+
 	}
-	
-	public static String parseUsingAutoDetect(String filename, TikaConfig tikaConfig,
-            Metadata metadata) throws Exception {
+
+	public static String parseUsingAutoDetect(String filename, TikaConfig tikaConfig, Metadata metadata)
+			throws Exception {
 		AutoDetectParser parser = new AutoDetectParser(tikaConfig);
 		ContentHandler handler = new BodyContentHandler(-1);
 		TikaInputStream stream = TikaInputStream.get(new File(filename), metadata);
 		parser.parse(stream, handler, metadata, new ParseContext());
 		return handler.toString();
 	}
-	
-//    public static void main(String[] args) throws Exception {
-//        String filename = "/home/cis455/git/dlms_little_bobby_tables/DatalakeManagementSystem/src/extractor/generated.json";
-//        TikaExtractor e = new TikaExtractor();
-//         
-//        String text = parseUsingAutoDetect(filename, tikaConfig, meta);
-////        System.out.println(meta.names().length);
-////        for (String name: meta.names()){
-////        	System.out.println(name+" "+meta.get(name));
-////        }
-////        StringWriter sw = new StringWriter();
-////        JsonMetadata.toJson(meta, sw);
-////        System.out.println(sw.toString());
-//        System.out.println("Parsed Metadata: ");
-//        System.out.println(meta);
-////        System.out.println("Parsed Text: ");
-////        System.out.println(text);
-//        
-//        
-//    }
+
+	// public static void main(String[] args) throws Exception {
+	// String filename =
+	// "/home/cis455/git/dlms_little_bobby_tables/DatalakeManagementSystem/src/extractor/generated.json";
+	// TikaExtractor e = new TikaExtractor();
+	//
+	// String text = parseUsingAutoDetect(filename, tikaConfig, meta);
+	//// System.out.println(meta.names().length);
+	//// for (String name: meta.names()){
+	//// System.out.println(name+" "+meta.get(name));
+	//// }
+	//// StringWriter sw = new StringWriter();
+	//// JsonMetadata.toJson(meta, sw);
+	//// System.out.println(sw.toString());
+	// System.out.println("Parsed Metadata: ");
+	// System.out.println(meta);
+	//// System.out.println("Parsed Text: ");
+	//// System.out.println(text);
+	//
+	//
+	// }
 }

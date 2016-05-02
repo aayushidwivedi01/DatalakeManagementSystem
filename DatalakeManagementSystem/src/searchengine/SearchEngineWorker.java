@@ -43,14 +43,20 @@ public class SearchEngineWorker implements Runnable
 				{
 					if (frontier.isEmpty())
 					{
+						System.out.println("Waiting " + Thread.currentThread().getName());
 						frontier.wait(10000);
+						System.out.println("Out of wait: " + Thread.currentThread().getName());
 					}
 					if (!frontier.isEmpty())
 					{
+						System.out.println("Frontier not empty: " + Thread.currentThread().getName());
 						weightedPath = frontier.remove();
 					}
 					else
+					{
 						SearchEngine.flag = false;
+						continue;
+					}
 				}
 				
 				String node = weightedPath.getNode();
@@ -91,7 +97,16 @@ public class SearchEngineWorker implements Runnable
 								}
 							}
 						}
-						continue;
+						System.out.println(Thread.currentThread().getName() + " path1: " + path1 + "path2: " + path2);
+						if (path1.size() == 1 || path2.size() == 0)
+						{
+							System.out.println("Don't add links" + Thread.currentThread().getName());
+							continue;
+						}
+						else
+						{
+							System.out.println("adding links" + Thread.currentThread().getName());
+						}
 					}
 				}
 				
@@ -106,7 +121,7 @@ public class SearchEngineWorker implements Runnable
 				for (Link relation : relations)
 				{
 					String dest = relation.getDest();
-					//System.out.println(node + " linked to: " + dest);
+					System.out.println(Thread.currentThread().getName() + node + " linked to: " + dest);
 
 					ArrayList<String> newPath = new ArrayList<String>(path);
 					
@@ -123,33 +138,34 @@ public class SearchEngineWorker implements Runnable
 					synchronized(mySeenNodes)
 					{
 						//Update path if this one is shorter
-						if (mySeenNodes.containsKey(dest))
-						{
-							WeightedPath oldPath = mySeenNodes.get(dest);
-							if (!oldPath.equals(weightedPath))
-							{
-								if (newCost < oldPath.getCost())
-								{
-									synchronized(frontier)
-									{
-										frontier.add(newWeightedPath);
-										frontier.notify();
-									}
-									mySeenNodes.put(dest, newWeightedPath);
-								}
-							}
-							//System.out.println("Adding to frontier: " + newPath);
-						}
+//						if (mySeenNodes.containsKey(dest))
+//						{
+//							WeightedPath oldPath = mySeenNodes.get(dest);
+//							if (!oldPath.equals(weightedPath))
+//							{
+//								if (newCost < oldPath.getCost())
+//								{
+//									synchronized(frontier)
+//									{
+//										System.out.println("Adding to frontier less cost: " + newPath);
+//										frontier.add(newWeightedPath);
+//										frontier.notify();
+//									}
+//									mySeenNodes.put(dest, newWeightedPath);
+//								}
+//							}
+//						}
 						
-						else
-						{
+						//else
+						//{
 							synchronized(frontier)
 							{
+								System.out.println(Thread.currentThread().getName() + "Adding to frontier new path: " + newPath);
 								frontier.add(newWeightedPath);
 								frontier.notify();
 							}
 							mySeenNodes.put(dest, newWeightedPath);
-						}
+						//}
 					}
 				}
 				

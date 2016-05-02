@@ -69,5 +69,11 @@ public class WeightedPath implements Comparable<WeightedPath>
 		// TODO Auto-generated method stub
 		return super.hashCode();
 	}
+
+	@Override
+	public String toString() {
+		return "WeightedPath [path=" + path + ", cost=" + cost + ", node=" + node + "]";
+	}
+	
 	
 }

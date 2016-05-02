@@ -22,6 +22,8 @@ public class SearchEngine
 	public void search(String[] query)
 	{
 		//String keyword1 = stem(query[0]);
+		//String orig_keyword1 = query[0];
+		//String orig_keyword2 = query[1];
 		String keyword1 = query[0];
 		if (query.length > 1)
 		{
@@ -100,7 +102,7 @@ public class SearchEngine
 	public static void main(String[] args)
 	{
 		DBWrapper.setup("/Users/Deepti/MyClasses/DB/Project/db");
-		String[] query = {"tom", "hardy"};
+		String[] query = {"tom", "brady"};
 		SearchEngine engine = new SearchEngine();
 		long startTime = System.currentTimeMillis();
 		engine.search(query);

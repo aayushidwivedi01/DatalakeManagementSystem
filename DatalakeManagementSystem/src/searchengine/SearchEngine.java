@@ -19,15 +19,14 @@ public class SearchEngine
 	Map<String, WeightedPath> seenWorker2 = new HashMap<String, WeightedPath>();
 	Queue<WeightedPath> frontier = new PriorityQueue<WeightedPath>();
 
-	public void search(String[] query)
+	public void search(String query)
 	{
-		//String keyword1 = stem(query[0]);
-		//String orig_keyword1 = query[0];
-		//String orig_keyword2 = query[1];
-		String keyword1 = query[0];
-		if (query.length > 1)
+		if (query.split(" ").length > 1)
 		{
-			String keyword2 = stem(query[1]);
+			String orig_keyword1 = query.split(" ")[0];
+			String orig_keyword2 = query.split(" ")[1];
+			String keyword1 = stem(orig_keyword1);
+			String keyword2 = stem(orig_keyword2);
 			WeightedPath p1 = new WeightedPath(keyword1, 0);
 			WeightedPath p2 = new WeightedPath(keyword2, 0);
 			seenWorker1.put(keyword1, p1);
@@ -49,6 +48,11 @@ public class SearchEngine
 			try {
 				workerThreads[0].join();
 				workerThreads[1].join();
+				keyword1 = "/".concat(keyword1);
+				keyword2 = "/".concat(keyword2);
+				orig_keyword1 = "/".concat(orig_keyword1);
+				orig_keyword2 = "/".concat(orig_keyword2);
+				getOriginalKeywords(keyword1, keyword2, orig_keyword1, orig_keyword2);
 				for (ArrayList<String> path : kShortestPaths)
 				{
 					System.out.println("path: " + path);
@@ -61,6 +65,43 @@ public class SearchEngine
 		}
 	}
 	
+	private void getOriginalKeywords(String stemmedWord1, String stemmedWord2, String word1, String word2) {
+		
+		for (int i = 0; i < SearchEngine.kShortestPaths.size(); i++)
+		{
+			ArrayList<String> pathList = SearchEngine.kShortestPaths.get(i);
+			int len = pathList.size();
+			String startNode = pathList.get(0);
+			String lastNode = pathList.get(len - 1);
+			if (startNode.contains(stemmedWord1))
+			{
+				startNode = startNode.replace(stemmedWord1, word1);
+				pathList.set(0, startNode);
+			}
+			
+			if (startNode.contains(stemmedWord2))
+			{
+				startNode = startNode.replace(stemmedWord2, word2);
+				pathList.set(0, startNode);
+			}
+			
+			if (lastNode.contains(stemmedWord1))
+			{
+				lastNode = lastNode.replace(stemmedWord1, word1);
+				pathList.set(len - 1, lastNode);
+			}
+			
+			if (lastNode.contains(stemmedWord2))
+			{
+				lastNode = lastNode.replace(stemmedWord2, word2);
+				pathList.set(len - 1, lastNode);
+			}
+			//System.out.println("path list: " + pathList);
+			SearchEngine.kShortestPaths.set(i, pathList);
+		}
+		
+	}
+
 	public static String stem(String word)
 	{
 		//System.out.println("received word: " + word);
@@ -102,32 +143,11 @@ public class SearchEngine
 	public static void main(String[] args)
 	{
 		DBWrapper.setup("/Users/Deepti/MyClasses/DB/Project/db");
-		String[] query = {"tom", "brady"};
 		SearchEngine engine = new SearchEngine();
 		long startTime = System.currentTimeMillis();
-		engine.search(query);
+		engine.search("tom hardy");
 		long endTime = System.currentTimeMillis();
 		System.out.println("Time: " + (endTime - startTime));
-//		ArrayList<String> path1 = new ArrayList<String>(Arrays.asList("tom", "x/y/name", "hardy"));
-//		ArrayList<String> path2 = new ArrayList<String>(Arrays.asList("hardy"));
-//		System.out.println("path1: " + path1 + " path2: " + path2);
-//		engine.mergePaths(path1, path2);
-//		
-//		path1 = new ArrayList<String>(Arrays.asList("tom", "x/y/name"));
-//		path2 = new ArrayList<String>(Arrays.asList("hardy", "x/y/name"));
-//		System.out.println("path1: " + path1 + " path2: " + path2);
-//		engine.mergePaths(path1, path2);
-//		
-//		path1 = new ArrayList<String>(Arrays.asList("name", "x/y/name"));
-//		path2 = new ArrayList<String>(Arrays.asList("x/y/name"));
-//		System.out.println("path1: " + path1 + " path2: " + path2);
-//		engine.mergePaths(path1, path2);
-//		
-//		path1 = new ArrayList<String>(Arrays.asList("name", "x/y/z/from/name", "x/y/z/from", "x/y/z", "x/y"));
-//		path2 = new ArrayList<String>(Arrays.asList("tom", "x/y/a/from", "x/y/a", "x/y"));
-//		System.out.println("path1: " + path1 + " path2: " + path2);
-//		engine.mergePaths(path1, path2);
-		
 		DBWrapper.close();
 	}
 }

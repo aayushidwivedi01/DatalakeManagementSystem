@@ -107,6 +107,7 @@ public class SearchEngineWorker implements Runnable
 				{
 					String dest = relation.getDest();
 					//System.out.println(node + " linked to: " + dest);
+
 					ArrayList<String> newPath = new ArrayList<String>(path);
 					
 					//Ignore node if it creates a loop in path

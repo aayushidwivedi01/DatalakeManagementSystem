@@ -36,7 +36,7 @@ public class SearchEngine
 		this.username = username;
 	}
 
-	public void search()
+	public List<ArrayList<String>> search()
 	{
 		if (query.split(" ").length == 1)
 		{
@@ -84,7 +84,7 @@ public class SearchEngine
 			
 		}
 		
-		else if (query.split(" ").length > 1)
+		else
 		{
 			String orig_keyword1 = query.split(" ")[0];
 			String orig_keyword2 = query.split(" ")[1];
@@ -116,7 +116,8 @@ public class SearchEngine
 				e.printStackTrace();
 			}
 
-		}	
+		}
+		return kShortestPaths;
 	}
 	
 	public void printResults()
@@ -230,12 +231,12 @@ public class SearchEngine
 	public static void main(String[] args)
 	{
 		DBWrapper.setup("/Users/Deepti/MyClasses/DB/Project/db");
-		Document document1 = new Document("generated2.json", "deepti", "test_path", "Public");
-		Document document2 = new Document("generated3.json", "aayushi", "test_path", "Public");
+		Document document1 = new Document("yelp_academic_dataset_business_1.json", "deepti", "test_path", "Public");
+		//Document document2 = new Document("generated3.json", "aayushi", "test_path", "Public");
 		DocumentDA docDA = new DocumentDA();
 		docDA.store(document1);
-		docDA.store(document2);
-		String query = "tom";
+		//docDA.store(document2);
+		String query = "hours friday";
 		String username = "deepti";
 		SearchEngine engine = new SearchEngine(query, username);
 		long startTime = System.currentTimeMillis();

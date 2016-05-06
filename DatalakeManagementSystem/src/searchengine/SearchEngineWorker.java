@@ -20,13 +20,13 @@ public class SearchEngineWorker implements Runnable
 	Queue<WeightedPath> frontier = new PriorityQueue<WeightedPath>();
 	Map<String, WeightedPath> mySeenNodes = new HashMap<String, WeightedPath>();
 	Map<String, WeightedPath> seenNodesOther = new HashMap<String, WeightedPath>();
-	Map<String, String> userPermissions = new HashMap<String, String>();
-	int k = 5;
+	Map<String, Boolean> userPermissions = new HashMap<String, Boolean>();
+	int k;
 	LinksDA lDa;
 	String username;
 	DocumentDA docDa;
 	
-	public SearchEngineWorker(Queue<WeightedPath> frontier, Map<String, WeightedPath> mySeenNodes, Map<String, WeightedPath> seenNodesOther, String username, LinksDA lDa, DocumentDA docDa)
+	public SearchEngineWorker(Queue<WeightedPath> frontier, Map<String, WeightedPath> mySeenNodes, Map<String, WeightedPath> seenNodesOther, String username, LinksDA lDa, DocumentDA docDa, int k)
 	{
 		this.frontier = frontier;
 		this.mySeenNodes = mySeenNodes;
@@ -34,6 +34,7 @@ public class SearchEngineWorker implements Runnable
 		this.username = username;
 		this.lDa = lDa;
 		this.docDa = docDa;
+		this.k = k;
 	}
 	
 	@Override
@@ -165,18 +166,36 @@ public class SearchEngineWorker implements Runnable
 			e.printStackTrace();
 		}
 		
+		catch (NullPointerException e)
+		{
+			e.printStackTrace();
+		}
+		
 	}
 
 	public boolean isAccessible(String docPath) 
 	{
+		String doc;
 		if (!docPath.contains("/"))
-			return true;
-		String doc = docPath.substring(0, docPath.indexOf("/"));
+			doc = docPath;
+		else
+			doc = docPath.substring(0, docPath.indexOf("/"));
+		String permission;
+		if (userPermissions.containsKey(doc))
+			return userPermissions.get(doc);
+		
 		Document docInfo = docDa.fetch(doc);
-		if (docInfo.getPermission().equals("Public"))
+		if (docInfo == null)
 			return true;
-		if (docInfo.getOwner().equals(username))
+		permission = docInfo.getPermission();
+		String owner = docInfo.getOwner();
+		if (permission.equals("Public") || owner.equals(username))
+		{
+			userPermissions.put(doc, true);
 			return true;
+		}
+		
+		userPermissions.put(doc, false);
 		return false;
 	}
 

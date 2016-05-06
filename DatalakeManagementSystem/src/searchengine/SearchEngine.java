@@ -7,21 +7,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.Set;
 
 import bean.Document;
+import bean.Link;
+import bean.Links;
 import storage.DBWrapper;
 import storage.DocumentDA;
+import storage.LinksDA;
 import utils.Stemmer;
 
 public class SearchEngine
 {
 	public static boolean flag = true;
 	public static List<ArrayList<String>> kShortestPaths = new ArrayList<ArrayList<String>>();
+	public static Queue<WeightedPath> singleWordResults = new PriorityQueue<WeightedPath>();
 	Thread[] workerThreads = new Thread[2];
 	Map<String, WeightedPath> seenWorker1 = new HashMap<String, WeightedPath>();
 	Map<String, WeightedPath> seenWorker2 = new HashMap<String, WeightedPath>();
 	Queue<WeightedPath> frontier = new PriorityQueue<WeightedPath>();
+	ArrayList<Link> singleWordRelations = new ArrayList<Link>();
 	String query, username;
+	int NUM_THREADS_SINGLE_WORD = 1;
+	int k = 5;
 	public SearchEngine(String query, String username)
 	{
 		this.query = query;
@@ -30,7 +38,53 @@ public class SearchEngine
 
 	public void search()
 	{
-		if (query.split(" ").length > 1)
+		if (query.split(" ").length == 1)
+		{
+			try
+			{
+				Thread[] workers = new Thread[NUM_THREADS_SINGLE_WORD];
+				LinksDA lDa = new LinksDA();
+				DocumentDA docDa = new DocumentDA();
+				Links links = lDa.fetch(stem(query));
+				Set<Link> relations = links.getRelations();
+				System.out.println("size : " + relations);
+				singleWordRelations = new ArrayList<Link>(relations);
+				System.out.println("number of links: " + singleWordRelations.size());
+				for (int i = 0; i < NUM_THREADS_SINGLE_WORD; i++)
+				{
+					SingleWordWorker worker_i = new SingleWordWorker(singleWordRelations, username, lDa, docDa);
+					workers[i] = new Thread(worker_i);
+					workers[i].start();
+				}
+				
+				for (int i = 0; i < NUM_THREADS_SINGLE_WORD; i++)
+				{
+					workers[i].join();
+				}
+				
+				if (singleWordResults.size() < k)
+				{
+					k = singleWordResults.size();
+				}
+				for (int i = 0; i < k; i++)
+				{
+					kShortestPaths.add(singleWordResults.remove().getPath());
+				}
+				getOriginalKeywords(stem(query), query);
+				printResults();
+				
+			}
+			catch (NullPointerException e)
+			{
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		
+		else if (query.split(" ").length > 1)
 		{
 			String orig_keyword1 = query.split(" ")[0];
 			String orig_keyword2 = query.split(" ")[1];
@@ -40,20 +94,13 @@ public class SearchEngine
 			WeightedPath p2 = new WeightedPath(keyword2, 0);
 			seenWorker1.put(keyword1, p1);
 			seenWorker2.put(keyword2, p2);
-			BidirectionalSearch worker1 = new BidirectionalSearch(seenWorker1, seenWorker2, keyword1, username);
-			BidirectionalSearch worker2 = new BidirectionalSearch(seenWorker2, seenWorker1, keyword2, username);
+			BidirectionalSearch worker1 = new BidirectionalSearch(seenWorker1, seenWorker2, keyword1, username, k);
+			BidirectionalSearch worker2 = new BidirectionalSearch(seenWorker2, seenWorker1, keyword2, username, k);
 			workerThreads[0] = new Thread(worker1);
 			workerThreads[1] = new Thread(worker2);
 			workerThreads[0].start();
 			workerThreads[1].start();
 			
-			//TESTING
-			
-//			WeightedPath node1 = new WeightedPath(keyword1, 0.4);
-//			WeightedPath node2 = new WeightedPath(keyword2, 6);
-//			frontier.add(node1);
-//			frontier.add(node2);
-//			System.out.println(frontier.remove().getNode());
 			try {
 				workerThreads[0].join();
 				workerThreads[1].join();
@@ -62,18 +109,23 @@ public class SearchEngine
 				orig_keyword1 = "/".concat(orig_keyword1);
 				orig_keyword2 = "/".concat(orig_keyword2);
 				getOriginalKeywords(keyword1, keyword2, orig_keyword1, orig_keyword2);
-				for (ArrayList<String> path : kShortestPaths)
-				{
-					System.out.println("path: " + path);
-				}
+				printResults();
+				
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
-		}
+		}	
 	}
 	
+	public void printResults()
+	{
+		for (ArrayList<String> path : kShortestPaths)
+		{
+			System.out.println("path: " + path);
+		}
+	}
 	private void getOriginalKeywords(String stemmedWord1, String stemmedWord2, String word1, String word2) {
 		
 		for (int i = 0; i < SearchEngine.kShortestPaths.size(); i++)
@@ -88,7 +140,7 @@ public class SearchEngine
 				pathList.set(0, startNode);
 			}
 			
-			if (startNode.contains(stemmedWord2))
+			else if (startNode.contains(stemmedWord2))
 			{
 				startNode = startNode.replace(stemmedWord2, word2);
 				pathList.set(0, startNode);
@@ -100,11 +152,37 @@ public class SearchEngine
 				pathList.set(len - 1, lastNode);
 			}
 			
-			if (lastNode.contains(stemmedWord2))
+			else if (lastNode.contains(stemmedWord2))
 			{
 				lastNode = lastNode.replace(stemmedWord2, word2);
 				pathList.set(len - 1, lastNode);
 			}
+			//System.out.println("path list: " + pathList);
+			SearchEngine.kShortestPaths.set(i, pathList);
+		}
+		
+	}
+	
+	private void getOriginalKeywords(String stemmedWord1, String word1) {
+		
+		for (int i = 0; i < SearchEngine.kShortestPaths.size(); i++)
+		{
+			ArrayList<String> pathList = SearchEngine.kShortestPaths.get(i);
+			int len = pathList.size();
+			String startNode = pathList.get(0);
+			String lastNode = pathList.get(len - 1);
+			if (startNode.contains(stemmedWord1))
+			{
+				startNode = startNode.replace(stemmedWord1, word1);
+				pathList.set(0, startNode);
+			}
+			
+			if (lastNode.contains(stemmedWord1))
+			{
+				lastNode = lastNode.replace(stemmedWord1, word1);
+				pathList.set(len - 1, lastNode);
+			}
+			
 			//System.out.println("path list: " + pathList);
 			SearchEngine.kShortestPaths.set(i, pathList);
 		}
@@ -153,11 +231,11 @@ public class SearchEngine
 	{
 		DBWrapper.setup("/Users/Deepti/MyClasses/DB/Project/db");
 		Document document1 = new Document("generated2.json", "deepti", "test_path", "Public");
-		Document document2 = new Document("generated3.json", "aayushi", "test_path", "Private");
+		Document document2 = new Document("generated3.json", "aayushi", "test_path", "Public");
 		DocumentDA docDA = new DocumentDA();
 		docDA.store(document1);
 		docDA.store(document2);
-		String query = "id hardy";
+		String query = "tom";
 		String username = "deepti";
 		SearchEngine engine = new SearchEngine(query, username);
 		long startTime = System.currentTimeMillis();

@@ -232,7 +232,7 @@ public class SearchEngine
 	}
 	public static void main(String[] args)
 	{
-		DBWrapper.setup("/Users/Deepti/MyClasses/DB/Project/db");
+		DBWrapper.setup("/home/cis550/db");
 		Document document1 = new Document("yelp_academic_dataset_business_1.json", "deepti", "test_path", "Public");
 		//Document document2 = new Document("generated3.json", "aayushi", "test_path", "Public");
 		DocumentDA docDA = new DocumentDA();

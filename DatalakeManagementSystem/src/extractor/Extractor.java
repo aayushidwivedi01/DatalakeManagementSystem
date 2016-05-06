@@ -65,6 +65,7 @@ public class Extractor {
 				if (mediaType.equals("application/json")) {
 
 					InputStream is = new FileInputStream(filename);
+
 					String jsonTxt = IOUtils.toString(is);
 					String out = JsonExtract.extractJson(jsonTxt, filename);
 					ReadJsonOutput read_out = new ReadJsonOutput();
@@ -98,7 +99,6 @@ public class Extractor {
 					extracted_pairs_all = tikaextract.extract(filename);
 					extracted_pairs_leaf = extracted_pairs_all;
 				}
-
 				// Store in forward index
 				ForwardIndexDA fIndexDA = new ForwardIndexDA();
 				ArrayList<String> all_doc_keys = new ArrayList<String>();
@@ -133,7 +133,7 @@ public class Extractor {
 				Linker linker = new Linker();
 				linker.linkNewDocuments();
 				System.out.println("Linking Finished");
-				
+
 			} catch (FileNotFoundException e) {
 				System.out.println("FNF Exception!!");
 				e.printStackTrace();

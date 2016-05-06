@@ -265,6 +265,9 @@ public class LinkCreator {
 		links.addAll(getParentChildLinks(f, pathAttributeF1));
 		// generate attribute path links for f1 and f2
 		links.addAll(getAttributePathLinks(f, pathAttributeF1));
+		if(f.getValue() == null) {
+			System.out.println(f);
+		}
 		if (!f.getValue().equalsIgnoreCase(DNL)) {
 			// generate all contains links
 			links.addAll(getValueContainslinks(f));

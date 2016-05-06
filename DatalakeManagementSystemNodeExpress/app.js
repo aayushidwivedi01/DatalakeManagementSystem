@@ -13,11 +13,10 @@ var login = require('./routes/login');
 var homepage = require('./routes/homepage');
 var account = require('./routes/account');
 var uploadfile = require('./routes/uploadfile');
-var permissions = require('./routes/permissions');
+var viewfiles = require('./routes/viewfiles');
 var updatePermission = require('./routes/updatepermission');
 var search = require('./routes/search');
-//var java = require("java");
-//java.classpath.push("test.jar");
+
 var app = express();
 app.use(cookieParser());
 app.use(session({secret: 'shh1243',
@@ -55,9 +54,9 @@ app.get('/logout', function(req,res){
 //		reslt: 'HI Jon'
 //	});
 //});
-app.use('/homepage', homepage);
+app.use('/homepage', homepage.do_work);
 app.use('/uploadfile',uploadfile.do_work);
-app.use('/permissions', permissions.do_work);
+app.use('/viewfiles', viewfiles.do_work);
 app.post('/changepermission', function(req,res){
 	res.render('updatepermission',{
 		title: 'DLMS', 

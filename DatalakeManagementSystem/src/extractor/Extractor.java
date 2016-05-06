@@ -1,9 +1,9 @@
 package extractor;
 
-import indexer.InvertedIndexDLMS;
 import linker.Linker;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.apache.tika.Tika;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import storage.DBWrapper;
@@ -29,19 +31,23 @@ import bean.ForwardIndex;
  */
 
 public class Extractor {
+	private String path;
 
-	public static void main(String[] args) throws IOException {
+	public Extractor(String path) {
+		this.path = path;
+	}
+
+	public int extract() {
 		DBWrapper.setup("/home/cis550/db");
-		String file_arg = "/home/cis550/yelp_academic_dataset_business_1.json";
-
 		// Check if directory or file
-		File file = new File(file_arg);
+		System.out.println("Extractor starting...");
+		File file = new File(path);
 		List<String> files = new ArrayList<String>();
 
 		if (file.isDirectory()) {
 			files = Arrays.asList(file.list());
 		} else {
-			files.add(file_arg);
+			files.add(path);
 		}
 
 		Tika tika = new Tika();
@@ -51,104 +57,107 @@ public class Extractor {
 			Multimap<String, String> extracted_pairs_leaf = ArrayListMultimap.create();
 			Multimap<String, String> extracted_pairs_all = ArrayListMultimap.create();
 			Multimap<String, String> metadata = ArrayListMultimap.create();
-
 			String mediaType = tika.detect(filename);
 			System.out.println(mediaType);
 			TikaExtractor tikaextract = new TikaExtractor();
-
 			// PARSE JSON
-			if (mediaType.equals("application/json")) {
+			try {
+				if (mediaType.equals("application/json")) {
 
-				InputStream is = new FileInputStream(filename);
-				String jsonTxt = IOUtils.toString(is);
-				String out = JsonExtract.extractJson(jsonTxt, filename);
-				ReadJsonOutput read_out = new ReadJsonOutput();
-				read_out.getExtractedPairs(out);
+					InputStream is = new FileInputStream(filename);
 
-				extracted_pairs_leaf = read_out.getLeafNodes();
-				extracted_pairs_all = read_out.getAllNodes();
+					String jsonTxt = IOUtils.toString(is);
+					String out = JsonExtract.extractJson(jsonTxt, filename);
+					ReadJsonOutput read_out = new ReadJsonOutput();
+					read_out.getExtractedPairs(out);
+					extracted_pairs_leaf = read_out.getLeafNodes();
+					extracted_pairs_all = read_out.getAllNodes();
+					metadata = tikaextract.getMetadata(filename);
 
-				metadata = tikaextract.getMetadata(filename);
-
-			}
-			// PARSE CSV
-			else if (mediaType.equals("text/csv")) {
-				String out = CSVExtract.extractCSV(filename);
-				ReadJsonOutput read_out = new ReadJsonOutput();
-				read_out.getExtractedPairs(out);
-
-				extracted_pairs_leaf = read_out.getLeafNodes();
-				extracted_pairs_all = read_out.getAllNodes();
-
-				metadata = tikaextract.getMetadata(filename);
-
-			}
-			// PARSE XML
-			else if (mediaType.equals("application/xml")) {
-				XMLExtract saxparser = new XMLExtract();
-				saxparser.extractXML(filename);
-				extracted_pairs_leaf = saxparser.getLeafNodes();
-				extracted_pairs_all = saxparser.getAllNodes();
-
-				metadata = tikaextract.getMetadata(filename);
-
-			} else {
-				// Call apache tika
-				metadata = tikaextract.getMetadata(filename);
-				extracted_pairs_all = tikaextract.extract(filename);
-				extracted_pairs_leaf = extracted_pairs_all;
-			}
-
-			/**
-			 * Store in forward index
-			 */
-			ForwardIndexDA fIndexDA = new ForwardIndexDA();
-			ArrayList<String> all_doc_keys = new ArrayList<String>();
-
-			// ALL CONTENT
-			Set<String> keys = extracted_pairs_all.keySet();
-			for (String key : keys) {
-				// System.out.println(key);
-				for (String value : extracted_pairs_all.get(key)) {
-					ForwardIndex fIndex = new ForwardIndex(key, value);
-					fIndexDA.store(fIndex);
 				}
-			}
+				// PARSE CSV
+				else if (mediaType.equals("text/csv")) {
+					String out = CSVExtract.extractCSV(filename);
+					ReadJsonOutput read_out = new ReadJsonOutput();
+					read_out.getExtractedPairs(out);
+					extracted_pairs_leaf = read_out.getLeafNodes();
+					extracted_pairs_all = read_out.getAllNodes();
+					metadata = tikaextract.getMetadata(filename);
 
-			all_doc_keys.addAll(keys);
-
-			// METADATA
-			Set<String> meta_keys = metadata.keySet();
-			for (String key : meta_keys) {
-				// System.out.println(key);
-				for (String value : metadata.get(key)) {
-					ForwardIndex fIndex = new ForwardIndex(key, value);
-					fIndexDA.store(fIndex);
 				}
+				// PARSE XML
+				else if (mediaType.equals("application/xml")) {
+					XMLExtract saxparser = new XMLExtract();
+					saxparser.extractXML(filename);
+					extracted_pairs_leaf = saxparser.getLeafNodes();
+					extracted_pairs_all = saxparser.getAllNodes();
+					metadata = tikaextract.getMetadata(filename);
+
+				} else {
+					// Call apache tika
+					metadata = tikaextract.getMetadata(filename);
+					extracted_pairs_all = tikaextract.extract(filename);
+					extracted_pairs_leaf = extracted_pairs_all;
+				}
+				// Store in forward index
+				ForwardIndexDA fIndexDA = new ForwardIndexDA();
+				ArrayList<String> all_doc_keys = new ArrayList<String>();
+
+				// ALL CONTENT
+				Set<String> keys = extracted_pairs_all.keySet();
+				for (String key : keys) {
+					// System.out.println(key);
+					for (String value : extracted_pairs_all.get(key)) {
+						ForwardIndex fIndex = new ForwardIndex(key, value);
+						fIndexDA.store(fIndex);
+					}
+				}
+				all_doc_keys.addAll(keys);
+
+				// METADATA
+				Set<String> meta_keys = metadata.keySet();
+				for (String key : meta_keys) {
+					// System.out.println(key);
+					for (String value : metadata.get(key)) {
+						ForwardIndex fIndex = new ForwardIndex(key, value);
+						fIndexDA.store(fIndex);
+					}
+				}
+				all_doc_keys.addAll(meta_keys);
+
+				// Add flat document DA
+				FlatDocumentDA fda = new FlatDocumentDA();
+				FlatDocument flatDocument = new FlatDocument(new File(filename).getName(), all_doc_keys);
+				fda.store(flatDocument);
+				System.out.println("Extractor done. Starting Linker...");
+				Linker linker = new Linker();
+				linker.linkNewDocuments();
+				System.out.println("Linking Finished");
+
+			} catch (FileNotFoundException e) {
+				System.out.println("FNF Exception!!");
+				e.printStackTrace();
+				return -1;
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+				return -1;
+			} catch (IOException e) {
+				e.printStackTrace();
+				return -1;
+			} catch (Exception e) {
+				System.out.println("Exception!!");
+				e.printStackTrace();
+				return -1;
+			} finally {
+				DBWrapper.close();
 			}
-
-			all_doc_keys.addAll(meta_keys);
-
-			/**
-			 * Add flat document DA
-			 */
-			FlatDocumentDA fda = new FlatDocumentDA();
-			FlatDocument flatDocument = new FlatDocument(new File(filename).getName(), all_doc_keys);
-
-			fda.store(flatDocument);
-
-			/**
-			 * CALL INVERTED INDEX METHOD
-			 */
-			// InvertedIndexDLMS.buildInvertedIndex(extracted_pairs_leaf);
-			// InvertedIndexDLMS.buildInvertedIndex(metadata);
-
-			System.out.println("Extractor done. Starting Linker");
-			Linker linker = new Linker();
-			linker.linkNewDocuments();
-			DBWrapper.close();
 		}
+		return 1;
+	}
 
+	public static void main(String[] args) throws IOException {
+		Extractor extractor = new Extractor("/home/cis550/yelp_academic_dataset_business_1.json");
+		extractor.extract();
 	}
 
 }

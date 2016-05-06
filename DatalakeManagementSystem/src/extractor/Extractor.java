@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.apache.tika.Tika;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import storage.DBWrapper;
@@ -19,7 +21,6 @@ import storage.FlatDocumentDA;
 import storage.ForwardIndexDA;
 import bean.FlatDocument;
 import bean.ForwardIndex;
-import indexer.InvertedIndexDLMS;
 
 /**
  * Test extractor. Take filename as input, detects mime type and calls the
@@ -31,13 +32,15 @@ import indexer.InvertedIndexDLMS;
 
 public class Extractor {
 	private String path;
-	public Extractor(String path){
+
+	public Extractor(String path) {
 		this.path = path;
 	}
+
 	public int extract() {
 		DBWrapper.setup("/home/cis550/db");
 		// Check if directory or file
-		System.out.println("Print Extract");
+		System.out.println("Extractor starting...");
 		File file = new File(path);
 		List<String> files = new ArrayList<String>();
 
@@ -54,26 +57,20 @@ public class Extractor {
 			Multimap<String, String> extracted_pairs_leaf = ArrayListMultimap.create();
 			Multimap<String, String> extracted_pairs_all = ArrayListMultimap.create();
 			Multimap<String, String> metadata = ArrayListMultimap.create();
-
 			String mediaType = tika.detect(filename);
 			System.out.println(mediaType);
 			TikaExtractor tikaextract = new TikaExtractor();
-			try{
-				// PARSE JSON
+			// PARSE JSON
+			try {
 				if (mediaType.equals("application/json")) {
 
-					InputStream is;
-					
-						is = new FileInputStream(filename);
-					
+					InputStream is = new FileInputStream(filename);
 					String jsonTxt = IOUtils.toString(is);
 					String out = JsonExtract.extractJson(jsonTxt, filename);
 					ReadJsonOutput read_out = new ReadJsonOutput();
 					read_out.getExtractedPairs(out);
-
 					extracted_pairs_leaf = read_out.getLeafNodes();
 					extracted_pairs_all = read_out.getAllNodes();
-
 					metadata = tikaextract.getMetadata(filename);
 
 				}
@@ -82,10 +79,8 @@ public class Extractor {
 					String out = CSVExtract.extractCSV(filename);
 					ReadJsonOutput read_out = new ReadJsonOutput();
 					read_out.getExtractedPairs(out);
-
 					extracted_pairs_leaf = read_out.getLeafNodes();
 					extracted_pairs_all = read_out.getAllNodes();
-
 					metadata = tikaextract.getMetadata(filename);
 
 				}
@@ -95,7 +90,6 @@ public class Extractor {
 					saxparser.extractXML(filename);
 					extracted_pairs_leaf = saxparser.getLeafNodes();
 					extracted_pairs_all = saxparser.getAllNodes();
-
 					metadata = tikaextract.getMetadata(filename);
 
 				} else {
@@ -105,68 +99,64 @@ public class Extractor {
 					extracted_pairs_leaf = extracted_pairs_all;
 				}
 
-			} catch(IOException e){
-				e.printStackTrace();;
+				// Store in forward index
+				ForwardIndexDA fIndexDA = new ForwardIndexDA();
+				ArrayList<String> all_doc_keys = new ArrayList<String>();
+
+				// ALL CONTENT
+				Set<String> keys = extracted_pairs_all.keySet();
+				for (String key : keys) {
+					// System.out.println(key);
+					for (String value : extracted_pairs_all.get(key)) {
+						ForwardIndex fIndex = new ForwardIndex(key, value);
+						fIndexDA.store(fIndex);
+					}
+				}
+				all_doc_keys.addAll(keys);
+
+				// METADATA
+				Set<String> meta_keys = metadata.keySet();
+				for (String key : meta_keys) {
+					// System.out.println(key);
+					for (String value : metadata.get(key)) {
+						ForwardIndex fIndex = new ForwardIndex(key, value);
+						fIndexDA.store(fIndex);
+					}
+				}
+				all_doc_keys.addAll(meta_keys);
+
+				// Add flat document DA
+				FlatDocumentDA fda = new FlatDocumentDA();
+				FlatDocument flatDocument = new FlatDocument(new File(filename).getName(), all_doc_keys);
+				fda.store(flatDocument);
+				System.out.println("Extractor done. Starting Linker...");
+				Linker linker = new Linker();
+				linker.linkNewDocuments();
+				System.out.println("Linking Finished");
+				
+			} catch (FileNotFoundException e) {
+				System.out.println("FNF Exception!!");
+				e.printStackTrace();
 				return -1;
-			
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+				return -1;
+			} catch (IOException e) {
+				e.printStackTrace();
+				return -1;
+			} catch (Exception e) {
+				System.out.println("Exception!!");
+				e.printStackTrace();
+				return -1;
+			} finally {
+				DBWrapper.close();
 			}
-			
-			/**
-			 * Store in forward index
-			 */
-			ForwardIndexDA fIndexDA = new ForwardIndexDA();
-			ArrayList<String> all_doc_keys = new ArrayList<String>();
-
-			// ALL CONTENT
-			Set<String> keys = extracted_pairs_all.keySet();
-			for (String key : keys) {
-				// System.out.println(key);
-				for (String value : extracted_pairs_all.get(key)) {
-					ForwardIndex fIndex = new ForwardIndex(key, value);
-					fIndexDA.store(fIndex);
-				}
-			}
-
-			all_doc_keys.addAll(keys);
-
-			// METADATA
-			Set<String> meta_keys = metadata.keySet();
-			for (String key : meta_keys) {
-				// System.out.println(key);
-				for (String value : metadata.get(key)) {
-					ForwardIndex fIndex = new ForwardIndex(key, value);
-					fIndexDA.store(fIndex);
-				}
-			}
-
-			all_doc_keys.addAll(meta_keys);
-
-			/**
-			 * Add flat document DA
-			 */
-			FlatDocumentDA fda = new FlatDocumentDA();
-			FlatDocument flatDocument = new FlatDocument(new File(filename).getName(), all_doc_keys);
-
-			fda.store(flatDocument);
-
-			/**
-			 * CALL INVERTED INDEX METHOD
-			 */
-			 InvertedIndexDLMS.buildInvertedIndex(extracted_pairs_leaf);
-			 InvertedIndexDLMS.buildInvertedIndex(metadata);
-
-			System.out.println("Extractor done. Starting Linker");
-			Linker linker = new Linker();
-			linker.linkNewDocuments();
-			DBWrapper.close();
-			System.out.println("Done");
-			
 		}
 		return 1;
 	}
-	
-	public static void main(String[] args) throws IOException{
-		Extractor extractor = new Extractor("/home/cis550/Desktop/test.txt");
+
+	public static void main(String[] args) throws IOException {
+		Extractor extractor = new Extractor("/home/cis550/yelp_academic_dataset_business_1.json");
 		extractor.extract();
 	}
 

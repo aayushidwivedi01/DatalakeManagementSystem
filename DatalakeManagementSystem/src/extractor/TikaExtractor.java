@@ -51,17 +51,13 @@ public class TikaExtractor {
 	}
 
 	// Extracts all the metadata
-	public Multimap<String, String> getMetadata(String filename) {
-		try {
-			text = parseUsingAutoDetect(filename, tikaConfig, meta);
-			for (String name : meta.names()) {
-				if (name.equals("X-Parsed-By")) {
-					continue;
-				}
-				metadata.put(new File(filename).getName() + "/" + name, meta.get(name));
+	public Multimap<String, String> getMetadata(String filename) throws Exception {
+		text = parseUsingAutoDetect(filename, tikaConfig, meta);
+		for (String name : meta.names()) {
+			if (name.equals("X-Parsed-By")) {
+				continue;
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+			metadata.put(new File(filename).getName() + "/" + name, meta.get(name));
 		}
 		return metadata;
 	}

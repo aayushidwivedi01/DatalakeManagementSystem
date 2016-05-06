@@ -42,7 +42,7 @@ function uploadFile(req, res, next) {
 	if (req.files && req.files.dataitem) {
 		console.log(util.inspect(req.files));
 		if (req.files.dataitem.size === 0) {
-		            return next(new Error("Please select a file!"));
+			res.send("Please select a file!");
 		}
 		fs.exists(req.files.dataitem.path, function(exists) {
 			if(exists) {

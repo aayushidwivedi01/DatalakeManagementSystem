@@ -3,6 +3,7 @@ package extractor;
 import linker.Linker;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import storage.FlatDocumentDA;
 import storage.ForwardIndexDA;
 import bean.FlatDocument;
 import bean.ForwardIndex;
+import indexer.InvertedIndexDLMS;
 
 /**
  * Test extractor. Take filename as input, detects mime type and calls the
@@ -28,11 +30,11 @@ import bean.ForwardIndex;
  */
 
 public class Extractor {
-	String path;
+	private String path;
 	public Extractor(String path){
 		this.path = path;
 	}
-	public void extract() throws IOException {
+	public int extract() {
 		DBWrapper.setup("/home/cis550/db");
 		// Check if directory or file
 		System.out.println("Print Extract");
@@ -56,50 +58,59 @@ public class Extractor {
 			String mediaType = tika.detect(filename);
 			System.out.println(mediaType);
 			TikaExtractor tikaextract = new TikaExtractor();
+			try{
+				// PARSE JSON
+				if (mediaType.equals("application/json")) {
 
-			// PARSE JSON
-			if (mediaType.equals("application/json")) {
+					InputStream is;
+					
+						is = new FileInputStream(filename);
+					
+					String jsonTxt = IOUtils.toString(is);
+					String out = JsonExtract.extractJson(jsonTxt, filename);
+					ReadJsonOutput read_out = new ReadJsonOutput();
+					read_out.getExtractedPairs(out);
 
-				InputStream is = new FileInputStream(filename);
-				String jsonTxt = IOUtils.toString(is);
-				String out = JsonExtract.extractJson(jsonTxt, filename);
-				ReadJsonOutput read_out = new ReadJsonOutput();
-				read_out.getExtractedPairs(out);
+					extracted_pairs_leaf = read_out.getLeafNodes();
+					extracted_pairs_all = read_out.getAllNodes();
 
-				extracted_pairs_leaf = read_out.getLeafNodes();
-				extracted_pairs_all = read_out.getAllNodes();
+					metadata = tikaextract.getMetadata(filename);
 
-				metadata = tikaextract.getMetadata(filename);
+				}
+				// PARSE CSV
+				else if (mediaType.equals("text/csv")) {
+					String out = CSVExtract.extractCSV(filename);
+					ReadJsonOutput read_out = new ReadJsonOutput();
+					read_out.getExtractedPairs(out);
 
+					extracted_pairs_leaf = read_out.getLeafNodes();
+					extracted_pairs_all = read_out.getAllNodes();
+
+					metadata = tikaextract.getMetadata(filename);
+
+				}
+				// PARSE XML
+				else if (mediaType.equals("application/xml")) {
+					XMLExtract saxparser = new XMLExtract();
+					saxparser.extractXML(filename);
+					extracted_pairs_leaf = saxparser.getLeafNodes();
+					extracted_pairs_all = saxparser.getAllNodes();
+
+					metadata = tikaextract.getMetadata(filename);
+
+				} else {
+					// Call apache tika
+					metadata = tikaextract.getMetadata(filename);
+					extracted_pairs_all = tikaextract.extract(filename);
+					extracted_pairs_leaf = extracted_pairs_all;
+				}
+
+			} catch(IOException e){
+				e.printStackTrace();;
+				return -1;
+			
 			}
-			// PARSE CSV
-			else if (mediaType.equals("text/csv")) {
-				String out = CSVExtract.extractCSV(filename);
-				ReadJsonOutput read_out = new ReadJsonOutput();
-				read_out.getExtractedPairs(out);
-
-				extracted_pairs_leaf = read_out.getLeafNodes();
-				extracted_pairs_all = read_out.getAllNodes();
-
-				metadata = tikaextract.getMetadata(filename);
-
-			}
-			// PARSE XML
-			else if (mediaType.equals("application/xml")) {
-				XMLExtract saxparser = new XMLExtract();
-				saxparser.extractXML(filename);
-				extracted_pairs_leaf = saxparser.getLeafNodes();
-				extracted_pairs_all = saxparser.getAllNodes();
-
-				metadata = tikaextract.getMetadata(filename);
-
-			} else {
-				// Call apache tika
-				metadata = tikaextract.getMetadata(filename);
-				extracted_pairs_all = tikaextract.extract(filename);
-				extracted_pairs_leaf = extracted_pairs_all;
-			}
-
+			
 			/**
 			 * Store in forward index
 			 */
@@ -141,16 +152,17 @@ public class Extractor {
 			/**
 			 * CALL INVERTED INDEX METHOD
 			 */
-			// InvertedIndexDLMS.buildInvertedIndex(extracted_pairs_leaf);
-			// InvertedIndexDLMS.buildInvertedIndex(metadata);
+			 InvertedIndexDLMS.buildInvertedIndex(extracted_pairs_leaf);
+			 InvertedIndexDLMS.buildInvertedIndex(metadata);
 
 			System.out.println("Extractor done. Starting Linker");
 			Linker linker = new Linker();
 			linker.linkNewDocuments();
 			DBWrapper.close();
 			System.out.println("Done");
+			
 		}
-
+		return 1;
 	}
 	
 	public static void main(String[] args) throws IOException{

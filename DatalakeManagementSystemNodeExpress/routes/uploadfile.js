@@ -31,6 +31,7 @@ function savePermissions(req, res, status) {
 }
 
 function linkerResponse(err, data){
+	console.log(data);
 	console.log("Uploaded file has been linked");
 	status = 'idle';
 

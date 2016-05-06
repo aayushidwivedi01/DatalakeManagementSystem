@@ -1,6 +1,7 @@
 package searchengine;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.json.simple.JSONArray;
@@ -55,6 +56,7 @@ public class GenerateOutputJson {
 			
 //			System.out.println("Common index: "+common_idx);
 			for(i = j; i-j+common_idx < components.length; i++){
+				System.out.println("entered loop for - "+common_idx+" : "+components[i-j+common_idx]);
 				JSONObject name = new JSONObject();
 				String nodename = components[i - j + common_idx];
 				if (nodename.startsWith("DONOTLINK")) {
@@ -68,12 +70,14 @@ public class GenerateOutputJson {
 				}
 //				System.out.println("ADDING : "+name.toJSONString());
 				nodes.add(name);
-
+				System.out.println("i = "+i+" ; j = "+j+" ; common_idx = "+common_idx+" ; components length = "+components.length);
 				if (i != j + components.length - 1 - common_idx) {
 					JSONObject link = new JSONObject();
-
+					System.out.println("i = "+i+" ; j = "+j+" ; common_idx = "+common_idx);
 					if (i == j && common_idx > 0) {
 						JSONObject common_link = new JSONObject();
+						System.out.println("last common: "+last_common);
+						System.out.println("i: "+i);
 						common_link.put("source", last_common);
 						common_link.put("target", i);
 						links.add(common_link);
@@ -103,7 +107,7 @@ public class GenerateOutputJson {
 			}
 		}
 			
-		// System.out.println(links.toJSONString());
+		 System.out.println(links.toJSONString());
 		JSONObject final_json = new JSONObject();
 
 		final_json.put("nodes", nodes);
@@ -114,14 +118,15 @@ public class GenerateOutputJson {
 
 	public static void main(String[] args) {
 //		String [] links = {"yelp_academic_dataset_business_1.json/DONOTLINK_0/city/dravosburg", "yelp_academic_dataset_business_1.json/DONOTLINK_0", "yelp_academic_dataset_business_1.json/DONOTLINK_635/attributes", "yelp_academic_dataset_business_1.json/DONOTLINK_635/attributes/Good For", "yelp_academic_dataset_business_1.json/DONOTLINK_635/attributes/Good For/latenight"};
-
-//		List<String> list = Arrays.asList(links);
-		List<String> list = new ArrayList<String>();
-		list.add("DOC1/b/tom");
-		list.add("DOC1/b/e/tom");
-		list.add("DOC2/d/tom");
-		list.add("DOC3/tom");
-		list.add("DOC4/x/brady");
+//		String [] links = {"yelp_academic_dataset_business_1.json/DONOTLINK_9816/name/hours", "yelp_academic_dataset_business_1.json/DONOTLINK_9816/name", "yelp_academic_dataset_business_1.json/DONOTLINK_9816", "yelp_academic_dataset_business_1.json", "yelp_academic_dataset_business_1.json/DONOTLINK_250", "yelp_academic_dataset_business_1.json/DONOTLINK_250/name", "yelp_academic_dataset_business_1.json/DONOTLINK_250/name/friday"};
+		String [] links = {"yelp_academic_dataset_business_1.json/DONOTLINK_10114/attributes/Good For/dessert/dessert", "yelp_academic_dataset_business_1.json/DONOTLINK_10114/attributes/Good For/dessert", "yelp_academic_dataset_business_1.json/DONOTLINK_10114/attributes/Good For", "yelp_academic_dataset_business_1.json/DONOTLINK_10114/attributes/Good For/latenight", "yelp_academic_dataset_business_1.json/DONOTLINK_10114/attributes/Good For/latenight/latenight"};
+		List<String> list = Arrays.asList(links);
+//		List<String> list = new ArrayList<String>();
+//		list.add("DOC1/b/tom");
+//		list.add("DOC1/b/e/tom");
+//		list.add("DOC2/d/tom");
+//		list.add("DOC3/tom");
+//		list.add("DOC4/x/brady");
 		
 //		List<List<String>> f_list = new ArrayList<List<String>>();
 //		f_list.add(list);

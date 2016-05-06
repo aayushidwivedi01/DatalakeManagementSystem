@@ -46,7 +46,6 @@ public class Linker {
 	}
 
 	public void linkNewDocuments() {
-		Map<String, List<ForwardIndex>> docForwardIndices = new HashMap<String, List<ForwardIndex>>();
 		Set<Link> links = new HashSet<Link>();
 		FlatDocumentDA fDAOld = new FlatDocumentDA(OLD_COLLECTION);
 		FlatDocumentDA fDANew = new FlatDocumentDA(NEW_COLLECTION);
@@ -54,24 +53,20 @@ public class Linker {
 		for (FlatDocument newDoc : fDANew.fetchAll()) {
 
 			System.out.println("New Doc - " + newDoc.getDocument());
-			if (!docForwardIndices.containsKey(newDoc.getDocument())) {
-				docForwardIndices.put(newDoc.getDocument(), getForwardIndicesForDoc(newDoc));
-			}
-			for (ForwardIndex f1 : docForwardIndices.get(newDoc.getDocument())) {
+			List<ForwardIndex> f1List = getForwardIndicesForDoc(newDoc);
+			for (ForwardIndex f1 : f1List) {
 				links.addAll(linkCreator.createSelfLinks(f1));
 			}
 			System.out.println("Got fIndices for New Doc - " + newDoc.getDocument() + ", "
-					+ docForwardIndices.get(newDoc.getDocument()).size());
+					+ f1List.size());
 			for (FlatDocument oldDoc : fDAOld.fetchAll()) {
 				System.out.println("Old Doc - " + oldDoc.getDocument());
-				if (!docForwardIndices.containsKey(oldDoc.getDocument())) {
-					docForwardIndices.put(oldDoc.getDocument(), getForwardIndicesForDoc(oldDoc));
-				}
+				List<ForwardIndex> f2List = getForwardIndicesForDoc(oldDoc);
 				System.out.println("Got fIndices for Old Doc - " + oldDoc.getDocument() + ", "
-						+ docForwardIndices.get(oldDoc.getDocument()).size());
+						+ f2List.size());
 				System.out.println("Creating links ");
-				for (ForwardIndex f1 : docForwardIndices.get(newDoc.getDocument())) {
-					for (ForwardIndex f2 : docForwardIndices.get(oldDoc.getDocument())) {
+				for (ForwardIndex f1 : f1List) {
+					for (ForwardIndex f2 : f2List) {
 						links.addAll(linkCreator.createLinks(f1, f2));
 					}
 				}

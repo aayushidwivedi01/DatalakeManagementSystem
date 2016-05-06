@@ -106,14 +106,11 @@ public class XMLExtract extends DefaultHandler {
 		return s.toString().trim();
 	}
 
-	public void extractXML(String filename) {
-		try {
-			XMLReader xr = XMLReaderFactory.createXMLReader();
-			xr.setContentHandler(new XMLExtract());
-			xr.parse(new InputSource(new FileReader(filename)));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	public void extractXML(String filename) throws SAXException, FileNotFoundException, IOException {
+		XMLReader xr = XMLReaderFactory.createXMLReader();
+		xr.setContentHandler(new XMLExtract());
+		xr.parse(new InputSource(new FileReader(filename)));
+
 	}
 
 	// public static void main( String[] argv ){

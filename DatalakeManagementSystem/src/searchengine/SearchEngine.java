@@ -117,6 +117,8 @@ public class SearchEngine
 			}
 
 		}
+		if (kShortestPaths.size() == 0)
+			return null;
 		return kShortestPaths;
 	}
 	

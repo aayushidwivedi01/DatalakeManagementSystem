@@ -64,7 +64,7 @@ public class Extractor {
 
 					InputStream is;
 					
-						is = new FileInputStream(filename);
+					is = new FileInputStream(filename);
 					
 					String jsonTxt = IOUtils.toString(is);
 					String out = JsonExtract.extractJson(jsonTxt, filename);
@@ -105,7 +105,7 @@ public class Extractor {
 					extracted_pairs_leaf = extracted_pairs_all;
 				}
 
-			} catch(IOException e){
+			} catch(Exception e){
 				e.printStackTrace();;
 				return -1;
 			

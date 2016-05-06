@@ -8,6 +8,7 @@ var _dir = "/home/cis550/bobby_tables/uploads/";
 var doc_id = null;
 var status = 'idle';
 java.classpath.push("google-collections-1.0-rc2.jar");
+java.classpath.push("tika-app-1.12-SNAPSHOT.jar");
 java.classpath.push("extractor.jar");
 
 
@@ -42,12 +43,13 @@ function uploadFile(req, res, next) {
 	if (req.files && req.files.dataitem) {
 		console.log(util.inspect(req.files));
 		if (req.files.dataitem.size === 0) {
-		            return next(new Error("Please select a file!"));
+		           res.send("Empty file uploaded!");
 		}
 		fs.exists(req.files.dataitem.path, function(exists) {
 			if(exists) {
 				console.log("New file uploaded at - %s", req.files.dataitem.path);
 				console.log("Saving file");
+				
 				var localFilePath = _dir + req.session.user + "_"+req.files.dataitem.name;
 				
 				fs.writeFile(localFilePath, req.files.dataitem.path, function (err) {

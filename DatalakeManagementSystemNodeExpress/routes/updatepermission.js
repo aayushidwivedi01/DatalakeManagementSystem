@@ -4,6 +4,7 @@ var Doc = Models.Doc;
 var status = 0;
 
 function updatePermission(req, res) {
+	
 	if (req.session.user){
 		var doc_id = req.body.filename;
 		console.log("PERMISSION:" + req.body.scope);
@@ -17,7 +18,7 @@ function updatePermission(req, res) {
 				if (err){
 					throw err;
 				}else{
-					res.render('permissions',{
+					res.render('viewfiles',{
 						classes: results,
 						});
 				}

@@ -8,22 +8,30 @@ var _dir = "/home/cis550/bobby_tables/uploads/";
 var doc_id = null;
 var status = 'idle';
 java.classpath.push("google-collections-1.0-rc2.jar");
+java.classpath.push("jackson-annotations-2.7.3.jar");
+java.classpath.push("jackson-core-2.6.6.jar");
+java.classpath.push("jackson-databind-2.6.6.jar");
+java.classpath.push("jackson-mapper-asl-1.9.13.jar");
+java.classpath.push("jackson-mapper-lgpl-1.9.13.jar");
+java.classpath.push("jaxp-api.jar");
+java.classpath.push("je-4.0.92.jar");
+java.classpath.push("tika-app-1.12-SNAPSHOT.jar");
 java.classpath.push("extractor.jar");
 
 
-function savePermissions(req, res, status) {
+function savePermissions(req, res, saveStatus) {
 	var code = 0;
 	var file_path = _dir + req.session.user + "_"+req.files.dataitem.name;
 	doc_id = req.session.user + "_" + req.files.dataitem.name;
 	var doc = new Doc({id: doc_id, username: req.session.user, path: file_path, permission: req.body.scope});
 	doc.save(function(err){
 		if(err){
-			status(-1);
+			saveStatus(-1);
 			console.log("File exists in DLMS");
 			}
 		else {
 			console.log("Document has been saved!");
-				status(1);
+			saveStatus(1);
 		}
 	});
 	
@@ -31,22 +39,30 @@ function savePermissions(req, res, status) {
 }
 
 function linkerResponse(err, data){
+	console.log(data);
 	console.log("Uploaded file has been linked");
-	status = 'idle';
-
+	if(data === 1){
+		status = 'idle';
+	}else{
+		status = 'error';
+	}
 }
 
 
 function uploadFile(req, res, next) {
+	if(!req.session.user){
+		res.redirect("/");
+	}
 	if (req.files && req.files.dataitem) {
 		console.log(util.inspect(req.files));
 		if (req.files.dataitem.size === 0) {
-		            return next(new Error("Please select a file!"));
+			res.send("Please select a file!");
 		}
 		fs.exists(req.files.dataitem.path, function(exists) {
 			if(exists) {
 				console.log("New file uploaded at - %s", req.files.dataitem.path);
 				console.log("Saving file");
+				
 				var localFilePath = _dir + req.session.user + "_"+req.files.dataitem.name;
 				
 				fs.writeFile(localFilePath, req.files.dataitem.path, function (err) {
@@ -54,18 +70,24 @@ function uploadFile(req, res, next) {
 						console.log("Error saving the file");
 						console.log(err);
 					}
-					savePermissions(req, res, function(status){
-						if(status===1){
-							status = 'extracting';
-							var extractor = java.newInstanceSync(
-									"extractor.Extractor"
+					savePermissions(req, res, function(saveStatus){
+						if(saveStatus===1){
+							saveStatus = 'extracting';
+							console.log("Path:" + localFilePath);
+							var e = java.newInstanceSync(
+									"extractor.Extractor", 
+									localFilePath
 									);
-							java.callMethod(extractor, "extract", localFilePath, linkerResponse);
+							java.callMethod(e, "extract", linkerResponse);
+							console.log("Excecuting extractor");
+							if(req.session.user){
+								res.redirect('/viewfiles');
+							}
+							else{
+								res.redirect('/');
+							}
 						}
-						res.render('upload', {
-							title : 'DLMS',
-							upload_error : status
-						});
+						
 					});
 				  });
 				

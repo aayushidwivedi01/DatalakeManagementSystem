@@ -20,13 +20,13 @@ public class SearchEngineWorker implements Runnable
 	Queue<WeightedPath> frontier = new PriorityQueue<WeightedPath>();
 	Map<String, WeightedPath> mySeenNodes = new HashMap<String, WeightedPath>();
 	Map<String, WeightedPath> seenNodesOther = new HashMap<String, WeightedPath>();
-	Map<String, String> userPermissions = new HashMap<String, String>();
-	int k = 5;
+	Map<String, Boolean> userPermissions = new HashMap<String, Boolean>();
+	int k;
 	LinksDA lDa;
 	String username;
 	DocumentDA docDa;
 	
-	public SearchEngineWorker(Queue<WeightedPath> frontier, Map<String, WeightedPath> mySeenNodes, Map<String, WeightedPath> seenNodesOther, String username, LinksDA lDa, DocumentDA docDa)
+	public SearchEngineWorker(Queue<WeightedPath> frontier, Map<String, WeightedPath> mySeenNodes, Map<String, WeightedPath> seenNodesOther, String username, LinksDA lDa, DocumentDA docDa, int k)
 	{
 		this.frontier = frontier;
 		this.mySeenNodes = mySeenNodes;
@@ -34,6 +34,7 @@ public class SearchEngineWorker implements Runnable
 		this.username = username;
 		this.lDa = lDa;
 		this.docDa = docDa;
+		this.k = k;
 	}
 	
 	@Override
@@ -72,14 +73,14 @@ public class SearchEngineWorker implements Runnable
 				{
 					if (seenNodesOther.containsKey(node))
 					{
-						System.out.println("Matched node: " + node);
+						//System.out.println("Matched node: " + node);
 						ArrayList<String> path1 = new ArrayList<>(weightedPath.getPath());
 						//System.out.println("Second path: " + seenNodesOther.get(node).getPath());
 						ArrayList<String> path2 = new ArrayList<>(seenNodesOther.get(node).getPath());
 						//Collections.reverse(path2);
 						//path2.remove(0);
-						System.out.println("Found a path!"); //+ weightedPath.getPath() + " + " + path2);
-						System.out.println("Path 1: " + path1 + " Path 2: " + path2);
+						//System.out.println("Found a path!"); //+ weightedPath.getPath() + " + " + path2);
+						//System.out.println("Path 1: " + path1 + " Path 2: " + path2);
 						//path1.addAll(path2);
 						synchronized(SearchEngine.kShortestPaths)
 						{
@@ -163,20 +164,46 @@ public class SearchEngineWorker implements Runnable
 		catch (InterruptedException e)
 		{
 			e.printStackTrace();
+			SearchEngine.flag = false;
+		}
+		
+		catch (NullPointerException e)
+		{
+			e.printStackTrace();
+			SearchEngine.flag = false;
+		}
+		
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			SearchEngine.flag = false;
 		}
 		
 	}
 
 	public boolean isAccessible(String docPath) 
 	{
+		String doc;
 		if (!docPath.contains("/"))
-			return true;
-		String doc = docPath.substring(0, docPath.indexOf("/"));
+			doc = docPath;
+		else
+			doc = docPath.substring(0, docPath.indexOf("/"));
+		String permission;
+		if (userPermissions.containsKey(doc))
+			return userPermissions.get(doc);
+		
 		Document docInfo = docDa.fetch(doc);
-		if (docInfo.getPermission().equals("Public"))
+		if (docInfo == null)
 			return true;
-		if (docInfo.getOwner().equals(username))
+		permission = docInfo.getPermission();
+		String owner = docInfo.getOwner();
+		if (permission.equals("Public") || owner.equals(username))
+		{
+			userPermissions.put(doc, true);
 			return true;
+		}
+		
+		userPermissions.put(doc, false);
 		return false;
 	}
 

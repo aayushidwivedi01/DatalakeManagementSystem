@@ -164,11 +164,19 @@ public class SearchEngineWorker implements Runnable
 		catch (InterruptedException e)
 		{
 			e.printStackTrace();
+			SearchEngine.flag = false;
 		}
 		
 		catch (NullPointerException e)
 		{
 			e.printStackTrace();
+			SearchEngine.flag = false;
+		}
+		
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			SearchEngine.flag = false;
 		}
 		
 	}

@@ -238,7 +238,7 @@ public class SearchEngine
 		DocumentDA docDA = new DocumentDA();
 		docDA.store(document1);
 		//docDA.store(document2);
-		String query = "hours friday";
+		String query = "hours reviews";
 		String username = "deepti";
 		SearchEngine engine = new SearchEngine(query, username);
 		long startTime = System.currentTimeMillis();

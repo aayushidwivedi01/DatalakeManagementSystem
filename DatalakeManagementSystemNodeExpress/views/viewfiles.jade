@@ -1,0 +1,22 @@
+html
+  body
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    table
+      tr
+        th User
+        th Filename
+        th Permission
+        th Change Permission
+      - if (classes.length) {
+      each aClass in classes
+        tr
+          td=aClass.username
+          td= aClass.id
+          td= aClass.permission
+          td
+            form(method='post', action='/changepermission')
+              input(type='hidden', name='filename', value=aClass.id)
+              input(type='submit', value='Update')
+        
+          
+      - }

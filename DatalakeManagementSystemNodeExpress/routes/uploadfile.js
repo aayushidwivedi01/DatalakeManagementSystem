@@ -48,6 +48,21 @@ function linkerResponse(err, data){
 	}
 }
 
+function copyFile(target, source, writeStatus) {
+	var rd = fs.createReadStream(source);
+	rd.on("error", function(err) {
+		writeStatus(1);
+	 });
+	var wr = fs.createWriteStream(target);
+	wr.on("error", function(err) {
+		writeStatus(1);
+	});
+	wr.on("close", function(ex) {
+		writeStatus();
+	});
+	rd.pipe(wr);
+	console.log("Done copying");
+}
 
 function uploadFile(req, res, next) {
 	if(!req.session.user){
@@ -64,8 +79,7 @@ function uploadFile(req, res, next) {
 				console.log("Saving file");
 				
 				var localFilePath = _dir + req.session.user + "_"+req.files.dataitem.name;
-				
-				fs.writeFile(localFilePath, req.files.dataitem.path, function (err) {
+				copyFile(localFilePath, req.files.dataitem.path, function (err) {
 					if (err){
 						console.log("Error saving the file");
 						console.log(err);

@@ -15,7 +15,7 @@ function search(req,res, err){
 			request.query, 
 			req.session.user);
 	var results = java.callMethodSync(searchEngine, "search");
-	results.addSync("item1");
+	//results.addSync("item1");
 	console.log(results.toStringSync()); 
 	res.render('results', {
 		result: request.query

@@ -1,17 +1,15 @@
 package linker;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import bean.ForwardIndex;
+import bean.ForwardIndexPair;
 import bean.Link;
 import bean.Links;
 import bean.PathAttribute;
-import storage.LinksDA;
+import threads.Queue;
 import utils.Stemmer;
 
 /*
@@ -45,7 +43,7 @@ import utils.Stemmer;
  * 
  */
 
-public class LinkCreator {
+public class LinkCreator extends Thread {
 
 	private static enum LinkType {
 		CONTAINS, IS_CONTAINED_IN, IS_SAME, IS_PARTENT, IS_CHILD, MATCHES_ATTRIBUTE, MATCHES_CONTENT, MATCHES_FILENAME, MATCHES_PATH
@@ -54,10 +52,13 @@ public class LinkCreator {
 	private static Map<LinkType, String> linkType = new EnumMap<LinkType, String>(LinkType.class);
 	private static Map<LinkType, Double> linkWeight = new EnumMap<LinkType, Double>(LinkType.class);
 	private static final double DEFAULT_WEIGHT = 1.0;
-	private static final int STORE_THREAD_COUNT = 10;
 	private static final String DNL = "donotlink";
+	private static final int MAX_LINK_SET_SIZE = 50000;
 	private Stemmer stemmer;
-	private ArrayList<LinkStoreThread> linkStoreThreads;
+	private Queue<ForwardIndexPair> fIndexQueue;
+	private LinkSaver linkSaver;
+	private Set<Link> links;
+	private boolean shouldContinue;
 
 	static {
 		linkType.put(LinkType.CONTAINS, "CONTAINS");
@@ -81,12 +82,56 @@ public class LinkCreator {
 		linkWeight.put(LinkType.IS_CONTAINED_IN, DEFAULT_WEIGHT);
 	}
 
-	public LinkCreator() {
-		stemmer = new Stemmer();
-		linkStoreThreads = new ArrayList<LinkStoreThread>();
-		for (int i = 0; i < STORE_THREAD_COUNT; i++) {
-			linkStoreThreads.add(new LinkStoreThread(i));
-		}
+	public LinkCreator(Queue<ForwardIndexPair> fIndexQueue) {
+		this.stemmer = new Stemmer();
+		this.fIndexQueue = fIndexQueue;
+		this.linkSaver = new LinkSaver();
+		this.links = new HashSet<Link>();
+		this.shouldContinue = true;
+	}
+
+	public static Map<LinkType, String> getLinkType() {
+		return linkType;
+	}
+
+	public static Map<LinkType, Double> getLinkWeight() {
+		return linkWeight;
+	}
+
+	public static double getDefaultWeight() {
+		return DEFAULT_WEIGHT;
+	}
+
+	public static String getDnl() {
+		return DNL;
+	}
+
+	public static int getMaxLinkSetSize() {
+		return MAX_LINK_SET_SIZE;
+	}
+
+	public Stemmer getStemmer() {
+		return stemmer;
+	}
+
+	public Queue<ForwardIndexPair> getfIndexQueue() {
+		return fIndexQueue;
+	}
+
+	public LinkSaver getLinkSaver() {
+		return linkSaver;
+	}
+
+	public Set<Link> getLinks() {
+		return links;
+	}
+
+	public boolean isShouldContinue() {
+		return shouldContinue;
+	}
+
+	public void setShouldContinue(boolean shouldContinue) {
+		this.shouldContinue = shouldContinue;
 	}
 
 	private String stem(String word) {
@@ -94,23 +139,6 @@ public class LinkCreator {
 		stemmer.stem();
 		String stemmedWord = stemmer.toString();
 		return stemmedWord;
-	}
-
-	private void addLink(Link link, Map<String, Links> mapOfLinks) {
-		if (mapOfLinks.containsKey(link.getSource())) {
-			mapOfLinks.get(link.getSource()).getRelations().add(link);
-
-		} else {
-			Links links = new Links(link.getSource(), new HashSet<Link>());
-			links.getRelations().add(link);
-			mapOfLinks.put(link.getSource(), links);
-		}
-	}
-
-	private void addAllLink(List<Link> links, Map<String, Links> mapOfLinks) {
-		for (Link link : links) {
-			addLink(link, mapOfLinks);
-		}
 	}
 
 	private Set<Link> getParentChildLinks(ForwardIndex f, PathAttribute pathAttribute) {
@@ -265,7 +293,7 @@ public class LinkCreator {
 		links.addAll(getParentChildLinks(f, pathAttributeF1));
 		// generate attribute path links for f1 and f2
 		links.addAll(getAttributePathLinks(f, pathAttributeF1));
-		if(f.getValue() == null) {
+		if (f.getValue() == null) {
 			System.out.println(f);
 		}
 		if (!f.getValue().equalsIgnoreCase(DNL)) {
@@ -276,18 +304,28 @@ public class LinkCreator {
 		return links;
 	}
 
+	public Set<Link> createLinks(ForwardIndexPair fIndexPair) {
+		Set<Link> links;
+		if (fIndexPair.getF2() == null) {
+			links = createSelfLinks(fIndexPair.getF1());
+		} else {
+			links = createLinks(fIndexPair.getF1(), fIndexPair.getF2());
+		}
+		return links;
+	}
+
 	public Set<Link> createLinks(ForwardIndex f1, ForwardIndex f2) {
 		Set<Link> links = new HashSet<Link>();
 		// split index paths into filename, path and attribute
 		PathAttribute pathAttributeF1 = new PathAttribute(f1.getPath());
 		PathAttribute pathAttributeF2 = new PathAttribute(f2.getPath());
-		if (!f1.getValue().equalsIgnoreCase(DNL)) {
+		if (f1.getValue() != null && !f1.getValue().equalsIgnoreCase(DNL)) {
 			// generate links from f1 to f2
 			links.addAll(getValueAttributeLink(f1, f2, pathAttributeF1, pathAttributeF2));
 			links.addAll(getValuePathLink(f1, f2, pathAttributeF1, pathAttributeF2));
 			links.addAll(getValueFileLink(f1, f2, pathAttributeF1, pathAttributeF2));
 		}
-		if (!f2.getValue().equalsIgnoreCase(DNL)) {
+		if (f2.getValue() != null && !f2.getValue().equalsIgnoreCase(DNL)) {
 			// generate links from f2 to f1
 			links.addAll(getValueAttributeLink(f2, f1, pathAttributeF2, pathAttributeF1));
 			links.addAll(getValuePathLink(f2, f1, pathAttributeF2, pathAttributeF1));
@@ -295,66 +333,6 @@ public class LinkCreator {
 		}
 
 		return links;
-	}
-
-	public Map<String, Links> mergeLinks(Set<Link> links) {
-		ArrayList<Link> mergedLinks = new ArrayList<Link>(links);
-
-		Map<String, Links> mapOfLinks = new HashMap<String, Links>();
-		addAllLink(mergedLinks, mapOfLinks);
-		return mapOfLinks;
-	}
-
-	public void storeLinks(Map<String, Links> mapOfLinks) {
-		boolean done = false;
-		while (!done) {
-			done = true;
-			for (LinkStoreThread thread : linkStoreThreads) {
-				if (thread.getState().equals(Thread.State.RUNNABLE)) {
-					done = false;
-				}
-			}
-			try {
-				Thread.sleep(200);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-		System.out.println("All storage threads free");
-		for (Map.Entry<String, Links> links : mapOfLinks.entrySet()) {
-			done = false;
-			while (!done) {
-				for (LinkStoreThread thread : linkStoreThreads) {
-					if (!thread.getState().equals(Thread.State.RUNNABLE)) {
-						done = true;
-						thread.run(links.getValue());
-						break;
-					}
-				}
-				try {
-					Thread.sleep(200);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		System.out.println("done writing");
-	}
-
-	public void storeLinksSingle(Map<String, Links> mapOfLinks) {
-		LinksDA linksDA = new LinksDA();
-		for (Map.Entry<String, Links> links : mapOfLinks.entrySet()) {
-
-			Links storedLinks = linksDA.fetch(links.getValue().getSource());
-			if (storedLinks == null) {
-				linksDA.store(links.getValue());
-			} else {
-				storedLinks.getRelations().addAll(links.getValue().getRelations());
-				linksDA.update(storedLinks);
-			}
-
-		}
-		System.out.println("done writing");
 	}
 
 	public void printLinks(Map<String, Links> mapOfLinks) {
@@ -373,122 +351,39 @@ public class LinkCreator {
 		System.out.println();
 	}
 
-	public static void main(String[] args) {
-
-		// test path, attribute and filename extraction
-		System.out.println("Path Atrribute Test - ");
-		PathAttribute pa = new PathAttribute("user1_doc.xml/root/content");
-		System.out.println("Source - user1_doc.xml/root/content");
-		System.out.println(pa);
-		pa = new PathAttribute("user1_doc.xml/root");
-		System.out.println("Source - user1_doc.xml/root");
-		System.out.println(pa);
-		pa = new PathAttribute("user1_doc.xml");
-		System.out.println("Source - user1_doc.xml");
-		System.out.println(pa);
-		System.out.println();
-
-		LinkCreator linkCreator = new LinkCreator();
-		// ForwardIndexDA fIndexDA = new ForwardIndexDA();
-		ForwardIndex f1 = null, f2 = null;
-		PathAttribute pathAttributeF1 = null, pathAttributeF2 = null;
-
-		// test parent child links
-		f1 = new ForwardIndex("user1_doc.xml/root/content", "Helo There, my fiends?");
-		f2 = new ForwardIndex("user2_expenses.csv/root/table/row1/column1", "miami");
-		pathAttributeF1 = new PathAttribute(f1.getPath());
-		pathAttributeF2 = new PathAttribute(f2.getPath());
-		System.out.println("Parent to Child links Test - ");
-		System.out.println("Indices - ");
-		System.out.println(f1);
-		System.out.println(f2);
-		linkCreator.printLinks(linkCreator.getParentChildLinks(f1, pathAttributeF1));
-		linkCreator.printLinks(linkCreator.getParentChildLinks(f2, pathAttributeF2));
-
-		// test attribute path links
-		f1 = new ForwardIndex("user1_doc.xml/root/content", "Helo There, my fiends?");
-		f2 = new ForwardIndex("user2_expenses.csv/root/table/row1/column1", "miami");
-		pathAttributeF1 = new PathAttribute(f1.getPath());
-		pathAttributeF2 = new PathAttribute(f2.getPath());
-		System.out.println("Attribute to Path links Test - ");
-		System.out.println("Indices - ");
-		System.out.println(f1);
-		System.out.println(f2);
-		linkCreator.printLinks(linkCreator.getAttributePathLinks(f1, pathAttributeF1));
-		linkCreator.printLinks(linkCreator.getAttributePathLinks(f2, pathAttributeF2));
-
-		// test value to attribute links
-		f1 = new ForwardIndex("user1_doc.xml/root/content", "Helo There, my fiends? column1");
-		f2 = new ForwardIndex("user2_expenses.csv/root/table/row1/column1", "content");
-		pathAttributeF1 = new PathAttribute(f1.getPath());
-		pathAttributeF2 = new PathAttribute(f2.getPath());
-		System.out.println("Value to Attribute links Test - ");
-		System.out.println("Indices - ");
-		System.out.println(f1);
-		System.out.println(f2);
-		linkCreator.printLinks(linkCreator.getValueAttributeLink(f1, f2, pathAttributeF1, pathAttributeF2));
-		linkCreator.printLinks(linkCreator.getValueAttributeLink(f2, f1, pathAttributeF2, pathAttributeF1));
-
-		// test value to path links
-		f1 = new ForwardIndex("user1_doc.xml/root/content",
-				"Helo There, my fiends? user2_expenses.csv/root/table/row1/column1");
-		f2 = new ForwardIndex("user2_expenses.csv/root/table/row1/column1", "content");
-		pathAttributeF1 = new PathAttribute(f1.getPath());
-		pathAttributeF2 = new PathAttribute(f2.getPath());
-		System.out.println("Value to Path links Test - ");
-		System.out.println("Indices - ");
-		System.out.println(f1);
-		System.out.println(f2);
-		linkCreator.printLinks(linkCreator.getValuePathLink(f1, f2, pathAttributeF1, pathAttributeF2));
-		linkCreator.printLinks(linkCreator.getValuePathLink(f2, f1, pathAttributeF2, pathAttributeF1));
-
-		// test value to filename links
-		f1 = new ForwardIndex("user1_doc.xml/root/content", "Helo There, my fiends? column1");
-		f2 = new ForwardIndex("user2_expenses.csv/root/table/row1/column1", "user1_doc.xml");
-		pathAttributeF1 = new PathAttribute(f1.getPath());
-		pathAttributeF2 = new PathAttribute(f2.getPath());
-		System.out.println("Value to Filename links Test - ");
-		System.out.println("Indices - ");
-		System.out.println(f1);
-		System.out.println(f2);
-		linkCreator.printLinks(linkCreator.getValueFileLink(f1, f2, pathAttributeF1, pathAttributeF2));
-		linkCreator.printLinks(linkCreator.getValueFileLink(f2, f1, pathAttributeF2, pathAttributeF1));
-
-		// test value contains links
-		f1 = new ForwardIndex("user1_doc.xml/root/content", "Helo There, my fiends?");
-		f2 = new ForwardIndex("user2_expenses.csv/root/table/row1/column1", "miami");
-		pathAttributeF1 = new PathAttribute(f1.getPath());
-		pathAttributeF2 = new PathAttribute(f2.getPath());
-		System.out.println("Value contains tokens Link Test - ");
-		System.out.println("Indices - ");
-		System.out.println(f1);
-		System.out.println(f2);
-		linkCreator.printLinks(linkCreator.getValueContainslinks(f1));
-		linkCreator.printLinks(linkCreator.getValueContainslinks(f2));
-
-		// test createlinks method
-		f1 = new ForwardIndex("user1_doc.xml/root/content", "Helo There, my fiends?");
-		f2 = new ForwardIndex("user2_expenses.csv/root/table/row1/column1", "miami");
-		pathAttributeF1 = new PathAttribute(f1.getPath());
-		pathAttributeF2 = new PathAttribute(f2.getPath());
-		System.out.println("Creating links - ");
-		System.out.println("Indices - ");
-		System.out.println(f1);
-		System.out.println(f2);
-		linkCreator.printLinks(linkCreator.createLinks(f1, f2));
-
-		Set<Link> links = new HashSet<Link>();
-		links.addAll(linkCreator.createSelfLinks(f1));
-		links.addAll(linkCreator.createSelfLinks(f2));
-		links.addAll(linkCreator.createLinks(f1, f2));
-		// store links in the Mongo Collection
-		Map<String, Links> mapOfLinks = linkCreator.mergeLinks(links);
-		System.out.println("Unique sources - " + mapOfLinks.size());
-		long startTime = System.nanoTime();
-		// linkCreator.storeLinks(mapOfLinks);
-		long endTime = System.nanoTime();
-
-		System.out.println("Time to store - " + (endTime - startTime) / 1000000 + " mSec");
+	public void run() {
+		System.out.println("Thread - " + Thread.currentThread().getName() + " - started!");
+		int i = 1;
+		while (shouldContinue) {
+			if (fIndexQueue.getSize() == 0) {
+				try {
+					Thread.sleep(500 * i);
+					if (fIndexQueue.getSize() == 0) {
+						i++;
+					} else {
+						ForwardIndexPair fIndexPair = fIndexQueue.dequeue();
+						links.addAll(createLinks(fIndexPair));
+						if (links.size() > MAX_LINK_SET_SIZE) {
+							linkSaver.saveLinks(links);
+							links.clear();
+						}
+						i = 1;
+					}
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			} else {
+				ForwardIndexPair fIndexPair = fIndexQueue.dequeue();
+				if (fIndexPair != null) {
+					links.addAll(createLinks(fIndexPair));
+					if (links.size() > MAX_LINK_SET_SIZE) {
+						linkSaver.saveLinks(links);
+						links.clear();
+					}
+				}
+			}
+		}
+		linkSaver.saveLinks(links);
+		links.clear();
 	}
-
 }

@@ -3,7 +3,7 @@ var java = require("java");
 java.classpath.push("commons-lang3-3.1.jar");
 java.classpath.push("commons-io.jar");
 java.classpath.push("google-collections-1.0-rc2.jar");
-java.classpath.push("search.jar");
+java.classpath.push("searchengine.jar");
 var url = require('url');
 
 function search(req,res, err){

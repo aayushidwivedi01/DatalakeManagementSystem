@@ -103,8 +103,8 @@ public class SearchEngine {
 		} finally {
 			DBWrapper.close();
 		}
-		if (kShortestPaths.size() == 0)
-			return null;
+//		if (kShortestPaths.size() == 0)
+//			return null;
 		return kShortestPaths;
 	}
 
@@ -206,20 +206,20 @@ public class SearchEngine {
 	}
 
 	public static void main(String[] args) {
-		DBWrapper.setup("/home/cis550/db");
-		Document document1 = new Document("yelp_academic_dataset_business_1.json", "deepti", "test_path", "Public");
+		//DBWrapper.setup("/home/cis550/db");
+		//Document document1 = new Document("yelp_academic_dataset_business_1.json", "deepti", "test_path", "Public");
 		// Document document2 = new Document("generated3.json", "aayushi",
 		// "test_path", "Public");
-		DocumentDA docDA = new DocumentDA();
-		docDA.store(document1);
+		//DocumentDA docDA = new DocumentDA();
+		//docDA.store(document1);
 		// docDA.store(document2);
-		String query = "hours reviews";
-		String username = "deepti";
+		String query = "tom brady";
+		String username = "user1";
 		SearchEngine engine = new SearchEngine(query, username);
 		long startTime = System.currentTimeMillis();
 		engine.search();
 		long endTime = System.currentTimeMillis();
 		System.out.println("Time: " + (endTime - startTime));
-		DBWrapper.close();
+		//DBWrapper.close();
 	}
 }

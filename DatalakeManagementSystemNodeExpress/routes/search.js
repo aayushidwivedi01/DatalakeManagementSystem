@@ -14,11 +14,35 @@ function search(req,res, err){
 			"searchengine.SearchEngine",
 			request.query, 
 			req.session.user);
+	
 	var results = java.callMethodSync(searchEngine, "search");
-	//results.addSync("item1");
+	var graphResults = "";
+	var len = results.sizeSync();
+	var weblinks = "";
+	for(var i = 0; i < len; i++){
+		var nodes = results.getSync(i);
+		console.log("nodes:" + nodes.toStringSync());
+		
+		for (var j = 0; j < nodes.sizeSync(); j++){
+			var node = nodes.getSync(j).substring(nodes.getSync(j).lastIndexOf("/") + 1);
+			weblinks = weblinks.concat(node);
+			if (j < nodes.sizeSync() - 1){
+				weblinks = weblinks.concat("/");
+			}
+		}
+		weblinks = weblinks.concat(",");
+		
+		if (i < len - 1){
+			graphResults = graphResults.concat(nodes.getSync(i), ",");
+		}else {
+			graphResults = graphResults.concat(nodes.getSync(i));
+		}
+	}
+	console.log("web links" + weblinks);
+	console.log("graph strings" + graphResults);
 	console.log(results.toStringSync()); 
 	res.render('results', {
-		result: request.query
+		result: weblinks
 	});
 }
 

@@ -232,12 +232,12 @@ public class SearchEngine
 	}
 	public static void main(String[] args)
 	{
-		DBWrapper.setup("/Users/Deepti/MyClasses/DB/Project/db");
-		Document document1 = new Document("yelp_academic_dataset_business_1.json", "deepti", "test_path", "Public");
-		//Document document2 = new Document("generated3.json", "aayushi", "test_path", "Public");
-		DocumentDA docDA = new DocumentDA();
-		docDA.store(document1);
-		//docDA.store(document2);
+		DBWrapper.setup("/home/cis550/db");
+//		Document document1 = new Document("yelp_academic_dataset_business_1.json", "deepti", "test_path", "Public");
+//		//Document document2 = new Document("generated3.json", "aayushi", "test_path", "Public");
+//		DocumentDA docDA = new DocumentDA();
+//		docDA.store(document1);
+//		//docDA.store(document2);
 		String query = "hours reviews";
 		String username = "deepti";
 		SearchEngine engine = new SearchEngine(query, username);

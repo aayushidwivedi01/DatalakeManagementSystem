@@ -135,7 +135,6 @@ public class Extractor {
 				System.out.println("Linking Finished");
 
 			} catch (FileNotFoundException e) {
-				System.out.println("FNF Exception!!");
 				e.printStackTrace();
 				return -1;
 			} catch (JsonProcessingException e) {
@@ -145,7 +144,6 @@ public class Extractor {
 				e.printStackTrace();
 				return -1;
 			} catch (Exception e) {
-				System.out.println("Exception!!");
 				e.printStackTrace();
 				return -1;
 			} finally {

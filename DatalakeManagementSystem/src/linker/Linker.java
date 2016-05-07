@@ -1,30 +1,29 @@
 package linker;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import bean.FlatDocument;
 import bean.ForwardIndex;
-import bean.Link;
-import bean.Links;
+import bean.ForwardIndexPair;
 import storage.DBWrapper;
 import storage.FlatDocumentDA;
 import storage.ForwardIndexDA;
-import storage.LinksDA;
+import threads.Queue;
+import threads.ThreadPool;
 
 public class Linker {
 
 	private static boolean NEW_COLLECTION = true;
 	private static boolean OLD_COLLECTION = false;
-	private LinkCreator linkCreator;
+	private static final int LINKER_THREAD_COUNT = 5;
+	private ThreadPool linkCreatorPool;
+	private Queue<ForwardIndexPair> queue;
 	private ForwardIndexDA fIndexDA;
 
 	public Linker() {
-		linkCreator = new LinkCreator();
-		fIndexDA = new ForwardIndexDA();
+		this.linkCreatorPool = new ThreadPool(LINKER_THREAD_COUNT);
+		this.fIndexDA = new ForwardIndexDA();
+		this.queue = linkCreatorPool.getQueue();
 	}
 
 	private List<ForwardIndex> getForwardIndicesForDoc(FlatDocument newDoc) {
@@ -45,8 +44,9 @@ public class Linker {
 		}
 	}
 
-	public void linkNewDocuments() {
-		Set<Link> links = new HashSet<Link>();
+	public void linkNewDocuments() throws InterruptedException {
+		long startTime = System.nanoTime();
+
 		FlatDocumentDA fDAOld = new FlatDocumentDA(OLD_COLLECTION);
 		FlatDocumentDA fDANew = new FlatDocumentDA(NEW_COLLECTION);
 
@@ -55,19 +55,17 @@ public class Linker {
 			System.out.println("New Doc - " + newDoc.getDocument());
 			List<ForwardIndex> f1List = getForwardIndicesForDoc(newDoc);
 			for (ForwardIndex f1 : f1List) {
-				links.addAll(linkCreator.createSelfLinks(f1));
+				queue.enqueue(new ForwardIndexPair(f1, null));
 			}
-			System.out.println("Got fIndices for New Doc - " + newDoc.getDocument() + ", "
-					+ f1List.size());
+			System.out.println("Got fIndices for New Doc - " + newDoc.getDocument() + ", " + f1List.size());
 			for (FlatDocument oldDoc : fDAOld.fetchAll()) {
 				System.out.println("Old Doc - " + oldDoc.getDocument());
 				List<ForwardIndex> f2List = getForwardIndicesForDoc(oldDoc);
-				System.out.println("Got fIndices for Old Doc - " + oldDoc.getDocument() + ", "
-						+ f2List.size());
+				System.out.println("Got fIndices for Old Doc - " + oldDoc.getDocument() + ", " + f2List.size());
 				System.out.println("Creating links ");
 				for (ForwardIndex f1 : f1List) {
 					for (ForwardIndex f2 : f2List) {
-						links.addAll(linkCreator.createLinks(f1, f2));
+						queue.enqueue(new ForwardIndexPair(f1, f2));
 					}
 				}
 				System.out.println("Done with for Old Doc - " + oldDoc.getDocument());
@@ -76,25 +74,15 @@ public class Linker {
 			fDANew.delete(newDoc);
 			fDAOld.store(newDoc);
 			System.out.println("Done with for New Doc - " + newDoc.getDocument());
-
 		}
-
-		System.out.println("Done with all docs with links - " + links.size());
-
-		// linkCreator.printLinks((linkCreator.mergeLinks(links)));
-		// merge links and store them
-		Map<String, Links> mapOfLinks = linkCreator.mergeLinks(links);
-		System.out.println("Unique sources - " + mapOfLinks.size());
-		long startTime = System.nanoTime();
-		linkCreator.storeLinksSingle(mapOfLinks);
+		System.out.println("Linker Main Thread - All indices assigned with queue size - " + queue.getSize());
+		linkCreatorPool.joinThreads();
+		System.out.println("Linker Main Thread Finished!");
 		long endTime = System.nanoTime();
-		LinksDA lDA = new LinksDA();
-		System.out.println("Time to store - " + (endTime - startTime) / 1000000 + " mSec");
-		System.out.println("Stored Entries - " + lDA.getSize());
-		System.out.println(lDA.fetch("will"));
+		System.out.println("Time to link - " + (endTime - startTime) / 1000000 + " mSec");
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
 
 		Linker linker = new Linker();
 		FlatDocumentDA fDAOld = new FlatDocumentDA(OLD_COLLECTION);

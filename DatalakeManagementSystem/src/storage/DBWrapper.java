@@ -28,7 +28,8 @@ public class DBWrapper {
 
 		EnvironmentConfig envConfig = new EnvironmentConfig();
 		StoreConfig storeConfig = new StoreConfig();
-
+		envConfig.setTransactional(true);
+		storeConfig.setTransactional(true);
 		envConfig.setAllowCreate(true);
 		storeConfig.setAllowCreate(true);
 		myEnv = new Environment(dbDir, envConfig);

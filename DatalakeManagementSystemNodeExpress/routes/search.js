@@ -22,24 +22,28 @@ function search(req,res, err){
 	for(var i = 0; i < len; i++){
 		var nodes = results.getSync(i);
 		console.log("nodes:" + nodes.toStringSync());
-		
-		for (var j = 0; j < nodes.sizeSync(); j++){
+		var num_nodes = nodes.sizeSync();
+		for (var j = 0; j < num_nodes; j++){
 			var node = nodes.getSync(j).substring(nodes.getSync(j).lastIndexOf("/") + 1);
 			weblinks = weblinks.concat(node);
-			if (j < nodes.sizeSync() - 1){
+			if (j < num_nodes - 1){
 				weblinks = weblinks.concat("/");
+			}
+			if (i < num_nodes - 1){
+				graphResults = graphResults.concat(nodes.getSync(j), ",");
+			}else {
+				graphResults = graphResults.concat(nodes.getSync(j));
 			}
 		}
 		weblinks = weblinks.concat(",");
-		
 		if (i < len - 1){
-			graphResults = graphResults.concat(nodes.getSync(i), ",");
-		}else {
-			graphResults = graphResults.concat(nodes.getSync(i));
+			graphResults = graphResults.concat("\n");
 		}
+		
+		
 	}
-	console.log("web links" + weblinks);
-	console.log("graph strings" + graphResults);
+	console.log("web links: " + weblinks);
+	console.log("graph strings: " + graphResults);
 	console.log(results.toStringSync()); 
 	res.render('results', {
 		result: weblinks

@@ -30,6 +30,7 @@ public class GenerateOutputJson {
 		for (String entry : list) {
 			String[] components = entry.split("/");
 			int i;
+			StringBuilder origin = new StringBuilder();
 
 			// Check if leaf node of this path already has been seen
 			common_idx = 0;
@@ -37,6 +38,7 @@ public class GenerateOutputJson {
 			common.put("name", components[common_idx]);
 			common.put("group", 1);
 			common.put("url", "http://example.com/"+components[common_idx]);
+			common.put("origin", origin.append("/"+components[common_idx]).toString());
 			
 			while(nodes.contains(common)){
 				last_common = nodes.indexOf(common);
@@ -47,16 +49,26 @@ public class GenerateOutputJson {
 					if (nodename.startsWith("DONOTLINK")) {
 						nodename = nodename.replace("DONOTLINK", "LIST");
 					}
-
 					common.put("name", nodename);
+					common.put("origin", origin.append("/"+nodename).toString());
 				} else
 					break;
 			}
-
+			
+			boolean flag = false;
 			
 //			System.out.println("Common index: "+common_idx);
+			if(common_idx == 0){
+				origin = new StringBuilder();
+			}else{
+				origin = origin.replace(origin.lastIndexOf("/"), origin.length(), "");
+//				System.out.println(origin.toString());
+			}
+			
 			for(i = j; i-j+common_idx < components.length; i++){
-				System.out.println("entered loop for - "+common_idx+" : "+components[i-j+common_idx]);
+				flag = true;
+//				System.out.println("entered loop for - "+common_idx+" : "+components[i-j+common_idx]);
+				
 				JSONObject name = new JSONObject();
 				String nodename = components[i - j + common_idx];
 				if (nodename.startsWith("DONOTLINK")) {
@@ -64,20 +76,23 @@ public class GenerateOutputJson {
 				}
 
 				name.put("name", nodename);
+				name.put("origin", origin.append("/"+nodename).toString());
 				if(i==j && common_idx == 0){
 					name.put("group", 1);
 					name.put("url","http://example.com/"+nodename);
 				}
 //				System.out.println("ADDING : "+name.toJSONString());
+				
 				nodes.add(name);
-				System.out.println("i = "+i+" ; j = "+j+" ; common_idx = "+common_idx+" ; components length = "+components.length);
-				if (i != j + components.length - 1 - common_idx) {
+//				System.out.println("i = "+i+" ; j = "+j+" ; common_idx = "+common_idx+" ; components length = "+components.length);
+				
+				if (i != j + components.length - common_idx -1) {
 					JSONObject link = new JSONObject();
-					System.out.println("i = "+i+" ; j = "+j+" ; common_idx = "+common_idx);
+//					System.out.println("i = "+i+" ; j = "+j+" ; common_idx = "+common_idx);
 					if (i == j && common_idx > 0) {
 						JSONObject common_link = new JSONObject();
-						System.out.println("last common: "+last_common);
-						System.out.println("i: "+i);
+//						System.out.println("last common: "+last_common);
+//						System.out.println("i: "+i);
 						common_link.put("source", last_common);
 						common_link.put("target", i);
 						links.add(common_link);
@@ -91,7 +106,13 @@ public class GenerateOutputJson {
 					links.add(link);
 				}
 			}
-
+			
+			if(!flag){
+//				System.out.println("skipping over");
+				end_points.add(last_common);
+				
+			}
+			
 			if (common_idx != components.length)
 				end_points.add(j + components.length - 1 - common_idx);
 			j = i;
@@ -100,14 +121,16 @@ public class GenerateOutputJson {
 		for (int i = 0; i < end_points.size(); i++) {
 			if (i + 1 != end_points.size()) {
 				JSONObject link = new JSONObject();
+//				System.out.println("Adding width for "+end_points.get(i)+" to "+end_points.get(i+1));
 				link.put("source", end_points.get(i));
 				link.put("target", end_points.get(i+1));
 				link.put("width", 10);
 				links.add(link);
 			}
 		}
-			
-		 System.out.println(links.toJSONString());
+		
+//		System.out.println(nodes.toJSONString().replace("\\", ""));
+//		System.out.println(links.toJSONString());
 		JSONObject final_json = new JSONObject();
 
 		final_json.put("nodes", nodes);
@@ -118,8 +141,8 @@ public class GenerateOutputJson {
 
 	public static void main(String[] args) {
 //		String [] links = {"yelp_academic_dataset_business_1.json/DONOTLINK_0/city/dravosburg", "yelp_academic_dataset_business_1.json/DONOTLINK_0", "yelp_academic_dataset_business_1.json/DONOTLINK_635/attributes", "yelp_academic_dataset_business_1.json/DONOTLINK_635/attributes/Good For", "yelp_academic_dataset_business_1.json/DONOTLINK_635/attributes/Good For/latenight"};
-//		String [] links = {"yelp_academic_dataset_business_1.json/DONOTLINK_9816/name/hours", "yelp_academic_dataset_business_1.json/DONOTLINK_9816/name", "yelp_academic_dataset_business_1.json/DONOTLINK_9816", "yelp_academic_dataset_business_1.json", "yelp_academic_dataset_business_1.json/DONOTLINK_250", "yelp_academic_dataset_business_1.json/DONOTLINK_250/name", "yelp_academic_dataset_business_1.json/DONOTLINK_250/name/friday"};
-		String [] links = {"yelp_academic_dataset_business_1.json/DONOTLINK_10114/attributes/Good For/dessert/dessert", "yelp_academic_dataset_business_1.json/DONOTLINK_10114/attributes/Good For/dessert", "yelp_academic_dataset_business_1.json/DONOTLINK_10114/attributes/Good For", "yelp_academic_dataset_business_1.json/DONOTLINK_10114/attributes/Good For/latenight", "yelp_academic_dataset_business_1.json/DONOTLINK_10114/attributes/Good For/latenight/latenight"};
+		String [] links = {"yelp_academic_dataset_business_1.json/DONOTLINK_9816/name/hours", "yelp_academic_dataset_business_1.json/DONOTLINK_9816/name", "yelp_academic_dataset_business_1.json/DONOTLINK_9816", "yelp_academic_dataset_business_1.json", "yelp_academic_dataset_business_1.json/DONOTLINK_250", "yelp_academic_dataset_business_1.json/DONOTLINK_250/name", "yelp_academic_dataset_business_1.json/DONOTLINK_250/name/friday"};
+//		String [] links = {"yelp_academic_dataset_business_1.json/DONOTLINK_10114/attributes/Good For/dessert/dessert", "yelp_academic_dataset_business_1.json/DONOTLINK_10114/attributes/Good For/dessert", "yelp_academic_dataset_business_1.json/DONOTLINK_10114/attributes/Good For", "yelp_academic_dataset_business_1.json/DONOTLINK_10114/attributes/Good For/latenight", "yelp_academic_dataset_business_1.json/DONOTLINK_10114/attributes/Good For/latenight/latenight"};
 		List<String> list = Arrays.asList(links);
 //		List<String> list = new ArrayList<String>();
 //		list.add("DOC1/b/tom");

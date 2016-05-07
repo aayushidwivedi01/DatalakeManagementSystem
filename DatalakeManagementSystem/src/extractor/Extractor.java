@@ -38,9 +38,11 @@ public class Extractor {
 	}
 
 	public int extract() {
-		DBWrapper.setup("/home/cis550/db");
+//		DBWrapper.setup("/home/cis550/db");
+		DBWrapper.setup("/home/cis455/Desktop/db");
 		// Check if directory or file
 		System.out.println("Extractor starting...");
+//		long start = System.currentTimeMillis();
 		File file = new File(path);
 		List<String> files = new ArrayList<String>();
 
@@ -68,6 +70,8 @@ public class Extractor {
 
 					String jsonTxt = IOUtils.toString(is);
 					String out = JsonExtract.extractJson(jsonTxt, filename);
+					
+					System.out.println("Finished actual json parsing");
 					ReadJsonOutput read_out = new ReadJsonOutput();
 					read_out.getExtractedPairs(out);
 					extracted_pairs_leaf = read_out.getLeafNodes();
@@ -88,9 +92,9 @@ public class Extractor {
 				// PARSE XML
 				else if (mediaType.equals("application/xml")) {
 					XMLExtract saxparser = new XMLExtract();
-					saxparser.extractXML(filename);
-					extracted_pairs_leaf = saxparser.getLeafNodes();
-					extracted_pairs_all = saxparser.getAllNodes();
+					XMLExtract handler = saxparser.extractXML(filename);
+					extracted_pairs_leaf = handler.getLeafNodes();
+					extracted_pairs_all = handler.getAllNodes();
 					metadata = tikaextract.getMetadata(filename);
 
 				} else {
@@ -99,6 +103,7 @@ public class Extractor {
 					extracted_pairs_all = tikaextract.extract(filename);
 					extracted_pairs_leaf = extracted_pairs_all;
 				}
+				
 				// Store in forward index
 				ForwardIndexDA fIndexDA = new ForwardIndexDA();
 				ArrayList<String> all_doc_keys = new ArrayList<String>();
@@ -130,6 +135,7 @@ public class Extractor {
 				FlatDocument flatDocument = new FlatDocument(new File(filename).getName(), all_doc_keys);
 				fda.store(flatDocument);
 				System.out.println("Extractor done. Starting Linker...");
+//				System.out.println(System.currentTimeMillis() - start);
 				Linker linker = new Linker();
 				linker.linkNewDocuments();
 				System.out.println("Linking Finished");
@@ -156,7 +162,7 @@ public class Extractor {
 	}
 
 	public static void main(String[] args) throws IOException {
-		Extractor extractor = new Extractor("/home/cis550/yelp_academic_dataset_business_1.json");
+		Extractor extractor = new Extractor("/home/cis455/Desktop/cis550project/data/treebank_e.xml");
 		extractor.extract();
 	}
 

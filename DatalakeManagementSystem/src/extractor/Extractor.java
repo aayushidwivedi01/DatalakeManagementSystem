@@ -136,9 +136,11 @@ public class Extractor {
 				fda.store(flatDocument);
 				System.out.println("Extractor done. Starting Linker...");
 //				System.out.println(System.currentTimeMillis() - start);
+				long start = System.currentTimeMillis();
 				Linker linker = new Linker();
 				linker.linkNewDocuments();
 				System.out.println("Linking Finished");
+				System.out.println(System.currentTimeMillis() - start);
 
 			} catch (FileNotFoundException e) {
 				System.out.println("FNF Exception!!");
@@ -162,7 +164,8 @@ public class Extractor {
 	}
 
 	public static void main(String[] args) throws IOException {
-		Extractor extractor = new Extractor("/home/cis455/Desktop/cis550project/data/treebank_e.xml");
+//		Extractor extractor = new Extractor("/home/cis455/Desktop/cis550project/data/treebank_e.xml");
+		Extractor extractor = new Extractor("/home/cis455/Downloads/yelp.json");
 		extractor.extract();
 	}
 

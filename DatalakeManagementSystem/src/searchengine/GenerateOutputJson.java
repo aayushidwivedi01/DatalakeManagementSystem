@@ -16,10 +16,15 @@ public class GenerateOutputJson {
 		nodes = new JSONArray();
 		links = new JSONArray();
 	}
-
+	
+	public String getData(String input){
+		List<String> list = Arrays.asList(input.split(","));
+		return createJson(list);
+		
+	}
 	
 	@SuppressWarnings("unchecked")
-	public void createJson(List<String> list){
+	public String createJson(List<String> list){
 		
 		ArrayList<Integer> end_points = new ArrayList<Integer>();
 
@@ -137,6 +142,7 @@ public class GenerateOutputJson {
 		final_json.put("links", links);
 		
 		System.out.println(final_json.toString().replace("\\", ""));
+		return final_json.toString().replace("\\", "");
 	}
 
 	public static void main(String[] args) {

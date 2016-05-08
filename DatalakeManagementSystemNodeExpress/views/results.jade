@@ -17,12 +17,11 @@ html
       var number_of_pages;
       function getSearchParameters(){
       data = "#{result}";
-      graph = "#{graphResults}";
+      nodes = "#{nodes}";
       var array = data.split(",");
       var arrayLength = array.length;
-      
-      var graphNode = graph.split("\n");
-      
+      var graphNode = nodes.split(" ");
+     
       //if (array[0]===""){
       // var img = document.createElement('img');
       // // $(p).append("Sorry! No results found! :(");
@@ -43,8 +42,7 @@ html
       for (var i = 0; i < arrayLength; i++) {
         var p = document.createElement('p');
         var a = document.createElement('a');      
-        a.href = "/homepage";
-        
+        a.href = "/graph?node="+graphNode[i];
         $(a).append(array[i]);
         $(p).append("Result "+i);
         // Append the anchor tag and paragraph with the description to the results div.

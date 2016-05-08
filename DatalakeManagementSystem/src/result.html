@@ -21,9 +21,9 @@
 <body>
 <script src="//d3js.org/d3.v3.min.js"></script>
 <script>
-
- var w = 1000;
-  var h = 600;
+ 
+  var w = 2000;
+  var h = 1000;
   var svg = d3.select("body").append("svg")
               .attr("width", w)
               .attr("height", h);
@@ -38,15 +38,20 @@
                           "#FFFF00",  //YELLOW
                          ]);  
 
-  d3.json("graph.json", function(error, dataset){                        
+  //d3.json("graph.json", function(error, dataset){
+  dataset = {"nodes":[{"name":"yelp_academic_dataset_business_1.json","origin":"/yelp_academic_dataset_business_1.json","group":1,"url":"http://example.com/yelp_academic_dataset_business_1.json"},{"name":"LIST_9816","origin":"/yelp_academic_dataset_business_1.json/LIST_9816"},{"name":"name","origin":"/yelp_academic_dataset_business_1.json/LIST_9816/name"},{"name":"hours","origin":"/yelp_academic_dataset_business_1.json/LIST_9816/name/hours"},{"name":"LIST_250","origin":"/yelp_academic_dataset_business_1.json/LIST_250"},{"name":"name","origin":"/yelp_academic_dataset_business_1.json/LIST_250/name"},{"name":"friday","origin":"/yelp_academic_dataset_business_1.json/LIST_250/name/friday"}],"links":[{"source":0,"target":1},{"source":1,"target":2},{"source":2,"target":3},{"source":3,"width":10,"target":2},{"source":2,"width":10,"target":1},{"source":1,"width":10,"target":0},{"source":0,"width":10,"target":4},{"source":4,"width":10,"target":5},{"source":5,"width":10,"target":6}]}
+; 
+                        
   var force = d3.layout.force()
                 .nodes(dataset.nodes)
                 .links(dataset.links)
                 .gravity(.05)
                 .charge(-180)
                 .linkDistance(100)
+                .linkStrength(0.5)
                 .size([w, h])
                 .start();
+
 
   var drag = force.drag()
                   .on("dragstart", dragstart);
@@ -64,7 +69,7 @@
                  .enter()
                  .append("g")
                  .attr("class", "node")
-                 .on("click", function (d) {
+                 .on("dblclick", function (d) {
                   if(d.url){
                      location.href = d.url;
                     }
@@ -98,24 +103,21 @@
                      .append('path')
                      .attr({'d': function(d) {return 'M '+d.source.x+' '+d.source.y+' L '+ d.target.x +' '+d.target.y},
                            'class':'edgepath',
-                           'fill-opacity':0,
-                           'stroke-opacity':0,
-                           'fill':'blue',
-                           'stroke':'red',
-                           'id':function(d,i) {return 'edgepath'+i}})
+                           })
                      .style("pointer-events", "none");
 
   // dx : the starting distance of the label from the source node
-  // var edgelabels = svg.selectAll(".edgelabel")
-  //                     .data(dataset.links)
-  //                     .enter()
-  //                     .append('text')
-  //                     .style("pointer-events", "none")
-  //                     .attr({'class':'edgelabel',
-  //                            'id':function(d,i){return 'edgelabel'+i},
-  //                            'dx':40,
-  //                            'dy':0
-  //                           });
+  var edgelabels = svg.selectAll(".edgelabel")
+                      .data(dataset.links)
+                      .enter()
+                      .append('text')
+                      .style("pointer-events", "none")
+                      .attr({'class':'edgelabel',
+                             'id':function(d,i){return d.label},
+                             'dx':40,
+                             'dy':0
+                            });
+  
 
   force.on("tick", function() {
              edges.attr("x1", function(d) { return d.source.x; })
@@ -134,13 +136,15 @@
   });     
 
   // Double click to 'unfix' the node and have forces start to act on it again.
-  function dblclick(d) {
-    d3.select(this).classed("fixed", d.fixed = false);
-  }
+  //function dblclick(d) {
+  //  d3.select(this).classed("fixed", d.fixed = false);
+ // }
   // Set the "fixed" property of the dragged node to TRUE when a dragstart event is initiated,
   //   - removes "forces" from acting on that node and changing its position.
   function dragstart(d) {
     d3.select(this).classed("fixed", d.fixed = true);
   }
-});
-  </script>
+//});
+
+</script>
+

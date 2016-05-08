@@ -16,6 +16,7 @@ var uploadfile = require('./routes/uploadfile');
 var viewfiles = require('./routes/viewfiles');
 var updatePermission = require('./routes/updatepermission');
 var search = require('./routes/search');
+var graph = require('./routes/graph');
 
 var app = express();
 app.use(cookieParser());
@@ -65,7 +66,7 @@ app.post('/changepermission', function(req,res){
 });
 app.use('/updatepermission', updatePermission.do_work);
 app.use('/search', search.do_work);
-
+app.use('/graph', graph.do_work);
 var server = app.listen(8081, function() {
 
 	var host = server.address().address;

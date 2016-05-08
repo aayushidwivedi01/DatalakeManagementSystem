@@ -29,7 +29,7 @@ function search(req,res, err){
 			if (j < num_nodes - 1){
 				weblinks = weblinks.concat("/");
 			}
-			if (i < num_nodes - 1){
+			if (j < num_nodes - 1){
 				graphResults = graphResults.concat(nodes.getSync(j), ",");
 			}else {
 				graphResults = graphResults.concat(nodes.getSync(j));
@@ -37,16 +37,16 @@ function search(req,res, err){
 		}
 		weblinks = weblinks.concat(",");
 		if (i < len - 1){
-			graphResults = graphResults.concat("\n");
+			graphResults = graphResults.concat(" ");
 		}
 		
 		
 	}
 	console.log("web links: " + weblinks);
 	console.log("graph strings: " + graphResults);
-	console.log(results.toStringSync()); 
 	res.render('results', {
-		result: weblinks
+		result: weblinks,
+		nodes: graphResults
 	});
 }
 

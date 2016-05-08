@@ -1,6 +1,7 @@
 package extractor;
 
 import linker.Linker;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -10,12 +11,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.tika.Tika;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+
 import storage.DBWrapper;
 import storage.FlatDocumentDA;
 import storage.ForwardIndexDA;
@@ -38,7 +41,7 @@ public class Extractor {
 	}
 
 	public int extract() {
-		DBWrapper.setup("/home/cis550/db");
+		DBWrapper.setup("C:\\Users\\Ankit\\Desktop\\db");
 		// Check if directory or file
 		System.out.println("Extractor starting...");
 		File file = new File(path);
@@ -130,6 +133,9 @@ public class Extractor {
 				FlatDocument flatDocument = new FlatDocument(new File(filename).getName(), all_doc_keys);
 				fda.store(flatDocument);
 				System.out.println("Extractor done. Starting Linker...");
+				//sync the db
+				DBWrapper.close();
+				DBWrapper.setup("C:\\Users\\Ankit\\Desktop\\db");
 				Linker linker = new Linker();
 				linker.linkNewDocuments();
 				System.out.println("Linking Finished");
@@ -153,9 +159,13 @@ public class Extractor {
 		return 1;
 	}
 
-	public static void main(String[] args) throws IOException {
-		Extractor extractor = new Extractor("/home/cis550/yelp_academic_dataset_business_1.json");
+	public static void main(String[] args) throws IOException, InterruptedException {
+		Extractor extractor = new Extractor("C:\\Users\\Ankit\\Desktop\\yelp_academic_dataset_business_1_s.json");
 		extractor.extract();
+//		DBWrapper.setup("C:\\Users\\Ankit\\Desktop\\db");
+//		Linker linker = new Linker();
+//		linker.linkNewDocuments();
+//		System.out.println("Linking Finished");
 	}
 
 }

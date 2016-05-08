@@ -55,7 +55,7 @@ public class LinkCreator extends Thread {
 			LinkType.class);
 	private static final double DEFAULT_WEIGHT = 1.0;
 	private static final String DNL = "donotlink";
-	private static final int MAX_LINK_SET_SIZE = 10000;
+	private static final int MAX_LINK_SET_SIZE = 100000;
 	private Stemmer stemmer;
 	private Queue<ForwardIndexPair> fIndexQueue;
 	private Queue<Set<Link>> linksQueues;

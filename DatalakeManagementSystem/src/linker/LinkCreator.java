@@ -49,13 +49,16 @@ public class LinkCreator extends Thread {
 		CONTAINS, IS_CONTAINED_IN, IS_SAME, IS_PARTENT, IS_CHILD, MATCHES_ATTRIBUTE, MATCHES_CONTENT, MATCHES_FILENAME, MATCHES_PATH
 	}
 
-	private static Map<LinkType, String> linkType = new EnumMap<LinkType, String>(LinkType.class);
-	private static Map<LinkType, Double> linkWeight = new EnumMap<LinkType, Double>(LinkType.class);
+	private static Map<LinkType, String> linkType = new EnumMap<LinkType, String>(
+			LinkType.class);
+	private static Map<LinkType, Double> linkWeight = new EnumMap<LinkType, Double>(
+			LinkType.class);
 	private static final double DEFAULT_WEIGHT = 1.0;
 	private static final String DNL = "donotlink";
-	private static final int MAX_LINK_SET_SIZE = 50000;
+	private static final int MAX_LINK_SET_SIZE = 10000;
 	private Stemmer stemmer;
 	private Queue<ForwardIndexPair> fIndexQueue;
+	private Queue<Set<Link>> linksQueues;
 	private LinkSaver linkSaver;
 	private Set<Link> links;
 	private boolean shouldContinue;
@@ -82,10 +85,11 @@ public class LinkCreator extends Thread {
 		linkWeight.put(LinkType.IS_CONTAINED_IN, DEFAULT_WEIGHT);
 	}
 
-	public LinkCreator(Queue<ForwardIndexPair> fIndexQueue) {
+	public LinkCreator(Queue<ForwardIndexPair> fIndexQueue,
+			Queue<Set<Link>> linksQueues) {
 		this.stemmer = new Stemmer();
 		this.fIndexQueue = fIndexQueue;
-		this.linkSaver = new LinkSaver();
+		this.linksQueues = linksQueues;
 		this.links = new HashSet<Link>();
 		this.shouldContinue = true;
 	}
@@ -141,7 +145,8 @@ public class LinkCreator extends Thread {
 		return stemmedWord;
 	}
 
-	private Set<Link> getParentChildLinks(ForwardIndex f, PathAttribute pathAttribute) {
+	private Set<Link> getParentChildLinks(ForwardIndex f,
+			PathAttribute pathAttribute) {
 		Set<Link> links = new HashSet<Link>();
 		LinkType type;
 		String source;
@@ -150,16 +155,19 @@ public class LinkCreator extends Thread {
 			source = pathAttribute.getPath();
 			type = LinkType.IS_PARTENT;
 			dest = f.getPath();
-			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type)));
+			links.add(new Link(source, linkType.get(type), dest, linkWeight
+					.get(type)));
 			source = f.getPath();
 			type = LinkType.IS_CHILD;
 			dest = pathAttribute.getPath();
-			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type)));
+			links.add(new Link(source, linkType.get(type), dest, linkWeight
+					.get(type)));
 		}
 		return links;
 	}
 
-	private Set<Link> getAttributePathLinks(ForwardIndex f, PathAttribute pathAttribute) {
+	private Set<Link> getAttributePathLinks(ForwardIndex f,
+			PathAttribute pathAttribute) {
 		Set<Link> links = new HashSet<Link>();
 		LinkType type;
 		String source;
@@ -168,17 +176,19 @@ public class LinkCreator extends Thread {
 			source = pathAttribute.getAttribute();
 			type = LinkType.MATCHES_ATTRIBUTE;
 			dest = f.getPath();
-			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type)));
+			links.add(new Link(source, linkType.get(type), dest, linkWeight
+					.get(type)));
 			source = f.getPath();
 			type = LinkType.MATCHES_CONTENT;
 			dest = pathAttribute.getAttribute();
-			links.add(new Link(dest, linkType.get(type), source, linkWeight.get(type)));
+			links.add(new Link(dest, linkType.get(type), source, linkWeight
+					.get(type)));
 		}
 		return links;
 	}
 
-	private Set<Link> getValueAttributeLink(ForwardIndex f1, ForwardIndex f2, PathAttribute pathAttributeF1,
-			PathAttribute pathAttributeF2) {
+	private Set<Link> getValueAttributeLink(ForwardIndex f1, ForwardIndex f2,
+			PathAttribute pathAttributeF1, PathAttribute pathAttributeF2) {
 		Set<Link> links = new HashSet<Link>();
 		LinkType type;
 		String source;
@@ -187,27 +197,31 @@ public class LinkCreator extends Thread {
 			source = f1.getValue();
 			type = LinkType.MATCHES_ATTRIBUTE;
 			dest = f2.getPath();
-			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type)));
+			links.add(new Link(source, linkType.get(type), dest, linkWeight
+					.get(type)));
 			source = f2.getPath();
 			type = LinkType.MATCHES_CONTENT;
 			dest = f1.getPath();
-			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type)));
+			links.add(new Link(source, linkType.get(type), dest, linkWeight
+					.get(type)));
 		} else if (f1.getValue().contains(pathAttributeF2.getAttribute())) {
 			source = f1.getValue();
 			type = LinkType.MATCHES_ATTRIBUTE;
 			dest = f2.getPath();
-			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type) + DEFAULT_WEIGHT));
+			links.add(new Link(source, linkType.get(type), dest, linkWeight
+					.get(type) + DEFAULT_WEIGHT));
 			source = f2.getPath();
 			type = LinkType.MATCHES_CONTENT;
 			dest = f1.getPath();
-			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type) + DEFAULT_WEIGHT));
+			links.add(new Link(source, linkType.get(type), dest, linkWeight
+					.get(type) + DEFAULT_WEIGHT));
 		}
 
 		return links;
 	}
 
-	private Set<Link> getValuePathLink(ForwardIndex f1, ForwardIndex f2, PathAttribute pathAttributeF1,
-			PathAttribute pathAttributeF2) {
+	private Set<Link> getValuePathLink(ForwardIndex f1, ForwardIndex f2,
+			PathAttribute pathAttributeF1, PathAttribute pathAttributeF2) {
 		Set<Link> links = new HashSet<Link>();
 		LinkType type;
 		String source;
@@ -216,26 +230,30 @@ public class LinkCreator extends Thread {
 			source = f1.getValue();
 			type = LinkType.MATCHES_PATH;
 			dest = f2.getPath();
-			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type)));
+			links.add(new Link(source, linkType.get(type), dest, linkWeight
+					.get(type)));
 			source = f2.getPath();
 			type = LinkType.MATCHES_CONTENT;
 			dest = f1.getPath();
-			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type)));
+			links.add(new Link(source, linkType.get(type), dest, linkWeight
+					.get(type)));
 		} else if (f1.getValue().contains(f2.getPath())) {
 			source = f1.getValue();
 			type = LinkType.MATCHES_PATH;
 			dest = f2.getPath();
-			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type) + DEFAULT_WEIGHT));
+			links.add(new Link(source, linkType.get(type), dest, linkWeight
+					.get(type) + DEFAULT_WEIGHT));
 			source = f2.getPath();
 			type = LinkType.MATCHES_CONTENT;
 			dest = f1.getPath();
-			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type) + DEFAULT_WEIGHT));
+			links.add(new Link(source, linkType.get(type), dest, linkWeight
+					.get(type) + DEFAULT_WEIGHT));
 		}
 		return links;
 	}
 
-	private Set<Link> getValueFileLink(ForwardIndex f1, ForwardIndex f2, PathAttribute pathAttributeF1,
-			PathAttribute pathAttributeF2) {
+	private Set<Link> getValueFileLink(ForwardIndex f1, ForwardIndex f2,
+			PathAttribute pathAttributeF1, PathAttribute pathAttributeF2) {
 		Set<Link> links = new HashSet<Link>();
 		LinkType type;
 		String source;
@@ -244,20 +262,24 @@ public class LinkCreator extends Thread {
 			source = f1.getValue();
 			type = LinkType.MATCHES_FILENAME;
 			dest = pathAttributeF2.getFile();
-			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type)));
+			links.add(new Link(source, linkType.get(type), dest, linkWeight
+					.get(type)));
 			source = pathAttributeF2.getFile();
 			type = LinkType.MATCHES_CONTENT;
 			dest = f1.getPath();
-			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type)));
+			links.add(new Link(source, linkType.get(type), dest, linkWeight
+					.get(type)));
 		} else if (f1.getValue().contains(pathAttributeF2.getFile())) {
 			source = f1.getValue();
 			type = LinkType.MATCHES_FILENAME;
 			dest = pathAttributeF2.getFile();
-			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type) + DEFAULT_WEIGHT));
+			links.add(new Link(source, linkType.get(type), dest, linkWeight
+					.get(type) + DEFAULT_WEIGHT));
 			source = pathAttributeF2.getFile();
 			type = LinkType.MATCHES_CONTENT;
 			dest = f1.getPath();
-			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type) + DEFAULT_WEIGHT));
+			links.add(new Link(source, linkType.get(type), dest, linkWeight
+					.get(type) + DEFAULT_WEIGHT));
 		}
 
 		return links;
@@ -268,18 +290,21 @@ public class LinkCreator extends Thread {
 		LinkType type;
 		String source;
 		String dest;
-		String[] tokens = f1.getValue().replaceAll("[^a-zA-Z0-9 ]", "").toLowerCase().split("\\s+");
+		String[] tokens = f1.getValue().replaceAll("[^a-zA-Z0-9 ]", "")
+				.toLowerCase().split("\\s+");
 		for (String token : tokens) {
 			token = stem(token);
 			// System.out.println(token);
 			source = f1.getPath();
 			type = LinkType.CONTAINS;
 			dest = token;
-			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type) + DEFAULT_WEIGHT));
+			links.add(new Link(source, linkType.get(type), dest, linkWeight
+					.get(type) + DEFAULT_WEIGHT));
 			source = token;
 			type = LinkType.IS_CONTAINED_IN;
 			dest = f1.getPath();
-			links.add(new Link(source, linkType.get(type), dest, linkWeight.get(type) + DEFAULT_WEIGHT));
+			links.add(new Link(source, linkType.get(type), dest, linkWeight
+					.get(type) + DEFAULT_WEIGHT));
 		}
 		return links;
 	}
@@ -321,15 +346,21 @@ public class LinkCreator extends Thread {
 		PathAttribute pathAttributeF2 = new PathAttribute(f2.getPath());
 		if (f1.getValue() != null && !f1.getValue().equalsIgnoreCase(DNL)) {
 			// generate links from f1 to f2
-			links.addAll(getValueAttributeLink(f1, f2, pathAttributeF1, pathAttributeF2));
-			links.addAll(getValuePathLink(f1, f2, pathAttributeF1, pathAttributeF2));
-			links.addAll(getValueFileLink(f1, f2, pathAttributeF1, pathAttributeF2));
+			links.addAll(getValueAttributeLink(f1, f2, pathAttributeF1,
+					pathAttributeF2));
+			links.addAll(getValuePathLink(f1, f2, pathAttributeF1,
+					pathAttributeF2));
+			links.addAll(getValueFileLink(f1, f2, pathAttributeF1,
+					pathAttributeF2));
 		}
 		if (f2.getValue() != null && !f2.getValue().equalsIgnoreCase(DNL)) {
 			// generate links from f2 to f1
-			links.addAll(getValueAttributeLink(f2, f1, pathAttributeF2, pathAttributeF1));
-			links.addAll(getValuePathLink(f2, f1, pathAttributeF2, pathAttributeF1));
-			links.addAll(getValueFileLink(f2, f1, pathAttributeF2, pathAttributeF1));
+			links.addAll(getValueAttributeLink(f2, f1, pathAttributeF2,
+					pathAttributeF1));
+			links.addAll(getValuePathLink(f2, f1, pathAttributeF2,
+					pathAttributeF1));
+			links.addAll(getValueFileLink(f2, f1, pathAttributeF2,
+					pathAttributeF1));
 		}
 
 		return links;
@@ -352,38 +383,31 @@ public class LinkCreator extends Thread {
 	}
 
 	public void run() {
-		System.out.println("Thread - " + Thread.currentThread().getName() + " - started!");
-		int i = 1;
+		System.out.println("Thread - " + Thread.currentThread().getName()
+				+ " - started!");
 		while (shouldContinue) {
-			if (fIndexQueue.getSize() == 0) {
-				try {
-					Thread.sleep(500 * i);
-					if (fIndexQueue.getSize() == 0) {
-						i++;
-					} else {
-						ForwardIndexPair fIndexPair = fIndexQueue.dequeue();
+			synchronized (fIndexQueue) {
+				if (fIndexQueue.getSize() == 0) {
+					try {
+						fIndexQueue.wait();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				} else {
+					ForwardIndexPair fIndexPair = fIndexQueue.dequeue();
+					if (fIndexPair != null) {
 						links.addAll(createLinks(fIndexPair));
 						if (links.size() > MAX_LINK_SET_SIZE) {
-							linkSaver.saveLinks(links);
-							links.clear();
+							// linkSaver.saveLinks(links);
+							linksQueues.enqueue(links);
+							links = new HashSet<Link>();
 						}
-						i = 1;
-					}
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			} else {
-				ForwardIndexPair fIndexPair = fIndexQueue.dequeue();
-				if (fIndexPair != null) {
-					links.addAll(createLinks(fIndexPair));
-					if (links.size() > MAX_LINK_SET_SIZE) {
-						linkSaver.saveLinks(links);
-						links.clear();
 					}
 				}
 			}
 		}
-		linkSaver.saveLinks(links);
-		links.clear();
+		System.out.println("Thread - " + Thread.currentThread().getName()
+				+ " - ended!");
+		linksQueues.enqueue(links);
 	}
 }

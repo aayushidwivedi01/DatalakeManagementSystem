@@ -6,17 +6,45 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import bean.Link;
 import bean.Links;
 import storage.LinksDA;
+import threads.Queue;
 
 public class LinkSaver extends Thread {
 
 	private LinksDA linksDA;
+	private boolean shouldContinue;
+	private Queue<Set<Link>> linksQueue;
 
-	public LinkSaver() {
+	public LinkSaver(Queue<Set<Link>> linksQueue) {
 		this.linksDA = new LinksDA();
+		this.shouldContinue = true;
+		this.linksQueue = linksQueue;
+	}
+
+	public LinksDA getLinksDA() {
+		return linksDA;
+	}
+
+	public void setLinksDA(LinksDA linksDA) {
+		this.linksDA = linksDA;
+	}
+
+	public boolean isShouldContinue() {
+		return shouldContinue;
+	}
+
+	public void setShouldContinue(boolean shouldContinue) {
+		this.shouldContinue = shouldContinue;
+	}
+
+	public Queue<Set<Link>> getLinksQueue() {
+		return linksQueue;
+	}
+
+	public void setLinksQueue(Queue<Set<Link>> linksQueue) {
+		this.linksQueue = linksQueue;
 	}
 
 	public void saveLinks(Set<Link> links) {
@@ -26,7 +54,8 @@ public class LinkSaver extends Thread {
 		long startTime = System.nanoTime();
 		storeLinks(mapOfLinks);
 		long endTime = System.nanoTime();
-		System.out.println("Time to store - " + (endTime - startTime) / 1000000 + " mSec");
+		System.out.println("Time to store - " + (endTime - startTime) / 1000000
+				+ " mSec");
 	}
 
 	private void addLink(Link link, Map<String, Links> mapOfLinks) {
@@ -60,10 +89,34 @@ public class LinkSaver extends Thread {
 			if (storedLinks == null) {
 				linksDA.store(links.getValue());
 			} else {
-				storedLinks.getRelations().addAll(links.getValue().getRelations());
+				storedLinks.getRelations().addAll(
+						links.getValue().getRelations());
 				linksDA.update(storedLinks);
 			}
 		}
+	}
+
+	public void run() {
+		System.out.println("Link SaverThread - "
+				+ Thread.currentThread().getName() + " - started!");
+		while (shouldContinue) {
+			synchronized (linksQueue) {
+				if (linksQueue.getSize() == 0) {
+					try {
+						linksQueue.wait();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				} else {
+					Set<Link> linkSet = linksQueue.dequeue();
+					if (linkSet != null) {
+						saveLinks(linkSet);
+					}
+				}
+			}
+		}
+		System.out.println("Link SaverThread - "
+				+ Thread.currentThread().getName() + " - ended!");
 	}
 
 	// public void storeLinksThreaded(Map<String, Links> mapOfLinks) {

@@ -133,12 +133,11 @@ public class Extractor {
 				FlatDocument flatDocument = new FlatDocument(new File(filename).getName(), all_doc_keys);
 				fda.store(flatDocument);
 				System.out.println("Extractor done. Starting Linker...");
-				//sync the db
-				DBWrapper.close();
-				DBWrapper.setup("C:\\Users\\Ankit\\Desktop\\db");
+				long start = System.currentTimeMillis();
 				Linker linker = new Linker();
 				linker.linkNewDocuments();
 				System.out.println("Linking Finished");
+				System.out.println(System.currentTimeMillis() - start);
 
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
@@ -160,7 +159,7 @@ public class Extractor {
 	}
 
 	public static void main(String[] args) throws IOException, InterruptedException {
-		Extractor extractor = new Extractor("C:\\Users\\Ankit\\Desktop\\yelp_academic_dataset_business_1_s.json");
+		Extractor extractor = new Extractor("C:\\Users\\Ankit\\Desktop\\ebay.xml");
 		extractor.extract();
 //		DBWrapper.setup("C:\\Users\\Ankit\\Desktop\\db");
 //		Linker linker = new Linker();

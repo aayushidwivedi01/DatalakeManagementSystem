@@ -1,9 +1,7 @@
 package linker;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import bean.Link;
@@ -69,17 +67,15 @@ public class LinkSaver extends Thread {
 		}
 	}
 
-	private void addAllLink(List<Link> links, Map<String, Links> mapOfLinks) {
+	private void addAllLink(Set<Link> links, Map<String, Links> mapOfLinks) {
 		for (Link link : links) {
 			addLink(link, mapOfLinks);
 		}
 	}
 
 	public Map<String, Links> mergeLinks(Set<Link> links) {
-		ArrayList<Link> mergedLinks = new ArrayList<Link>(links);
-
 		Map<String, Links> mapOfLinks = new HashMap<String, Links>();
-		addAllLink(mergedLinks, mapOfLinks);
+		addAllLink(links, mapOfLinks);
 		return mapOfLinks;
 	}
 

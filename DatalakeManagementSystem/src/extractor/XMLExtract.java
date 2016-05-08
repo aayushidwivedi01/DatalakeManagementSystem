@@ -44,11 +44,10 @@ public class XMLExtract extends DefaultHandler {
 		all_nodes = ArrayListMultimap.create();
 
 		list.add(filename);
-
 	}
 
 	public void endDocument() throws SAXException {
-
+		
 	}
 
 	/**
@@ -106,10 +105,12 @@ public class XMLExtract extends DefaultHandler {
 		return s.toString().trim();
 	}
 
-	public void extractXML(String filename) throws SAXException, FileNotFoundException, IOException {
+	public XMLExtract extractXML(String filename) throws SAXException, FileNotFoundException, IOException {
 		XMLReader xr = XMLReaderFactory.createXMLReader();
-		xr.setContentHandler(new XMLExtract());
+		XMLExtract handler = new XMLExtract();
+		xr.setContentHandler(handler);
 		xr.parse(new InputSource(new FileReader(filename)));
+		return handler;
 
 	}
 

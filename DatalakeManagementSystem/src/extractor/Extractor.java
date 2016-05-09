@@ -39,8 +39,7 @@ public class Extractor {
 
 	public int extract() {
 		try {
-			// DBWrapper.setup("/home/cis550/db");
-			DBWrapper.setup("C:\\Users\\Ankit\\Desktop\\db");
+			DBWrapper.setup("/home/cis550/db");
 			// Check if directory or file
 			System.out.println("Extractor starting...");
 			// long start = System.currentTimeMillis();
@@ -180,7 +179,7 @@ public class Extractor {
 	public static void main(String[] args) throws IOException {
 		// Extractor extractor = new
 		// Extractor("/home/cis455/Desktop/cis550project/bid_data/casts124.xml");
-		Extractor extractor = new Extractor("C:\\Users\\Ankit\\Desktop\\docs");
+		Extractor extractor = new Extractor("/home/cis550/db");
 		extractor.extract();
 	}
 

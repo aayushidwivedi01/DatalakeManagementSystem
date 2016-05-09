@@ -23,7 +23,7 @@ app.use(cookieParser());
 app.use(session({secret: 'shh1243',
 				resave:false,
 				saveUninitialized:true, 
-				cookie: { maxAge: 60000 }}));
+				cookie: { maxAge: 6000000 }}));
 app.use(flash());
 app.use(function(req, res, next){
     res.locals.success = req.flash('success');

@@ -19,9 +19,13 @@ import java.util.Stack;
  */
 public class XMLExtract extends DefaultHandler {
 	ArrayList<String> list = null;
-	static String filename = null;
+	String rootname = null;
 	String content = "content";
 	Stack<Map> contents = new Stack<Map>();
+	
+	public void setRoot(String name){
+		rootname = name;
+	}
 
 	// Stores the leaf nodes for indexing
 	Multimap<String, String> leaf_nodes = null;
@@ -42,8 +46,7 @@ public class XMLExtract extends DefaultHandler {
 
 		leaf_nodes = ArrayListMultimap.create();
 		all_nodes = ArrayListMultimap.create();
-
-		list.add(filename);
+		list.add(rootname);
 	}
 
 	public void endDocument() throws SAXException {
@@ -106,8 +109,10 @@ public class XMLExtract extends DefaultHandler {
 	}
 
 	public XMLExtract extractXML(String filename) throws SAXException, FileNotFoundException, IOException {
+		rootname = new File(filename).getName();
 		XMLReader xr = XMLReaderFactory.createXMLReader();
 		XMLExtract handler = new XMLExtract();
+		handler.setRoot(rootname);
 		xr.setContentHandler(handler);
 		xr.parse(new InputSource(new FileReader(filename)));
 		return handler;

@@ -39,7 +39,7 @@ public class Extractor {
 
 	public int extract() {
 		try {
-			DBWrapper.setup("/home/cis550/db");
+			DBWrapper.setup("/home/cis455/Desktop/db");
 			// Check if directory or file
 			System.out.println("Extractor starting...");
 			// long start = System.currentTimeMillis();
@@ -118,7 +118,7 @@ public class Extractor {
 					// ALL CONTENT
 					Set<String> keys = extracted_pairs_all.keySet();
 					for (String key : keys) {
-						// System.out.println(key);
+						 System.out.println(key);
 						for (String value : extracted_pairs_all.get(key)) {
 							ForwardIndex fIndex = new ForwardIndex(key, value);
 							fIndexDA.store(fIndex);
@@ -179,7 +179,7 @@ public class Extractor {
 	public static void main(String[] args) throws IOException {
 		// Extractor extractor = new
 		// Extractor("/home/cis455/Desktop/cis550project/bid_data/casts124.xml");
-		Extractor extractor = new Extractor("/home/cis550/db");
+		Extractor extractor = new Extractor("/home/cis455/Desktop/cis550project/bid_data/ebay.xml");
 		extractor.extract();
 	}
 

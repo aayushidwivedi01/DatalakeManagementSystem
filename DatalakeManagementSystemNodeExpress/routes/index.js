@@ -18,13 +18,13 @@ var uploadfile = require('./uploadfile');
 /* GET home page. */
 router.get('/', function(req, res, next) {
 	res.render('index', {
-		title : 'DLMS'
+		title : 'DLMS: Little Bobby Tables'
 	});
 });
 
 router.get('/index', function(req, res, next) {
 	res.render('index', {
-		title : 'DLMS'
+		title : 'DLMS: Little Bobby Tables'
 	});
 });
 
@@ -36,7 +36,7 @@ router.post('/homepage', function(req, res, next) {
 
 router.get('/createaccount', function(req, res, next) {
 	res.render('createaccount', {
-		title : 'DLMS'
+		title : 'DLMS: Little Bobby Tables'
 	});
 });
 

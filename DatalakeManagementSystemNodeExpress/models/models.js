@@ -24,16 +24,7 @@ var docSchema = new Schema({
 var Doc = mongoose.model("Doc", docSchema);
 
 
-//var ownerSchema = new Schema({
-//	username: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-//    document_id: { type: mongoose.Schema.Types.ObjectId, ref: "Doc", required: true }
-//});
-//ownerSchema.index({"username": 1, "document_id": 1}, { unique: true });
-//
-//var Owner = mongoose.model("Owner", ownerSchema);
-
 module.exports = {
 	    User: User,
-	    Doc: Doc,
-	    //Owner: Owner
+	    Doc: Doc
 	};

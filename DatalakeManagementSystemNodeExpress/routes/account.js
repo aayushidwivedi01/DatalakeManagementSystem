@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
-var User = require("../models/models");
+var Models = require("../models/models");
+var User = Models.User;
 
 function verify_account(req, res){
 	var name = req.body.username;
@@ -8,7 +9,6 @@ function verify_account(req, res){
 	var passwdconfirm = req.body.passwordconfirm;
 	var usr = new User({username: name, password: passwd});
 	if (!name || !passwd || !passwdconfirm){
-		//res.redirect()
 		console.log("Incorrect Username/password");
 		res.send("Username or password incorrect. %s", usr);
 	} else if (passwd !== passwdconfirm){

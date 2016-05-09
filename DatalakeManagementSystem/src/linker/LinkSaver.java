@@ -126,7 +126,7 @@ public class LinkSaver extends Thread {
 				System.out.println("Link Saver going to save links");
 				saveLinks(linkSet);
 			}
-		}
+		} 
 		System.out.println("Link SaverThread - " + Thread.currentThread().getName()
 				+ " - ended! with links table size - " + linksDA.getSize()+ " " + linksQueue.getSize());
 	}

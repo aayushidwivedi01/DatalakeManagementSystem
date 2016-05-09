@@ -18,17 +18,22 @@ function updatePermission(req, res) {
 						"storage.DBWrapper",
 						"setup", 
 						"/home/cis550/db");
-//				var document = java.newInstanceSync(
-//						"bean.Document", 
-//						doc_id,
-//						req.session.user,
-//						file_path,
-//						req.body.scope);
+
 				var documentDA = java.newInstanceSync("storage.DocumentDA");
 				var file_path = java.callMethodSync(
 						documentDA,
 						"fetch",
 						doc_id).getPathSync();
+				var document = java.newInstanceSync(
+						"bean.Document", 
+						doc_id,
+						req.session.user,
+						file_path,
+						req.body.scope);
+				java.callMethodSync(
+						documentDA,
+						"store",
+						document);
 				console.log("DOCUMENT PATH: " + file_path);
 				console.log("Document has been saved!");
 			} catch(exception){

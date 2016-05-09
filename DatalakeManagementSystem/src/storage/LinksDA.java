@@ -99,7 +99,7 @@ public class LinksDA {
 
 		LinksDA lDA = new LinksDA();
 
-		lDA.store(links);
+		//lDA.store(links);
 
 		// System.out.println(lDA.fetch("work"));
 		System.out.println(lDA.getSize());
@@ -112,7 +112,7 @@ public class LinksDA {
 		}
 		System.out.println();
 		System.out.println(lDA.fetch("buyer"));
-		System.out.println(lDA.fetch("pays"));
+		System.out.println(lDA.fetch("unknown"));
 		DBWrapper.close();
 	}
 

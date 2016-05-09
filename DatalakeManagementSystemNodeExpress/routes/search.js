@@ -21,7 +21,6 @@ function search(req,res, err){
 	var weblinks = "";
 	for(var i = 0; i < len; i++){
 		var nodes = results.getSync(i);
-		console.log("nodes:" + nodes.toStringSync());
 		var num_nodes = nodes.sizeSync();
 		for (var j = 0; j < num_nodes; j++){
 			var node = nodes.getSync(j).substring(nodes.getSync(j).lastIndexOf("/") + 1);

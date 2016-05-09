@@ -27,7 +27,7 @@ function search(req,res, err){
 			var node = nodes.getSync(j).substring(nodes.getSync(j).lastIndexOf("/") + 1);
 			weblinks = weblinks.concat(node);
 			if (j < num_nodes - 1){
-				weblinks = weblinks.concat("/");
+				weblinks = weblinks.concat("->");
 			}
 			if (j < num_nodes - 1){
 				graphResults = graphResults.concat(nodes.getSync(j), ",");

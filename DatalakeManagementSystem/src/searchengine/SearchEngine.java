@@ -8,8 +8,6 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
-
-import bean.Document;
 import bean.Link;
 import bean.Links;
 import storage.DBWrapper;
@@ -38,6 +36,9 @@ public class SearchEngine {
 	public List<ArrayList<String>> search() {
 		DBWrapper.setup("/home/cis550/db");
 		try {
+			kShortestPaths.clear();
+			singleWordResults.clear();
+			flag=true;
 			if (query.split(" ").length == 1) {
 
 				Thread[] workers = new Thread[NUM_THREADS_SINGLE_WORD];

@@ -30,7 +30,7 @@ img{max-width:100%;}
 /*end reset*/
 /*--login form start here--*/ 
 body {
-   background:url(/images/blue.jpg)no-repeat;
+   background:url(/images/gray.jpg)no-repeat;
    background-color: black;
    background-size: cover;
    font-family: 'Open Sans', sans-serif;
@@ -39,7 +39,7 @@ body {
 
 .result_body{
   background: none;
-   background-color: #F3EDED;
+   background-color: #204a87;
    /*background-size: cover;
    font-family: 'Open Sans', sans-serif;
    font-size: 100%;*/

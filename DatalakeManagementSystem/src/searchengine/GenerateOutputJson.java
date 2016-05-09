@@ -84,7 +84,7 @@ public class GenerateOutputJson {
 				name.put("origin", origin.append("/"+nodename).toString());
 				if(i==j && common_idx == 0){
 					name.put("group", 1);
-					name.put("url","http://example.com/"+nodename);
+					name.put("url","https://s3.amazonaws.com/bobby.tables.dlms/"+nodename);
 				}
 //				System.out.println("ADDING : "+name.toJSONString());
 				

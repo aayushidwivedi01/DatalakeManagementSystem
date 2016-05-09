@@ -105,13 +105,14 @@ public class LinksDA {
 		System.out.println(lDA.getSize());
 		// lDA.delete(links.getSource());
 		for (Links storedLink : lDA.fetchAll()) {
-			if (storedLink.getSource().equals("generated3.json/new_data/from")) {
 				System.out.println(storedLink);
 				for (Link relation : storedLink.getRelations()) {
 					System.out.println(relation);
 				}
-			}
 		}
+		System.out.println();
+		System.out.println(lDA.fetch("buyer"));
+		System.out.println(lDA.fetch("pays"));
 		DBWrapper.close();
 	}
 

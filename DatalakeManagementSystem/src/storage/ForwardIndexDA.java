@@ -84,12 +84,13 @@ public class ForwardIndexDA {
 
 		ForwardIndexDA fIndexDA = new ForwardIndexDA();
 
-		// fIndexDA.store(forwardIndex);
-
-		System.out.println(fIndexDA.fetch("test_path"));
+//		// fIndexDA.store(forwardIndex);
+//
+//		System.out.println(fIndexDA.fetch("test_path"));
+//		System.out.println(fIndexDA.getSize());
+//		fIndexDA.delete(forwardIndex);
+		System.out.println(fIndexDA.fetch("null"));
 		System.out.println(fIndexDA.getSize());
-		fIndexDA.delete(forwardIndex);
-		System.out.println(fIndexDA.fetch("test_path"));
 		DBWrapper.close();
 	}
 

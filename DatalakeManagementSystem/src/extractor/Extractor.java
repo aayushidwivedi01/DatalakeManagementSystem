@@ -179,7 +179,7 @@ public class Extractor {
 	public static void main(String[] args) throws IOException {
 		// Extractor extractor = new
 		// Extractor("/home/cis455/Desktop/cis550project/bid_data/casts124.xml");
-		Extractor extractor = new Extractor("/home/cis550/db");
+		Extractor extractor = new Extractor("/home/cis550/ebay.xml");
 		extractor.extract();
 	}
 

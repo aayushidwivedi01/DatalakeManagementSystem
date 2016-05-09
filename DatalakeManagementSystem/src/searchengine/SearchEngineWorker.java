@@ -116,9 +116,10 @@ public class SearchEngineWorker implements Runnable {
 				// System.out.println("node: " + node);
 				Links links = lDa.fetch(node);
 				// System.out.println("found links: " + links);
-				relations = links.getRelations();
-				// System.out.println("relations: " + relations);
-				if (relations != null) {
+
+				if (links != null) {
+					relations = links.getRelations();
+					// System.out.println("relations: " + relations);
 					ArrayList<String> path = weightedPath.getPath();
 					for (Link relation : relations) {
 						String dest = relation.getDest();

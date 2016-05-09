@@ -212,13 +212,13 @@ public class SearchEngine {
 //		DocumentDA docDA = new DocumentDA();
 //		docDA.store(document1);
 //		//docDA.store(document2);
-		String query = "hours reviews";
-		String username = "deepti";
+		String query = "buyer";
+		String username = "user1";
 		SearchEngine engine = new SearchEngine(query, username);
 		long startTime = System.currentTimeMillis();
 		engine.search();
 		long endTime = System.currentTimeMillis();
 		System.out.println("Time: " + (endTime - startTime));
-		//DBWrapper.close();
+		DBWrapper.close();
 	}
 }

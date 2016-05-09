@@ -379,7 +379,11 @@ public class LinkCreator extends Thread {
 				}
 			}
 		}
+		if (links.size() > 0) {
+			System.out.println("Thread - " + Thread.currentThread().getName() + " - enquing before ending!");
+			linksQueues.enqueue(links);
+		}
 		System.out.println("Thread - " + Thread.currentThread().getName() + " - ended!");
-		linksQueues.enqueue(links);
+
 	}
 }

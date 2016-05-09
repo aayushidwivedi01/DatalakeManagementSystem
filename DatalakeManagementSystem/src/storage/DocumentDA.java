@@ -3,6 +3,8 @@ package storage;
 import com.sleepycat.persist.PrimaryIndex;
 
 import bean.Document;
+import bean.Link;
+import bean.Links;
 
 public class DocumentDA {
 
@@ -86,12 +88,14 @@ public class DocumentDA {
 
 		DocumentDA docDA = new DocumentDA();
 
-		docDA.store(document);
-
-		System.out.println(docDA.fetch("test_doc_id"));
-		System.out.println(docDA.getSize());
-		docDA.delete(document);
-		System.out.println(docDA.fetch("user1_test2.txt"));
+//		docDA.store(document);
+//
+//		System.out.println(docDA.fetch("test_doc_id"));
+//		System.out.println(docDA.getSize());
+//		docDA.delete(document);
+//		System.out.println(docDA.fetch("user1_test2.txt"));
+		
+		System.out.println(docDA.fetch("user1_ebay.xml"));
 		DBWrapper.close();
 	}
 

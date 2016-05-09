@@ -84,6 +84,7 @@ public class SingleWordWorker implements Runnable
 	
 	public boolean isAccessible(String docPath) 
 	{
+		System.out.println(docPath);
 		String doc;
 		if (!docPath.contains("/"))
 			doc = docPath;
@@ -93,7 +94,9 @@ public class SingleWordWorker implements Runnable
 		if (userPermissions.containsKey(doc))
 			return userPermissions.get(doc);
 		
+		System.out.println("doc - "+doc);
 		Document docInfo = docDa.fetch(doc);
+		System.out.println("doc info - "+docInfo);
 		permission = docInfo.getPermission();
 		String owner = docInfo.getOwner();
 		if (permission.equals("Public") || owner.equals(username))

@@ -61,6 +61,10 @@ public class ThreadPool {
 		for (Thread thread : pool) {
 			thread.join();
 		}
+		linkSaver.setShouldContinue(false);
+		synchronized (linksQueue) {
+			linksQueue.notifyAll();
+		}
 		linkSaver.join();
 	}
 
@@ -69,13 +73,10 @@ public class ThreadPool {
 			LinkCreator linkCreatorThread = (LinkCreator) thread;
 			linkCreatorThread.setShouldContinue(false);
 		}
-		linkSaver.setShouldContinue(false);
 		synchronized (fIndexQueue) {
 			fIndexQueue.notifyAll();
 		}
-		synchronized (linksQueue) {
-			linksQueue.notifyAll();
-		}
+
 	}
 	
 	public Queue<ForwardIndexPair> getQueue() {

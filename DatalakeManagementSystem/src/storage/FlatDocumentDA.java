@@ -142,7 +142,7 @@ public class FlatDocumentDA {
 
 		FlatDocumentDA fDA = new FlatDocumentDA(true);
 		FlatDocumentDA fDA2 = new FlatDocumentDA(false);
-		fDA.store(flatDocument);
+		//fDA.store(flatDocument);
 
 		System.out.println(fDA2.fetch("flatdoc2"));
 		System.out.println(fDA2.fetchAll());

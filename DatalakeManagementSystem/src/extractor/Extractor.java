@@ -118,7 +118,7 @@ public class Extractor {
 					// ALL CONTENT
 					Set<String> keys = extracted_pairs_all.keySet();
 					for (String key : keys) {
-						// System.out.println(key);
+						 //System.out.println(key);
 						for (String value : extracted_pairs_all.get(key)) {
 							ForwardIndex fIndex = new ForwardIndex(key, value);
 							fIndexDA.store(fIndex);

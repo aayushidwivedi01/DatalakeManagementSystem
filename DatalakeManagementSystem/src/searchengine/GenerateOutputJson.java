@@ -42,7 +42,7 @@ public class GenerateOutputJson {
 			JSONObject common = new JSONObject();
 			common.put("name", components[common_idx]);
 			common.put("group", 1);
-			common.put("url", "http://example.com/"+components[common_idx]);
+			common.put("url", "https://s3.amazonaws.com/bobby.tables.dlms/"+components[common_idx]);
 			common.put("origin", origin.append("/"+components[common_idx]).toString());
 			
 			while(nodes.contains(common)){

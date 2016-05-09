@@ -1,6 +1,11 @@
 var util = require("util");
 var fs = require("fs");
 var java = require("java");
+var aws = require("aws-sdk");
+var credentials = new aws.SharedIniFileCredentials({profile: 'default'});
+aws.config.credentials = credentials;
+var bucket = 'bobby.tables.dlms';
+var s3 = new aws.S3();
 var Models = require("../models/models");
 var User = Models.User;
 var Doc = Models.Doc;
@@ -19,6 +24,44 @@ java.classpath.push("tika-app-1.12-SNAPSHOT.jar");
 java.classpath.push("extractor.jar");
 java.classpath.push("dlms.jar");
 
+
+function getContentTypeByFile(fileName) {
+	var rc = 'application/octet-stream';
+	var fn = fileName.toLowerCase();
+
+	if (fn.indexOf('.html') >= 0) {
+		rc = 'text/html';
+	} else if (fn.indexOf('.css') >= 0) {
+		rc = 'text/css';
+	} else if (fn.indexOf('.json') >= 0) {
+		rc = 'application/json';
+	} else if (fn.indexOf('.js') >= 0) {
+		rc = 'application/x-javascript';
+	} else if (fn.indexOf('.png') >= 0) {
+		rc = 'image/png';
+	} else if (fn.indexOf('.jpg') >= 0) {
+		rc = 'image/jpg';
+	}
+
+	return rc;
+}
+
+
+function uploadToS3(remoteFilename, fileName) {
+	var fileBuffer = fs.readFileSync(fileName);
+	var metaData = getContentTypeByFile(fileName);
+
+	s3.putObject({
+		ACL : 'public-read',
+		Bucket : bucket,
+		Key : remoteFilename,
+		Body : fileBuffer,
+		ContentType : metaData
+	}, function(error, response) {
+		console.log('uploaded file[' + fileName + '] to [' + remoteFilename + '] as [' + metaData + ']');
+		console.log(arguments);
+	});
+}
 
 function saveDocument(req, res, saveStatus) {
 	var code = 0;
@@ -49,6 +92,7 @@ function saveDocument(req, res, saveStatus) {
 						"store",
 						document);
 				console.log("Document has been saved!");
+				uploadToS3(doc_id, file_path);
 				code = 1;
 			} catch(exception){
 				console.log("Error opening DB");

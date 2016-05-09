@@ -25,11 +25,11 @@ function saveDocument(req, res, saveStatus) {
 	var file_path = _dir + req.session.user + "_"+req.files.dataitem.name;
 	doc_id = req.session.user + "_" + req.files.dataitem.name;
 	var doc = new Doc({id: doc_id, username: req.session.user, path: file_path, permission: req.body.scope});
-	
 	doc.save(function(err){
 		if(err){
-			saveStatus(-1);
 			console.log("File exists in DLMS");
+			//saveStatus(-1);
+			saveStatus(code);
 			}
 		else {
 			try{
@@ -48,18 +48,20 @@ function saveDocument(req, res, saveStatus) {
 						documentDA,
 						"store",
 						document);
-				saveStatus(1);
 				console.log("Document has been saved!");
+				code = 1;
 			} catch(exception){
 				console.log("Error opening DB");
-				saveStatus(-1);
+				code = -1;
 			}finally{
 				java.callStaticMethodSync(
 						"storage.DBWrapper",
 						"close");
+				saveStatus(code);
 			}			
 			
 		}
+		
 	});
 	
 	
@@ -112,6 +114,7 @@ function uploadFile(req, res, next) {
 						console.log(err);
 					}
 					saveDocument(req, res, function(saveStatus){
+						console.log("STATUS VALUE: " +saveStatus);
 						if(saveStatus===1){
 							saveStatus = 'extracting';
 							console.log("Path:" + localFilePath);

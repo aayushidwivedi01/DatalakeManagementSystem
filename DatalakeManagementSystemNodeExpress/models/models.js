@@ -1,5 +1,4 @@
 var mongoose = require("mongoose");
-var mongoosePages = require('mongoose-pages');
 mongoose.connect('mongodb://dlms_webapp:webapp@ds013971.mlab.com:13971/webappdb');
 var db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error"));
@@ -21,8 +20,6 @@ var docSchema = new Schema({
     path: { type: String, required: true },
     permission: { type: String, required: true }
 });
-
-mongoosePages.skip(docSchema);
 
 var Doc = mongoose.model("Doc", docSchema);
 

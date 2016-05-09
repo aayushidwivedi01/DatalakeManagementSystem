@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<jardesc>
+    <jar path="DatalakeManagementSystemNodeExpress/dlms.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/DatalakeManagementSystemNodeExpress/DLMSJarDesc.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+    <selectedProjects/>
+    <manifest generateManifest="true" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
+        <sealing sealJar="false">
+            <packagesToSeal/>
+            <packagesToUnSeal/>
+        </sealing>
+    </manifest>
+    <selectedElements exportClassFiles="true" exportJavaFiles="true" exportOutputFolder="false">
+        <javaElement handleIdentifier="=DatalakeManagementSystem/src&lt;indexer"/>
+        <javaElement handleIdentifier="=DatalakeManagementSystem/src&lt;bean"/>
+        <javaElement handleIdentifier="=DatalakeManagementSystem/src&lt;extractor"/>
+        <javaElement handleIdentifier="=DatalakeManagementSystem/src&lt;storage"/>
+        <javaElement handleIdentifier="=DatalakeManagementSystem/src&lt;linker"/>
+        <javaElement handleIdentifier="=DatalakeManagementSystem/src&lt;searchengine"/>
+        <javaElement handleIdentifier="=DatalakeManagementSystem/src&lt;threads"/>
+        <javaElement handleIdentifier="=DatalakeManagementSystem/src&lt;utils"/>
+    </selectedElements>
+</jardesc>

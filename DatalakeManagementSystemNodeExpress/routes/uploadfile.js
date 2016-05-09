@@ -17,21 +17,48 @@ java.classpath.push("jaxp-api.jar");
 java.classpath.push("je-4.0.92.jar");
 java.classpath.push("tika-app-1.12-SNAPSHOT.jar");
 java.classpath.push("extractor.jar");
+java.classpath.push("dlms.jar");
 
 
-function savePermissions(req, res, saveStatus) {
+function saveDocument(req, res, saveStatus) {
 	var code = 0;
 	var file_path = _dir + req.session.user + "_"+req.files.dataitem.name;
 	doc_id = req.session.user + "_" + req.files.dataitem.name;
 	var doc = new Doc({id: doc_id, username: req.session.user, path: file_path, permission: req.body.scope});
+	
 	doc.save(function(err){
 		if(err){
 			saveStatus(-1);
 			console.log("File exists in DLMS");
 			}
 		else {
-			console.log("Document has been saved!");
-			saveStatus(1);
+			try{
+				java.callStaticMethodSync(
+						"storage.DBWrapper",
+						"setup", 
+						"/home/cis550/db");
+				var document = java.newInstanceSync(
+						"bean.Document", 
+						doc_id,
+						req.session.user,
+						file_path,
+						req.body.scope);
+				var documentDA = java.newInstanceSync("storage.DocumentDA");
+				java.callMethodSync(
+						documentDA,
+						"store",
+						document);
+				saveStatus(1);
+				console.log("Document has been saved!");
+			} catch(exception){
+				console.log("Error opening DB");
+				saveStatus(-1);
+			}finally{
+				java.callStaticMethodSync(
+						"storage.DBWrapper",
+						"close");
+			}			
+			
 		}
 	});
 	
@@ -84,7 +111,7 @@ function uploadFile(req, res, next) {
 						console.log("Error saving the file");
 						console.log(err);
 					}
-					savePermissions(req, res, function(saveStatus){
+					saveDocument(req, res, function(saveStatus){
 						if(saveStatus===1){
 							saveStatus = 'extracting';
 							console.log("Path:" + localFilePath);
@@ -100,6 +127,11 @@ function uploadFile(req, res, next) {
 							else{
 								res.redirect('/');
 							}
+						}else{
+							res.render('upload', {
+									title : 'DLMS',
+									upload_error: -1
+								});
 						}
 						
 					});

@@ -91,7 +91,7 @@ public class DocumentDA {
 		System.out.println(docDA.fetch("test_doc_id"));
 		System.out.println(docDA.getSize());
 		docDA.delete(document);
-		System.out.println(docDA.fetch("test_doc_id"));
+		System.out.println(docDA.fetch("user1_test2.txt"));
 		DBWrapper.close();
 	}
 

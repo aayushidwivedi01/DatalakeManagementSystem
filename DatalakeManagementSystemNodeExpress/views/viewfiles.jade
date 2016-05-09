@@ -1,6 +1,11 @@
 html
   body
+    script.
+      function goBack(){
+          window.history.back();
+        }
     style.
+      .menu-button { display:inline-block; }
       table {
       border-collapse: collapse;
       width: 100%;
@@ -14,8 +19,13 @@ html
       background-color: #4CAF50;
       color: white;
       }
-    form(method='get', action='/upload')
-        button#upload(type='submit', name='upload') Upload File
+    br
+    div
+      .menu-button
+        button(onclick='goBack()') Go Back
+      .menu-button
+        form(method='get', action='/upload')
+          button#upload(type='submit', name='upload') Upload File
     table
       tr
         th User

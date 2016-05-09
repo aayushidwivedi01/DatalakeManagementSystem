@@ -12,9 +12,14 @@ html
             }
           }
         }
+        function goBack(){
+          window.history.back();
+        }
     link(href='/stylesheets/style.css', rel='stylesheet', type='text/css', media='all')
     h1=title
     p Welcome to  upload screen
+    br
+    button(onclick='goBack()') Go Back      
     br
     form#fileUpload(method='post', action='/uploadfile', enctype='multipart/form-data')
       label(for='payload') Select a file to upload:

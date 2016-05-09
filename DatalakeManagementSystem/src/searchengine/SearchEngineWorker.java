@@ -117,44 +117,41 @@ public class SearchEngineWorker implements Runnable {
 				Links links = lDa.fetch(node);
 				// System.out.println("found links: " + links);
 
-				if (links != null) {
-					relations = links.getRelations();
-					// System.out.println("relations: " + relations);
-					ArrayList<String> path = weightedPath.getPath();
-					for (Link relation : relations) {
-						String dest = relation.getDest();
-						// System.out.println(Thread.currentThread().getName() +
-						// node + " linked to: " + dest);
+				relations = links.getRelations();
+				// System.out.println("relations: " + relations);
+				ArrayList<String> path = weightedPath.getPath();
+				for (Link relation : relations) {
+					String dest = relation.getDest();
+					// System.out.println(Thread.currentThread().getName() +
+					// node + " linked to: " + dest);
 
-						if (!isAccessible(dest)) {
-							continue;
-						}
-						ArrayList<String> newPath = new ArrayList<String>(path);
-
-						// Ignore node if it creates a loop in path
-						if (path.contains(dest))
-							continue;
-
-						// System.out.println("Adding to path " + newPath + " :
-						// " + dest);
-
-						newPath.add(dest);
-						double newCost = weightedPath.getCost() + relation.getWeight();
-						WeightedPath newWeightedPath = new WeightedPath(newPath, newCost);
-
-						synchronized (mySeenNodes) {
-							synchronized (frontier) {
-								// System.out.println(Thread.currentThread().getName()
-								// + "Adding to frontier new path: " + newPath);
-								frontier.add(newWeightedPath);
-								frontier.notify();
-							}
-							mySeenNodes.put(dest, newWeightedPath);
-						}
+					if (!isAccessible(dest)) {
+						continue;
 					}
-				} else {
-					SearchEngine.flag = false;
+					ArrayList<String> newPath = new ArrayList<String>(path);
+
+					// Ignore node if it creates a loop in path
+					if (path.contains(dest))
+						continue;
+
+					// System.out.println("Adding to path " + newPath + " :
+					// " + dest);
+
+					newPath.add(dest);
+					double newCost = weightedPath.getCost() + relation.getWeight();
+					WeightedPath newWeightedPath = new WeightedPath(newPath, newCost);
+
+					synchronized (mySeenNodes) {
+						synchronized (frontier) {
+							// System.out.println(Thread.currentThread().getName()
+							// + "Adding to frontier new path: " + newPath);
+							frontier.add(newWeightedPath);
+							frontier.notify();
+						}
+						mySeenNodes.put(dest, newWeightedPath);
+					}
 				}
+
 			}
 		}
 

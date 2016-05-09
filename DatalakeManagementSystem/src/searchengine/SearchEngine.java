@@ -29,7 +29,7 @@ public class SearchEngine {
 	int k = 5;
 
 	public SearchEngine(String query, String username) {
-		this.query = query;
+		this.query = query.toLowerCase();
 		this.username = username;
 	}
 

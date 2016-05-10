@@ -171,7 +171,7 @@ public class Extractor {
 	public static void main(String[] args) throws IOException {
 		// Extractor extractor = new
 		// Extractor("/home/cis455/Desktop/cis550project/bid_data/casts124.xml");
-		Extractor extractor0 = new Extractor("/home/cis550/demo_files");
+		Extractor extractor0 = new Extractor("/home/cis550/demo_files_new");
 		extractor0.extract();
 //		Extractor extractor = new Extractor("/home/cis550/cast.xml");
 //		extractor.extract();

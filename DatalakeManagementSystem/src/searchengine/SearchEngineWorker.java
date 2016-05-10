@@ -67,7 +67,7 @@ public class SearchEngineWorker implements Runnable {
 				// System.out.println("found node: " + node);
 				synchronized (seenNodesOther) {
 					if (seenNodesOther.containsKey(node)) {
-						 System.out.println("Matched node: " + node);
+						System.out.println("Matched node: " + node);
 						ArrayList<String> path1 = new ArrayList<>(weightedPath.getPath());
 						// System.out.println("Second path: " +
 						// seenNodesOther.get(node).getPath());
@@ -115,24 +115,25 @@ public class SearchEngineWorker implements Runnable {
 
 				Set<Link> relations = new HashSet<Link>();
 				// System.out.println("node: " + node);
-				
-				//Don't explore paths deeper than d
-				if (weightedPath.getPath().size() >= d)
-				{
+
+				// Don't explore paths deeper than d
+				if (weightedPath.getPath().size() >= d) {
 					System.out.println("ignoring: " + weightedPath.getPath());
 					System.out.println("path length: " + weightedPath.getPath().size() + "d: " + d);
 					continue;
 				}
 				Links links = lDa.fetch(node);
 				// System.out.println("found links: " + links);
-
+				if (links == null) {
+					continue;
+				}
 				relations = links.getRelations();
 				// System.out.println("relations: " + relations);
 				ArrayList<String> path = weightedPath.getPath();
 				for (Link relation : relations) {
 					String dest = relation.getDest();
-					
-					//ignore empty links
+
+					// ignore empty links
 					if (dest.equals(""))
 						continue;
 					// System.out.println(Thread.currentThread().getName() +

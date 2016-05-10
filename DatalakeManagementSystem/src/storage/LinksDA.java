@@ -107,12 +107,12 @@ public class LinksDA {
 		for (Links storedLink : lDA.fetchAll()) {
 				System.out.println(storedLink);
 				for (Link relation : storedLink.getRelations()) {
-					System.out.println(relation);
+					//System.out.println(relation);
 				}
 		}
 		System.out.println();
 		System.out.println(lDA.fetch("buyer"));
-		System.out.println(lDA.fetch("unknown"));
+		System.out.println(lDA.fetch("pai"));
 		DBWrapper.close();
 	}
 

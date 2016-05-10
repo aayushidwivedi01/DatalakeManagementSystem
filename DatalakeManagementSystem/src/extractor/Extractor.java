@@ -60,12 +60,9 @@ public class Extractor {
 						filename = path + "/" + filename;
 
 					System.out.println("Extracting - " + filename);
-					Multimap<String, String> extracted_pairs_leaf = ArrayListMultimap
-							.create();
-					Multimap<String, String> extracted_pairs_all = ArrayListMultimap
-							.create();
-					Multimap<String, String> metadata = ArrayListMultimap
-							.create();
+					Multimap<String, String> extracted_pairs_leaf = ArrayListMultimap.create();
+					Multimap<String, String> extracted_pairs_all = ArrayListMultimap.create();
+					Multimap<String, String> metadata = ArrayListMultimap.create();
 					String mediaType = tika.detect(filename);
 					System.out.println(mediaType);
 					TikaExtractor tikaextract = new TikaExtractor();
@@ -118,7 +115,7 @@ public class Extractor {
 					// ALL CONTENT
 					Set<String> keys = extracted_pairs_all.keySet();
 					for (String key : keys) {
-						 //System.out.println(key);
+						// System.out.println(key);
 						for (String value : extracted_pairs_all.get(key)) {
 							ForwardIndex fIndex = new ForwardIndex(key, value);
 							fIndexDA.store(fIndex);
@@ -140,22 +137,19 @@ public class Extractor {
 
 					// Add flat document DA
 					FlatDocumentDA fda = new FlatDocumentDA();
-					FlatDocument flatDocument = new FlatDocument(new File(
-							filename).getName(), all_doc_keys);
+					FlatDocument flatDocument = new FlatDocument(new File(filename).getName(), all_doc_keys);
 					fda.store(flatDocument);
 				}
 
-				//linker call
+				// linker call
 				System.out.println("Extractor done. Starting Linker...");
 				// System.out.println(System.currentTimeMillis() - start);
 				long start = System.currentTimeMillis();
 				Linker linker = new Linker();
 				linker.linkNewDocuments();
-				System.out.println("Linking Finished");
-				System.out.println(System.currentTimeMillis() - start);
-				
+				System.out.println("Linking Finished in - " + (System.currentTimeMillis() - start) + " mSec");
+
 			} catch (FileNotFoundException e) {
-				System.out.println("FNF Exception!!");
 				e.printStackTrace();
 				return -1;
 			} catch (JsonProcessingException e) {
@@ -165,11 +159,9 @@ public class Extractor {
 				e.printStackTrace();
 				return -1;
 			} catch (Exception e) {
-				System.out.println("Exception!!");
 				e.printStackTrace();
 				return -1;
 			}
-			
 		} finally {
 			DBWrapper.close();
 		}
@@ -179,7 +171,7 @@ public class Extractor {
 	public static void main(String[] args) throws IOException {
 		// Extractor extractor = new
 		// Extractor("/home/cis455/Desktop/cis550project/bid_data/casts124.xml");
-		Extractor extractor = new Extractor("/home/cis550/ebay.xml");
+		Extractor extractor = new Extractor("/home/cis550/yelp1s.json");
 		extractor.extract();
 	}
 

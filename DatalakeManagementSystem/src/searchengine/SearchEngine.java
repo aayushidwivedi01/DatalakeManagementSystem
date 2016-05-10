@@ -26,8 +26,8 @@ public class SearchEngine {
 	ArrayList<Link> singleWordRelations = new ArrayList<Link>();
 	String query, username;
 	int NUM_THREADS_SINGLE_WORD = 1;
-	int k = 5;
-	int d = 20;
+	int k = 10;
+	int d = 30;
 
 	public SearchEngine(String query, String username) {
 		this.query = query.toLowerCase();

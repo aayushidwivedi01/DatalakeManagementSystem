@@ -104,15 +104,16 @@ public class LinksDA {
 		// System.out.println(lDA.fetch("work"));
 		System.out.println(lDA.getSize());
 		// lDA.delete(links.getSource());
-		for (Links storedLink : lDA.fetchAll()) {
-				System.out.println(storedLink);
-				for (Link relation : storedLink.getRelations()) {
-					System.out.println(relation);
-				}
-		}
+//		for (Links storedLink : lDA.fetchAll()) {
+//				System.out.println(storedLink);
+//				for (Link relation : storedLink.getRelations()) {
+//					//System.out.println(relation);
+//				}
+//		}
 		System.out.println();
 		System.out.println(lDA.fetch("tom"));
 		System.out.println(lDA.fetch("unknown"));
+
 		DBWrapper.close();
 	}
 

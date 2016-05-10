@@ -25,7 +25,7 @@ public class Queue<T>
 	public synchronized void enqueue(T t)
 	{
 		queue.add(queue.size(), t); // add element to the end of the array list
-		this.notify();
+		this.notifyAll();
 	}
 
 	public synchronized T dequeue()

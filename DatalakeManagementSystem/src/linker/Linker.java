@@ -18,7 +18,7 @@ public class Linker {
 
 	private static boolean NEW_COLLECTION = true;
 	private static boolean OLD_COLLECTION = false;
-	private static final int LINKER_THREAD_COUNT = 100;
+	private static final int LINKER_THREAD_COUNT = 200;
 	private ThreadPool linkCreatorPool;
 	private Queue<ForwardIndexPair> fIndexQueue;
 	private Queue<Set<Link>> linksQueue;

@@ -1,5 +1,7 @@
 package linker;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -49,17 +51,32 @@ public class LinkCreator extends Thread {
 		CONTAINS, IS_CONTAINED_IN, IS_SAME, IS_PARTENT, IS_CHILD, MATCHES_ATTRIBUTE, MATCHES_CONTENT, MATCHES_FILENAME, MATCHES_PATH
 	}
 
+	/** The stopwords. */
+	private static ArrayList<String> stopwords = new ArrayList<String>(Arrays.asList(("a,about,above,"
+			+ "after,again,against,all,am,an,and,any,are," + "aren't,as,at,be,because,been,before,being,"
+			+ "below,between,both,but,by,could," + "couldn't,did,didn't,do,does,doesn't,doing,don't,"
+			+ "down,during,each,few,for,from,further,had,hadn't," + "has,hasn't,have,haven't,having,he,he'd,he'll,he's,"
+			+ "her,here,here's,hers,herself,him,himself,his," + "how's,i,i'd,i'll,i'm,i've,if,in,into,is,isn't,it,"
+			+ "it's,its,itself,let's,me,more,mustn't,my,myself," + "no,nor,of,off,on,once,only,or,other,ought,our,ours,"
+			+ "ourselves,out,over,own,shan't,she,she'd,she'll,"
+			+ "she's,should,shouldn't,so,some,such,than,that,that's,"
+			+ "the,their,theirs,them,themselves,then,there,there's,"
+			+ "these,they,they'd,they'll,they're,they've,this,those,"
+			+ "through,to,too,under,until,up,very,was,wasn't,we,we'd," + "we'll,we're,we've,were,weren't,what's,when's,"
+			+ "where's,while,who's,why's,with," + "won't,would,wouldn't,you,you'd,you'll,you're,you've,your,"
+			+ "yours,yourself,yourselves,").split(",")));
 	private static Map<LinkType, String> linkType = new EnumMap<LinkType, String>(LinkType.class);
 	private static Map<LinkType, Double> linkWeight = new EnumMap<LinkType, Double>(LinkType.class);
-	private static final double DEFAULT_WEIGHT = 1.0;
+	private static final double DEFAULT_WEIGHT = 2.0;
+	private static final double IMPROVED_WEIGHT = 1.0;
 	private static final String DNL = "donotlink";
-	private static final int MAX_LINK_SET_SIZE = 100000;
+	private static final int MAX_LINK_SET_SIZE = 1000;
+	private static boolean shouldContinue;
 	private Stemmer stemmer;
 	private Queue<ForwardIndexPair> fIndexQueue;
-	private Queue<Set<Link>> linksQueues;
+	private Queue<Set<Link>> linksQueue;
 	private LinkSaver linkSaver;
 	private Set<Link> links;
-	private boolean shouldContinue;
 
 	static {
 		linkType.put(LinkType.CONTAINS, "CONTAINS");
@@ -83,12 +100,12 @@ public class LinkCreator extends Thread {
 		linkWeight.put(LinkType.IS_CONTAINED_IN, DEFAULT_WEIGHT);
 	}
 
-	public LinkCreator(Queue<ForwardIndexPair> fIndexQueue, Queue<Set<Link>> linksQueues) {
+	public LinkCreator(Queue<ForwardIndexPair> fIndexQueue, Queue<Set<Link>> linksQueue) {
 		this.stemmer = new Stemmer();
 		this.fIndexQueue = fIndexQueue;
-		this.linksQueues = linksQueues;
+		this.linksQueue = linksQueue;
 		this.links = new HashSet<Link>();
-		this.shouldContinue = true;
+		shouldContinue = true;
 	}
 
 	public static Map<LinkType, String> getLinkType() {
@@ -131,8 +148,8 @@ public class LinkCreator extends Thread {
 		return shouldContinue;
 	}
 
-	public void setShouldContinue(boolean shouldContinue) {
-		this.shouldContinue = shouldContinue;
+	public static void setShouldContinue(boolean shouldContinueArg) {
+		shouldContinue = shouldContinueArg;
 	}
 
 	private String stem(String word) {
@@ -269,8 +286,12 @@ public class LinkCreator extends Thread {
 		LinkType type;
 		String source;
 		String dest;
-		String[] tokens = f1.getValue().replaceAll("[^a-zA-Z0-9 ]", "").toLowerCase().split("\\s+");
+		String[] tokens = f1.getValue().trim().split("\\s+");
 		for (String token : tokens) {
+			token = token.toLowerCase().replaceAll("^\\p{Punct}+|\\p{Punct}+$", "");
+			if (stopwords.contains(token) || token.equals(" ")) {
+				continue;
+			}
 			token = stem(token);
 			// System.out.println(token);
 			source = f1.getPath();
@@ -312,6 +333,7 @@ public class LinkCreator extends Thread {
 		} else {
 			links = createLinks(fIndexPair.getF1(), fIndexPair.getF2());
 		}
+		// System.out.println("CREATED LINKS - "+ links.size());
 		return links;
 	}
 
@@ -357,33 +379,40 @@ public class LinkCreator extends Thread {
 	}
 
 	public void run() {
-		System.out.println("Thread - " + Thread.currentThread().getName() + " - started!");
+		// System.out.println("Thread - " + Thread.currentThread().getName() + "
+		// - started!");
 		while (shouldContinue) {
+			//System.out.println("Thread - " + Thread.currentThread().getName() + " - in while");
 			synchronized (fIndexQueue) {
-				if (fIndexQueue.getSize() == 0) {
-					try {
-						fIndexQueue.wait();
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				} else {
+				//System.out.println("Thread - " + Thread.currentThread().getName() + " - in fIndexQueue");
+				if (fIndexQueue.getSize() > 0) {
 					ForwardIndexPair fIndexPair = fIndexQueue.dequeue();
+
 					if (fIndexPair != null) {
+						System.out.println(fIndexPair.getF1() + " " + fIndexPair.getF2());
 						links.addAll(createLinks(fIndexPair));
+						System.out.println(links.size());
+						System.out.println(fIndexQueue.getSize());
 						if (links.size() > MAX_LINK_SET_SIZE) {
-							// linkSaver.saveLinks(links);
-							linksQueues.enqueue(links);
+							linksQueue.enqueue(links);
 							links = new HashSet<Link>();
 						}
+					}
+				} else {
+					try {
+						//System.out.println("Thread - " + Thread.currentThread().getName() + " - waiting for fIndexQueue");
+						fIndexQueue.wait();
+						//System.out.println("Thread - " + Thread.currentThread().getName() + " - done waiting");
+					} catch (InterruptedException e) {
+						e.printStackTrace();
 					}
 				}
 			}
 		}
 		if (links.size() > 0) {
 			System.out.println("Thread - " + Thread.currentThread().getName() + " - enquing before ending!");
-			linksQueues.enqueue(links);
+			linksQueue.enqueue(links);
 		}
 		System.out.println("Thread - " + Thread.currentThread().getName() + " - ended!");
-
 	}
 }

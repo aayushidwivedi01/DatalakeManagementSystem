@@ -48,11 +48,11 @@ public class LinkSaver extends Thread {
 	public void saveLinks(Set<Link> links) {
 		// merge links and store them
 		Map<String, Links> mapOfLinks = mergeLinks(links);
-		System.out.println("Unique sources - " + mapOfLinks.size());
 		long startTime = System.nanoTime();
 		storeLinks(mapOfLinks);
 		long endTime = System.nanoTime();
-		System.out.println("Time to store - " + (endTime - startTime) / 1000000 + " mSec");
+		System.out.println(
+				"Unique sources - " + mapOfLinks.size() + " | Time - " + (endTime - startTime) / 1000000 + " mSec");
 	}
 
 	private void addLink(Link link, Map<String, Links> mapOfLinks) {
@@ -94,76 +94,26 @@ public class LinkSaver extends Thread {
 		System.out.println("Link SaverThread - " + Thread.currentThread().getName() + " - started!");
 		while (shouldContinue) {
 			synchronized (linksQueue) {
-				if (linksQueue.getSize() == 0) {
+				if (linksQueue.getSize() > 0) {
+					while (linksQueue.getSize() > 0) {
+						Set<Link> linkSet = linksQueue.dequeue();
+						if (linkSet != null) {
+							saveLinks(linkSet);
+						}
+					}
+				} else {
 					try {
 						System.out.println("Link Saver going to wait");
 						linksQueue.wait();
 						System.out.println("Link Saver waking up - " + linksQueue.getSize());
-						while (linksQueue.getSize() > 0) {
-							Set<Link> linkSet = linksQueue.dequeue();
-							if (linkSet != null) {
-								System.out.println("Link Saver going to save links");
-								saveLinks(linkSet);
-							}
-						}
 					} catch (InterruptedException e) {
+						System.out.println("Link Saver interrupted while waiting ");
 						e.printStackTrace();
-					}
-				} else {
-					while (linksQueue.getSize() > 0) {
-						Set<Link> linkSet = linksQueue.dequeue();
-						if (linkSet != null) {
-							System.out.println("Link Saver going to save links");
-							saveLinks(linkSet);
-						}
 					}
 				}
 			}
 		}
-		while (linksQueue.getSize() > 0) {
-			Set<Link> linkSet = linksQueue.dequeue();
-			if (linkSet != null) {
-				System.out.println("Link Saver going to save links");
-				saveLinks(linkSet);
-			}
-		} 
 		System.out.println("Link SaverThread - " + Thread.currentThread().getName()
-				+ " - ended! with links table size - " + linksDA.getSize()+ " " + linksQueue.getSize());
+				+ " - ended! with links table size - " + linksDA.getSize() + " " + linksQueue.getSize());
 	}
-
-	// public void storeLinksThreaded(Map<String, Links> mapOfLinks) {
-	// boolean done = false;
-	// while (!done) {
-	// done = true;
-	// for (LinkStoreThread thread : linkStoreThreads) {
-	// if (thread.getState().equals(Thread.State.RUNNABLE)) {
-	// done = false;
-	// }
-	// }
-	// try {
-	// Thread.sleep(200);
-	// } catch (InterruptedException e) {
-	// e.printStackTrace();
-	// }
-	// }
-	// System.out.println("All storage threads free");
-	// for (Map.Entry<String, Links> links : mapOfLinks.entrySet()) {
-	// done = false;
-	// while (!done) {
-	// for (LinkStoreThread thread : linkStoreThreads) {
-	// if (!thread.getState().equals(Thread.State.RUNNABLE)) {
-	// done = true;
-	// thread.run(links.getValue());
-	// break;
-	// }
-	// }
-	// try {
-	// Thread.sleep(200);
-	// } catch (InterruptedException e) {
-	// e.printStackTrace();
-	// }
-	// }
-	// }
-	// System.out.println("done writing");
-	// }
 }

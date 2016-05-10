@@ -111,7 +111,7 @@ public class LinksDA {
 //				}
 //		}
 		System.out.println();
-		System.out.println(lDA.fetch("tom"));
+		System.out.println(lDA.fetch("captain"));
 		System.out.println(lDA.fetch("unknown"));
 
 		DBWrapper.close();

@@ -115,14 +115,21 @@ public class Extractor {
 					// ALL CONTENT
 					Set<String> keys = extracted_pairs_all.keySet();
 					for (String key : keys) {
-						// System.out.println(key);
+						int i=0;
 						for (String value : extracted_pairs_all.get(key)) {
-							ForwardIndex fIndex = new ForwardIndex(key, value);
+							ForwardIndex fIndex = new ForwardIndex(key+"_"+(i++), value);
 							fIndexDA.store(fIndex);
 						}
 					}
-					all_doc_keys.addAll(keys);
-
+					
+					
+					for (String key : keys) {
+						System.out.println(key);
+						int i=0;
+						for (String value : extracted_pairs_all.get(key)) {
+							all_doc_keys.add(key+"_"+(i++));
+						}
+					}
 					// METADATA
 					Set<String> meta_keys = metadata.keySet();
 					for (String key : meta_keys) {
@@ -171,7 +178,7 @@ public class Extractor {
 	public static void main(String[] args) throws IOException {
 		// Extractor extractor = new
 		// Extractor("/home/cis455/Desktop/cis550project/bid_data/casts124.xml");
-		Extractor extractor0 = new Extractor("/home/cis550/demo_files_new");
+		Extractor extractor0 = new Extractor("/home/cis550/Downloads/refiles/Movies-nyt.xml");
 		extractor0.extract();
 //		Extractor extractor = new Extractor("/home/cis550/cast.xml");
 //		extractor.extract();

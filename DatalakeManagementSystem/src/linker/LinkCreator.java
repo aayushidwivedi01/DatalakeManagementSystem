@@ -314,10 +314,6 @@ public class LinkCreator extends Thread {
 		// generate parent child links for f1 and f2
 		links.addAll(getParentChildLinks(f, pathAttributeF1));
 		// generate attribute path links for f1 and f2
-		links.addAll(getAttributePathLinks(f, pathAttributeF1));
-		if (f.getValue() == null) {
-			System.out.println(f);
-		}
 		if (!f.getValue().equalsIgnoreCase(DNL)) {
 			// generate all contains links
 			links.addAll(getValueContainslinks(f));
@@ -389,7 +385,7 @@ public class LinkCreator extends Thread {
 					ForwardIndexPair fIndexPair = fIndexQueue.dequeue();
 
 					if (fIndexPair != null) {
-						System.out.println(fIndexPair.getF1() + " " + fIndexPair.getF2());
+						//System.out.println(fIndexPair.getF1() + " " + fIndexPair.getF2());
 						links.addAll(createLinks(fIndexPair));
 						System.out.println(links.size());
 						System.out.println(fIndexQueue.getSize());

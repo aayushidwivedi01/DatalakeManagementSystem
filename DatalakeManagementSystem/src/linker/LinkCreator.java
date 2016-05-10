@@ -90,13 +90,13 @@ public class LinkCreator extends Thread {
 		linkType.put(LinkType.IS_CONTAINED_IN, "IS_CONTAINED_IN");
 
 		linkWeight.put(LinkType.CONTAINS, DEFAULT_WEIGHT);
-		linkWeight.put(LinkType.IS_SAME, DEFAULT_WEIGHT);
+		linkWeight.put(LinkType.IS_SAME, IMPROVED_WEIGHT);
 		linkWeight.put(LinkType.IS_PARTENT, DEFAULT_WEIGHT);
 		linkWeight.put(LinkType.IS_CHILD, DEFAULT_WEIGHT);
-		linkWeight.put(LinkType.MATCHES_ATTRIBUTE, DEFAULT_WEIGHT);
+		linkWeight.put(LinkType.MATCHES_ATTRIBUTE, IMPROVED_WEIGHT);
 		linkWeight.put(LinkType.MATCHES_CONTENT, DEFAULT_WEIGHT);
-		linkWeight.put(LinkType.MATCHES_FILENAME, DEFAULT_WEIGHT);
-		linkWeight.put(LinkType.MATCHES_PATH, DEFAULT_WEIGHT);
+		linkWeight.put(LinkType.MATCHES_FILENAME, IMPROVED_WEIGHT);
+		linkWeight.put(LinkType.MATCHES_PATH, IMPROVED_WEIGHT);
 		linkWeight.put(LinkType.IS_CONTAINED_IN, DEFAULT_WEIGHT);
 	}
 

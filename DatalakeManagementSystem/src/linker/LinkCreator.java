@@ -70,7 +70,7 @@ public class LinkCreator extends Thread {
 	private static final double DEFAULT_WEIGHT = 2.0;
 	private static final double IMPROVED_WEIGHT = 1.0;
 	private static final String DNL = "donotlink";
-	private static final int MAX_LINK_SET_SIZE = 10000;
+	private static final int MAX_LINK_SET_SIZE = 1000;
 	private static boolean shouldContinue;
 	private Stemmer stemmer;
 	private Queue<ForwardIndexPair> fIndexQueue;
@@ -382,20 +382,17 @@ public class LinkCreator extends Thread {
 		// System.out.println("Thread - " + Thread.currentThread().getName() + "
 		// - started!");
 		while (shouldContinue) {
-			// System.out.println("Thread - " + Thread.currentThread().getName()
-			// + " - in while");
+			//System.out.println("Thread - " + Thread.currentThread().getName() + " - in while");
 			synchronized (fIndexQueue) {
-				// System.out.println("Thread - " +
-				// Thread.currentThread().getName() + " - in fIndexQueue");
+				//System.out.println("Thread - " + Thread.currentThread().getName() + " - in fIndexQueue");
 				if (fIndexQueue.getSize() > 0) {
 					ForwardIndexPair fIndexPair = fIndexQueue.dequeue();
 
 					if (fIndexPair != null) {
-						// System.out.println(fIndexPair.getF1()+ " "+
-						// fIndexPair.getF2());
+						System.out.println(fIndexPair.getF1() + " " + fIndexPair.getF2());
 						links.addAll(createLinks(fIndexPair));
-						// System.out.println(links.size());
-						// System.out.println(fIndexQueue.getSize());
+						System.out.println(links.size());
+						System.out.println(fIndexQueue.getSize());
 						if (links.size() > MAX_LINK_SET_SIZE) {
 							linksQueue.enqueue(links);
 							links = new HashSet<Link>();
@@ -403,13 +400,9 @@ public class LinkCreator extends Thread {
 					}
 				} else {
 					try {
-						// System.out.println("Thread - " +
-						// Thread.currentThread().getName() + " - waiting for
-						// fIndexQueue");
+						//System.out.println("Thread - " + Thread.currentThread().getName() + " - waiting for fIndexQueue");
 						fIndexQueue.wait();
-						// System.out.println("Thread - " +
-						// Thread.currentThread().getName() + " - done
-						// waiting");
+						//System.out.println("Thread - " + Thread.currentThread().getName() + " - done waiting");
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}

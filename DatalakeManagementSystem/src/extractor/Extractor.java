@@ -171,8 +171,17 @@ public class Extractor {
 	public static void main(String[] args) throws IOException {
 		// Extractor extractor = new
 		// Extractor("/home/cis455/Desktop/cis550project/bid_data/casts124.xml");
-		Extractor extractor = new Extractor("/home/cis550/yelp1s.json");
-		extractor.extract();
+		Extractor extractor0 = new Extractor("/home/cis550/demo_files");
+		extractor0.extract();
+//		Extractor extractor = new Extractor("/home/cis550/cast.xml");
+//		extractor.extract();
+//		Extractor extractor2 = new Extractor("/home/cis550/ebay.xml");
+//		extractor2.extract();
+//		Extractor extractor3 = new Extractor("/home/cis550/movie.xml");
+//		extractor3.extract();
+//		Extractor extractor4 = new Extractor("/home/cis550/silicon_valley.json");
+//		extractor4.extract();
+		
 	}
 
 }

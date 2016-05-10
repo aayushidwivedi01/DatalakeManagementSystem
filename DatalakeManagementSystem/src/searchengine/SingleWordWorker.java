@@ -14,17 +14,19 @@ public class SingleWordWorker implements Runnable
 
 	ArrayList<Link> frontier = new ArrayList<Link>();
 	Map<String, Boolean> userPermissions = new HashMap<String, Boolean>();
-	int k = 5;
+	int k, d;
 	LinksDA lDa;
 	String username;
 	DocumentDA docDa;
 	
-	public SingleWordWorker(ArrayList<Link> singleWordRelations, String username, LinksDA lDa, DocumentDA docDa)
+	public SingleWordWorker(ArrayList<Link> singleWordRelations, String username, LinksDA lDa, DocumentDA docDa, int k, int d)
 	{
 		this.frontier = singleWordRelations;
 		this.username = username;
 		this.lDa = lDa;
 		this.docDa = docDa;
+		this.k = k;
+		this.d = d;
 	}
 	
 	@Override
@@ -54,6 +56,10 @@ public class SingleWordWorker implements Runnable
 			
 			double cost = link.getWeight();
 			//String path = weightedPath.getNode();
+			
+			//Ignore empty links
+			if (link.getDest().equals(""))
+				continue;
 			String path = link.getDest().concat("/").concat(link.getSource());
 			if (isAccessible(path))
 			{
@@ -73,6 +79,10 @@ public class SingleWordWorker implements Runnable
 				}
 				double newCost = cost + fullPath.size();
 				WeightedPath newPath = new WeightedPath(fullPath, newCost);
+				
+				//Don't consider paths deeper than k
+				if (fullPath.size() >= d)
+					continue;
 				
 				synchronized(SearchEngine.singleWordResults)
 				{

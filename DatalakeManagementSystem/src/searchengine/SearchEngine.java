@@ -26,7 +26,8 @@ public class SearchEngine {
 	ArrayList<Link> singleWordRelations = new ArrayList<Link>();
 	String query, username;
 	int NUM_THREADS_SINGLE_WORD = 1;
-	int k = 5;
+	int k = 10;
+	int d = 30;
 
 	public SearchEngine(String query, String username) {
 		this.query = query.toLowerCase();
@@ -34,6 +35,7 @@ public class SearchEngine {
 	}
 
 	public List<ArrayList<String>> search() {
+		//DBWrapper.setup("/Users/Deepti/MyClasses/DB/Project/db");
 		DBWrapper.setup("/home/cis550/db");
 		try {
 			kShortestPaths.clear();
@@ -50,7 +52,7 @@ public class SearchEngine {
 				singleWordRelations = new ArrayList<Link>(relations);
 				System.out.println("number of links: " + singleWordRelations.size());
 				for (int i = 0; i < NUM_THREADS_SINGLE_WORD; i++) {
-					SingleWordWorker worker_i = new SingleWordWorker(singleWordRelations, username, lDa, docDa);
+					SingleWordWorker worker_i = new SingleWordWorker(singleWordRelations, username, lDa, docDa, k, d);
 					workers[i] = new Thread(worker_i);
 					workers[i].start();
 				}
@@ -79,8 +81,8 @@ public class SearchEngine {
 				WeightedPath p2 = new WeightedPath(keyword2, 0);
 				seenWorker1.put(keyword1, p1);
 				seenWorker2.put(keyword2, p2);
-				BidirectionalSearch worker1 = new BidirectionalSearch(seenWorker1, seenWorker2, keyword1, username, k);
-				BidirectionalSearch worker2 = new BidirectionalSearch(seenWorker2, seenWorker1, keyword2, username, k);
+				BidirectionalSearch worker1 = new BidirectionalSearch(seenWorker1, seenWorker2, keyword1, username, k, d);
+				BidirectionalSearch worker2 = new BidirectionalSearch(seenWorker2, seenWorker1, keyword2, username, k, d);
 				workerThreads[0] = new Thread(worker1);
 				workerThreads[1] = new Thread(worker2);
 				workerThreads[0].start();
@@ -207,13 +209,14 @@ public class SearchEngine {
 	}
 	public static void main(String[] args)
 	{
+		//DBWrapper.setup("/Users/Deepti/MyClasses/DB/Project/db");
 		DBWrapper.setup("/home/cis550/db");
 //		Document document1 = new Document("yelp_academic_dataset_business_1.json", "deepti", "test_path", "Public");
 //		//Document document2 = new Document("generated3.json", "aayushi", "test_path", "Public");
 //		DocumentDA docDA = new DocumentDA();
 //		docDA.store(document1);
 //		//docDA.store(document2);
-		String query = "buyer";
+		String query = "buyer william";
 		String username = "user1";
 		SearchEngine engine = new SearchEngine(query, username);
 		long startTime = System.currentTimeMillis();
@@ -223,3 +226,5 @@ public class SearchEngine {
 		DBWrapper.close();
 	}
 }
+
+//merged path: [ebay.xml/root/listing/shipping_info/buyer, ebay.xml/root/listing/shipping_info, ebay.xml/root/listing, ebay.xml/root/listing/auction_info, ebay.xml/root/listing/auction_info/location, , movie.xml/actors/actor/relationships, movie.xml/actors/actor, movie.xml/actors/actor/actor, movie.xml/actors/actor/actor/notes, movie.xml/actors/actor/actor/notes/text, movie.xml/actors/actor/actor/notes/text/william]

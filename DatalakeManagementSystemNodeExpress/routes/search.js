@@ -36,7 +36,7 @@ function search(req,res, err){
 		}
 		weblinks = weblinks.concat(",");
 		if (i < len - 1){
-			graphResults = graphResults.concat(" ");
+			graphResults = graphResults.concat("#_#");
 		}
 		
 		
